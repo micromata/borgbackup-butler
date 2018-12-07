@@ -1,0 +1,23 @@
+plugins {
+    id 'io.franzbecker.gradle-lombok' version '1.14'
+    id 'java'
+}
+
+description = 'borgbutler-core'
+
+dependencies {
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+    compileOnly "org.projectlombok:lombok:1.18.4"
+    testCompileOnly "org.projectlombok:lombok:1.18.4"
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+lombok {
+    version = '1.18.4'
+    sha256 = "" // skip verifyLombok task
+}
