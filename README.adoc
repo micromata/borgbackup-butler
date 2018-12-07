@@ -1,0 +1,21 @@
+Micromata BorgBackup-Butler
+===========================
+Micromata GmbH, Kai Reinhard
+:toc:
+:toclevels: 4
+
+Copyright (C) 2018
+
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+
+== For developers
+
+=== Lombok required
+==== Installing Lombok in IntelliJ
+[.text-center]
+https://github.com/mplushnikov/lombok-intellij-plugin[Lombok Intellij plugin description^] +
+[.text-left]
+Or go to
+[.text-center]
+https://projectlombok.org/[Lombok home page^] +
+[.text-left]

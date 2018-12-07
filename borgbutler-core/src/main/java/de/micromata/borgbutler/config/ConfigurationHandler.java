@@ -1,6 +1,8 @@
 package de.micromata.borgbutler.config;
 
 import de.micromata.borgbutler.json.JsonUtils;
+import lombok.AccessLevel;
+import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +15,11 @@ public class ConfigurationHandler {
     private static Logger log = LoggerFactory.getLogger(ConfigurationHandler.class);
     private static ConfigurationHandler instance = new ConfigurationHandler();
     private static final String CONFIG_FILENAME = ".borgbutler.json";
+    private static final String CONFIG_BACKUP_FILENAME = ".borgbutler-bak.json";
+    @Getter(AccessLevel.PACKAGE)
     private File configFile;
+    @Getter(AccessLevel.PACKAGE)
+    private File backupConfigFile;
     private Configuration configuration = new Configuration();
 
     public static ConfigurationHandler getInstance() {
@@ -25,6 +31,7 @@ public class ConfigurationHandler {
     }
 
     public void read() {
+        log.info("Reading config file '" + configFile.getAbsolutePath() + "'");
         try {
             String json = FileUtils.readFileToString(configFile, Charset.forName("UTF-8"));
             this.configuration = JsonUtils.fromJson(Configuration.class, json);
@@ -35,8 +42,14 @@ public class ConfigurationHandler {
     }
 
     public void write() {
-        String json = JsonUtils.toJson(configuration);
+        String json = JsonUtils.toJson(configuration, true);
         try {
+            if (configFile.exists()) {
+                // Create backup-file first:
+                log.info("Creating backup file first: '" + backupConfigFile.getAbsolutePath() + "'");
+                FileUtils.copyFile(configFile, backupConfigFile);
+            }
+            log.info("Writing config file '" + configFile.getAbsolutePath() + "'");
             FileUtils.write(configFile, json, Charset.forName("UTF-8"));
         } catch (IOException ex) {
             log.error("Error while trying to write config file: " + configFile.getAbsolutePath() + ": " + ex.getMessage(), ex);
@@ -45,5 +58,6 @@ public class ConfigurationHandler {
 
     private ConfigurationHandler() {
         configFile = new File(System.getProperty("user.home"), CONFIG_FILENAME);
+        backupConfigFile = new File(System.getProperty("user.home"), CONFIG_BACKUP_FILENAME);
     }
 }
