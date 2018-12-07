@@ -8,6 +8,10 @@ description = 'borgbutler-core'
 dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+    compile group: 'org.apache.commons', name: 'commons-exec', version: '1.3'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.6'
+
     compileOnly "org.projectlombok:lombok:1.18.4"
     testCompileOnly "org.projectlombok:lombok:1.18.4"
 }
