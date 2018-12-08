@@ -3,6 +3,7 @@ package de.micromata.borgbutler.cache;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.micromata.borgbutler.json.JsonUtils;
+import de.micromata.borgbutler.json.borg.RepositoryMatcher;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -38,11 +39,26 @@ public abstract class AbstractCache<T> {
         return null;
     }
 
-    public abstract boolean matches(T element, String identifier);
+    public boolean matches(T element, String identifier) {
+        if (!(element instanceof RepositoryMatcher)) {
+            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + this.getClass());
+        }
+        return ((RepositoryMatcher) element).matches(identifier);
+    }
 
-    public abstract String getIdentifier(T element);
+    public String getIdentifier(T element) {
+        if (!(element instanceof RepositoryMatcher)) {
+            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + this.getClass());
+        }
+        return ((RepositoryMatcher)element).getRepository().getId();
+    }
 
-    public abstract void updateFrom(T dest, T source);
+    public void updateFrom(T dest, T source) {
+        if (!(dest instanceof RepositoryMatcher)) {
+            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + this.getClass());
+        }
+        ((RepositoryMatcher)dest).updateFrom(((RepositoryMatcher)source));
+    }
 
     /**
      * Removes all entries (doesn't effect the cache files!).

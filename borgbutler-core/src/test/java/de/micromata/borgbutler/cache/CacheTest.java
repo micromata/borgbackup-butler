@@ -4,7 +4,8 @@ import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
-import de.micromata.borgbutler.json.borg.Archive;
+import de.micromata.borgbutler.json.borg.Archive1;
+import de.micromata.borgbutler.json.borg.ArchiveList;
 import de.micromata.borgbutler.json.borg.RepoInfo;
 import de.micromata.borgbutler.json.borg.RepoList;
 import org.apache.commons.collections4.CollectionUtils;
@@ -53,9 +54,10 @@ public class CacheTest {
                 BorgRepoConfig repoConfig = repoConfigs.get(0);
                 RepoList repoList = ButlerCache.getRepoListCache().get(repoConfig.getRepo());
                 if (repoList != null && CollectionUtils.isNotEmpty(repoList.getArchives())) {
-                    Archive archive = repoList.getArchives().get(0);
+                    Archive1 archive = repoList.getArchives().get(0);
                     if (archive != null) {
-                        String json = BorgCommands.info(repoConfig, archive);
+                        ArchiveList list = BorgCommands.info(repoConfig, archive);
+                        log.info(list.toString());
                     }
                 }
             }
@@ -74,6 +76,16 @@ public class CacheTest {
     }
 
     private void refreshRepoListCache(Configuration config, RepoListCache repoListCache) {
+        for (BorgRepoConfig repo : config.getRepoConfigs()) {
+            log.info("Processing repo list '" + repo + "'");
+            RepoList repoList = BorgCommands.list(repo);
+            repoListCache.upsert(repoList);
+            repoList = repoListCache.get(repoList.getRepository().getId());
+            assertNotNull(repoList);
+        }
+    }
+
+    private void refresArchiveListCache(Configuration config, RepoListCache repoListCache) {
         for (BorgRepoConfig repo : config.getRepoConfigs()) {
             log.info("Processing repo list '" + repo + "'");
             RepoList repoList = BorgCommands.list(repo);

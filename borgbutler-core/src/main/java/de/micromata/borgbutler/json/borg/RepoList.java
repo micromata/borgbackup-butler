@@ -1,32 +1,18 @@
 package de.micromata.borgbutler.json.borg;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.micromata.borgbutler.json.JsonUtils;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 
-public class RepoList {
+public class RepoList extends RepositoryMatcher {
     @Getter
-    private List<Archive> archives;
+    private List<Archive1> archives;
     @Getter
     private Encryption encryption;
-    @Getter
-    private Repository repository;
-    @Getter
-    @Setter
-    @JsonIgnore
-    private String originalJson;
-
-    public String toString() {
-        return JsonUtils.toJson(this, true);
-    }
 
     public void updateFrom(RepoList repoList) {
+        super.updateFrom(repoList);
         this.archives = repoList.archives;
         this.encryption = repoList.encryption;
-        this.repository = repoList.getRepository();
-        this.originalJson = repoList.originalJson;
     }
 }

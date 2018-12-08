@@ -5,7 +5,10 @@ import de.micromata.borgbutler.json.JsonUtils;
 import lombok.Getter;
 import lombok.Setter;
 
-public class Archive {
+/**
+ * This object is given by <tt>borg list repo</tt>.
+ */
+public class Archive1 {
     @Getter
     private String archive;
     @Getter
