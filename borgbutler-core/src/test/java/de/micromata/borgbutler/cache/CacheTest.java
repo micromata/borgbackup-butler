@@ -5,6 +5,7 @@ import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.borg.RepoInfo;
+import de.micromata.borgbutler.json.borg.RepoList;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,7 @@ public class CacheTest {
     private static Logger log = LoggerFactory.getLogger(CacheTest.class);
 
     @Test
-    void reposCachetest() {
+    void reposCacheTest() {
         ConfigurationHandler configHandler = ConfigurationHandler.getInstance();
         configHandler.read();
         Configuration config = ConfigurationHandler.getConfiguration();
@@ -26,17 +27,30 @@ public class CacheTest {
             return;
         }
         RepoInfoCache cache = ButlerCache.getReposCache();
+        cache.read();
+        if (cache.getElements().size() != config.getRepos().size()) {
+            refreshReposCache(config, cache);
+        }
+        refreshRepoListsCache(config);
+        assertEquals(config.getRepos().size(), cache.getElements().size());
+    }
+
+    private void refreshReposCache(Configuration config, RepoInfoCache cache) {
         for (BorgRepoConfig repo : config.getRepos()) {
             log.info("Processing repo '" + repo + "'");
             RepoInfo repoInfo = BorgCommands.info(repo);
             cache.upsert(repoInfo);
-            repoInfo = cache.getRepoInfo(repoInfo.getRepository().getId());
+            repoInfo = cache.get(repoInfo.getRepository().getId());
             assertNotNull(repoInfo);
-            //RepoList repoList = BorgCommands.list(repo);
-            //log.info("Repo list: " + repoList);
         }
         cache.save();
-        cache.read();
-        assertEquals(config.getRepos().size(), cache.getRepositories().size());
+    }
+
+    private void refreshRepoListsCache(Configuration config) {
+        for (BorgRepoConfig repo : config.getRepos()) {
+            log.info("Processing repo '" + repo + "'");
+            RepoList repoList = BorgCommands.list(repo);
+            log.info("repoList: " + repoList);
+        }
     }
 }
