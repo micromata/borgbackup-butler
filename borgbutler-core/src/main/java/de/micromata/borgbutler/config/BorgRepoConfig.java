@@ -3,7 +3,7 @@ package de.micromata.borgbutler.config;
 import lombok.Getter;
 import lombok.Setter;
 
-public class BorgRepo {
+public class BorgRepoConfig {
     @Getter @Setter
     private String name;
     @Getter @Setter
@@ -11,7 +11,7 @@ public class BorgRepo {
     @Getter @Setter
     private String rsh;
     @Getter @Setter
-    private String password;
+    private String passphrase;
     @Getter @Setter
     private String passwordCommand;
 }

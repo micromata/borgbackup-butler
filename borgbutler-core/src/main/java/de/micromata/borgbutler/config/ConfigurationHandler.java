@@ -1,7 +1,6 @@
 package de.micromata.borgbutler.config;
 
 import de.micromata.borgbutler.json.JsonUtils;
-import lombok.AccessLevel;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -16,9 +15,8 @@ public class ConfigurationHandler {
     private static ConfigurationHandler instance = new ConfigurationHandler();
     private static final String CONFIG_FILENAME = ".borgbutler.json";
     private static final String CONFIG_BACKUP_FILENAME = ".borgbutler-bak.json";
-    @Getter(AccessLevel.PACKAGE)
+    @Getter
     private File configFile;
-    @Getter(AccessLevel.PACKAGE)
     private File backupConfigFile;
     private Configuration configuration = new Configuration();
 

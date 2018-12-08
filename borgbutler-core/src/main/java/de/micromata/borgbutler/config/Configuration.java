@@ -7,9 +7,11 @@ import java.util.List;
 
 public class Configuration {
     @Getter
-    private List<BorgRepo> repos = new ArrayList<>();
+    private String borgCommand = "borg";
+    @Getter
+    private List<BorgRepoConfig> repos = new ArrayList<>();
 
-    public void add(BorgRepo repo) {
+    public void add(BorgRepoConfig repo) {
         repos.add(repo);
     }
 }
