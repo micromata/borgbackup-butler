@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class BorgRepoConfig {
+    /**
+     * A name describing this config. Only used for displaying purposes.
+     */
     @Getter @Setter
     private String name;
     @Getter @Setter
