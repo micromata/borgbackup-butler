@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.RepoInfo;
 import de.micromata.borgbutler.json.borg.Repository;
+import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ public class RepoInfoCache {
 
     @JsonIgnore
     private File cacheReposFile;
+    @Getter
     @JsonProperty
     private List<RepoInfo> repositories = new ArrayList<>();
 
@@ -78,6 +80,12 @@ public class RepoInfoCache {
             log.error("Error while trying to write repos cache file '" + cacheReposFile.getAbsolutePath() + "': "
                     + ex.getMessage(), ex);
         }
+    }
+
+    /**
+     * Needed by jackson for deserialization.
+     */
+    RepoInfoCache() {
     }
 
     RepoInfoCache(File cacheDir) {

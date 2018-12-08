@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
@@ -24,18 +25,18 @@ public class CacheTest {
             log.info("No repos configured. Please configure repos first in: " + configHandler.getConfigFile().getAbsolutePath());
             return;
         }
+        RepoInfoCache cache = ButlerCache.getReposCache();
         for (BorgRepoConfig repo : config.getRepos()) {
             log.info("Processing repo '" + repo + "'");
             RepoInfo repoInfo = BorgCommands.info(repo);
-            log.info("Repo info: " + repoInfo);
-            RepoInfoCache cache = ButlerCache.getReposCache();
             cache.upsert(repoInfo);
             repoInfo = cache.getRepoInfo(repoInfo.getRepository().getId());
             assertNotNull(repoInfo);
-            cache.save();
-            log.info("Repo info: " + repoInfo);
             //RepoList repoList = BorgCommands.list(repo);
             //log.info("Repo list: " + repoList);
         }
+        cache.save();
+        cache.read();
+        assertEquals(config.getRepos().size(), cache.getRepositories().size());
     }
 }
