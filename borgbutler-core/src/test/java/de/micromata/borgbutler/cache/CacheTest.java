@@ -18,7 +18,7 @@ public class CacheTest {
     private static Logger log = LoggerFactory.getLogger(CacheTest.class);
 
     @Test
-    void reposCacheTest() {
+    void repoCacheTest() {
         ConfigurationHandler configHandler = ConfigurationHandler.getInstance();
         configHandler.read();
         Configuration config = ConfigurationHandler.getConfiguration();
@@ -26,31 +26,43 @@ public class CacheTest {
             log.info("No repos configured. Please configure repos first in: " + configHandler.getConfigFile().getAbsolutePath());
             return;
         }
-        RepoInfoCache cache = ButlerCache.getReposCache();
-        cache.read();
-        if (cache.getElements().size() != config.getRepos().size()) {
-            refreshReposCache(config, cache);
+        ButlerCache butlerCache = ButlerCache.getInstance();
+        //butlerCache.removeAllCacheFiles();
+        butlerCache.read();
+        {
+            RepoInfoCache repoInfoCache = ButlerCache.getRepoInfoCache();
+            if (repoInfoCache.getElements().size() != config.getRepos().size()) {
+                refreshRepoInfoCache(config, repoInfoCache);
+            }
+            assertEquals(config.getRepos().size(), repoInfoCache.getElements().size());
         }
-        refreshRepoListsCache(config);
-        assertEquals(config.getRepos().size(), cache.getElements().size());
+        {
+            RepoListCache repoListCache = ButlerCache.getRepoListCache();
+            if (repoListCache.getElements().size() != config.getRepos().size()) {
+                refreshRepoListCache(config, repoListCache);
+            }
+            assertEquals(config.getRepos().size(), repoListCache.getElements().size());
+        }
+        butlerCache.save();
     }
 
-    private void refreshReposCache(Configuration config, RepoInfoCache cache) {
+    private void refreshRepoInfoCache(Configuration config, RepoInfoCache repoInfoCache) {
         for (BorgRepoConfig repo : config.getRepos()) {
-            log.info("Processing repo '" + repo + "'");
+            log.info("Processing repo info '" + repo + "'");
             RepoInfo repoInfo = BorgCommands.info(repo);
-            cache.upsert(repoInfo);
-            repoInfo = cache.get(repoInfo.getRepository().getId());
+            repoInfoCache.upsert(repoInfo);
+            repoInfo = repoInfoCache.get(repoInfo.getRepository().getId());
             assertNotNull(repoInfo);
         }
-        cache.save();
     }
 
-    private void refreshRepoListsCache(Configuration config) {
+    private void refreshRepoListCache(Configuration config, RepoListCache repoListCache) {
         for (BorgRepoConfig repo : config.getRepos()) {
-            log.info("Processing repo '" + repo + "'");
+            log.info("Processing repo list '" + repo + "'");
             RepoList repoList = BorgCommands.list(repo);
-            log.info("repoList: " + repoList);
+            repoListCache.upsert(repoList);
+            repoList = repoListCache.get(repoList.getRepository().getId());
+            assertNotNull(repoList);
         }
     }
 }

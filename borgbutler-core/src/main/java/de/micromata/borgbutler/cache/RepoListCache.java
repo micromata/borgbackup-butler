@@ -1,17 +1,17 @@
 package de.micromata.borgbutler.cache;
 
-import de.micromata.borgbutler.json.borg.RepoInfo;
+import de.micromata.borgbutler.json.borg.RepoList;
 import de.micromata.borgbutler.json.borg.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class RepoInfoCache extends AbstractCache<RepoInfo> {
-    private static Logger log = LoggerFactory.getLogger(RepoInfoCache.class);
-    public static final String CACHE_REPOS_BASENAME = "repos";
+public class RepoListCache extends AbstractCache<RepoList> {
+    private static Logger log = LoggerFactory.getLogger(RepoListCache.class);
+    public static final String CACHE_REPO_LISTS_BASENAME = "repo-lists";
 
-    public boolean matches(RepoInfo element, String identifier) {
+    public boolean matches(RepoList element, String identifier) {
         Repository repository = element.getRepository();
         if (repository == null) {
             return false;
@@ -20,21 +20,21 @@ public class RepoInfoCache extends AbstractCache<RepoInfo> {
                 || identifier.equals(repository.getLocation());
     }
 
-    public String getIdentifier(RepoInfo element) {
+    public String getIdentifier(RepoList element) {
         return element.getRepository().getId();
     }
 
-    public void updateFrom(RepoInfo dest, RepoInfo source) {
+    public void updateFrom(RepoList dest, RepoList source) {
         dest.updateFrom(source);
     }
 
     /**
      * Needed by jackson for deserialization.
      */
-    RepoInfoCache() {
+    RepoListCache() {
     }
 
-    RepoInfoCache(File cacheDir) {
-        super(cacheDir, CACHE_REPOS_BASENAME);
+    RepoListCache(File cacheDir) {
+        super(cacheDir, CACHE_REPO_LISTS_BASENAME);
     }
 }

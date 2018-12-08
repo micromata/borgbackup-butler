@@ -33,5 +33,4 @@ public class RepoInfo {
         this.repository = repoInfo.getRepository();
         this.originalJson = repoInfo.originalJson;
     }
-
 }

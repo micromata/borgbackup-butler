@@ -22,4 +22,11 @@ public class RepoList {
     public String toString() {
         return JsonUtils.toJson(this, true);
     }
+
+    public void updateFrom(RepoList repoList) {
+        this.archives = repoList.archives;
+        this.encryption = repoList.encryption;
+        this.repository = repoList.getRepository();
+        this.originalJson = repoList.originalJson;
+    }
 }

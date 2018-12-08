@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.micromata.borgbutler.json.JsonUtils;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,8 @@ import java.util.List;
 
 public abstract class AbstractCache<T> {
     private static Logger log = LoggerFactory.getLogger(AbstractCache.class);
+    private static final String CACHE_FILE_PREFIX = "cache-";
+    private static final String CACHE_FILE_EXTENSION = "json";
 
     @JsonIgnore
     protected File cacheFile;
@@ -41,6 +44,13 @@ public abstract class AbstractCache<T> {
 
     public abstract void updateFrom(T dest, T source);
 
+    /**
+     * Removes all entries (doesn't effect the cache files!).
+     */
+    public void clear() {
+        elements.clear();
+    }
+
     public void upsert(T element) {
         T existingElement = get(getIdentifier(element));
         if (existingElement == null) {
@@ -52,6 +62,11 @@ public abstract class AbstractCache<T> {
 
     public void read() {
         try {
+            if (!cacheFile.exists()) {
+                // Cache file doesn't exist. Nothing to read.
+                return;
+            }
+            log.info("Parsing cache file '" + cacheFile.getAbsolutePath() + "'.");
             String json = FileUtils.readFileToString(cacheFile, Charset.forName("UTF-8"));
             AbstractCache readCache = JsonUtils.fromJson(this.getClass(), json);
             if (readCache != null) {
@@ -83,6 +98,12 @@ public abstract class AbstractCache<T> {
     }
 
     AbstractCache(File cacheDir, String cacheFilename) {
-        cacheFile = new File(cacheDir, cacheFilename);
+        cacheFile = new File(cacheDir, CACHE_FILE_PREFIX + cacheFilename + "." + CACHE_FILE_EXTENSION);
+    }
+
+    public static boolean isCacheFile(File file) {
+        String filename = file.getName();
+        String extension = FilenameUtils.getExtension(filename);
+        return filename.startsWith(CACHE_FILE_PREFIX) && extension.equals(CACHE_FILE_EXTENSION);
     }
 }
