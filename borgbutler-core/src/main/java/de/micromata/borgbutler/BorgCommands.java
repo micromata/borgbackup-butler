@@ -22,6 +22,9 @@ public class BorgCommands {
 
     public static RepoInfo info(BorgRepoConfig repoConfig) {
         String json = execute(repoConfig, "info", "--json");
+        if (json == null) {
+            return null;
+        }
         RepoInfo repoInfo = JsonUtils.fromJson(RepoInfo.class, json);
         repoInfo.setOriginalJson(json);
         return repoInfo;
@@ -29,6 +32,9 @@ public class BorgCommands {
 
     public static RepoList list(BorgRepoConfig repoConfig) {
         String json = execute(repoConfig, "list", "--json");
+        if (json == null) {
+            return null;
+        }
         RepoList repoList = JsonUtils.fromJson(RepoList.class, json);
         repoList.setOriginalJson(json);
         return repoList;
@@ -53,8 +59,11 @@ public class BorgCommands {
         log.info("Executing '" + borgCall + "'...");
         try {
             executor.execute(cmdLine, getEnvironment(repoConfig));
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             log.error("Error while creating environment for borg call '" + borgCall + "': " + ex.getMessage(), ex);
+            String response = outputStream.toString(Charset.forName("UTF-8"));
+            log.error("Response: " + response);
+            return null;
         }
         String json = outputStream.toString(Charset.forName("UTF-8"));
         return json;
