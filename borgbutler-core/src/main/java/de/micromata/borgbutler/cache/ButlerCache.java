@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.cache;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +14,11 @@ public class ButlerCache {
     public static final String CACHE_DIR_NAME = ".borgbutler";
     private static ButlerCache instance = new ButlerCache();
 
+    @Getter
     private RepoInfoCache repoInfoCache;
+    @Getter
     private RepoListCache repoListCache;
+    private ArchiveListCache archiveListCache;
     private List<AbstractCache> caches;
 
     @JsonIgnore
@@ -22,14 +26,6 @@ public class ButlerCache {
 
     public static ButlerCache getInstance() {
         return instance;
-    }
-
-    public static RepoInfoCache getRepoInfoCache() {
-        return instance.repoInfoCache;
-    }
-
-    public static RepoListCache getRepoListCache() {
-        return instance.repoListCache;
     }
 
     public void read() {
@@ -67,10 +63,9 @@ public class ButlerCache {
             log.info("Creating cache dir: " + cacheDir.getAbsolutePath());
             cacheDir.mkdir();
         }
-        repoInfoCache = new RepoInfoCache(cacheDir);
-        repoListCache = new RepoListCache(cacheDir);
         caches = new ArrayList<>();
-        caches.add(repoInfoCache);
-        caches.add(repoListCache);
+        caches.add(repoInfoCache = new RepoInfoCache(cacheDir));
+        caches.add(repoListCache = new RepoListCache(cacheDir));
+        caches.add(archiveListCache = new ArchiveListCache(cacheDir));
     }
 }

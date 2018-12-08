@@ -4,7 +4,6 @@ import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.JsonUtils;
-import de.micromata.borgbutler.json.borg.Archive1;
 import de.micromata.borgbutler.json.borg.ArchiveList;
 import de.micromata.borgbutler.json.borg.RepoInfo;
 import de.micromata.borgbutler.json.borg.RepoList;
@@ -45,8 +44,8 @@ public class BorgCommands {
      * @param archive
      * @return
      */
-    public static ArchiveList info(BorgRepoConfig repoConfig, Archive1 archive) {
-        String json = execute(repoConfig, "info", repoConfig.getRepo() + "::" + archive.getArchive(), "--json");
+    public static ArchiveList info(BorgRepoConfig repoConfig, String archive) {
+        String json = execute(repoConfig, "info", repoConfig.getRepo() + "::" + archive, "--json");
         if (json == null) {
             return null;
         }
@@ -63,6 +62,17 @@ public class BorgCommands {
         RepoList repoList = JsonUtils.fromJson(RepoList.class, json);
         repoList.setOriginalJson(json);
         return repoList;
+    }
+
+    public static String list(BorgRepoConfig repoConfig, String archive) {
+        String json = execute(repoConfig, "list", repoConfig.getRepo() + "::" + archive,
+                "--json-lines");
+        if (json == null) {
+            return null;
+        }
+       // RepoList repoList = JsonUtils.fromJson(RepoList.class, json);
+       // repoList.setOriginalJson(json);
+        return json;
     }
 
     private static String execute(BorgRepoConfig repoConfig, String command, String repoOrArchive, String... args) {
