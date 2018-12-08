@@ -2,6 +2,7 @@ package de.micromata.borgbutler.cache;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.RepositoryMatcher;
 import lombok.Getter;
@@ -16,16 +17,20 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractCache<T> {
-    private static Logger log = LoggerFactory.getLogger(AbstractCache.class);
+public class EntityCache<T> {
+    private static Logger log = LoggerFactory.getLogger(EntityCache.class);
     private static final String CACHE_FILE_PREFIX = "cache-";
     private static final String CACHE_FILE_EXTENSION = "json";
+    public static final String CACHE_REPO_INFOS_BASENAME = "repo-infos";
+    public static final String CACHE_REPO_LISTS_BASENAME = "repo-lists";
+    public static final String CACHE_ARCHIVE_LISTS_BASENAME = "archive-lists";
 
     @JsonIgnore
     protected File cacheFile;
     @Getter
     @JsonProperty
     private List<T> elements = new ArrayList<>();
+    private TypeReference<T> typeReference;
 
     public T get(String identifier) {
         if (identifier == null) {
@@ -41,21 +46,21 @@ public abstract class AbstractCache<T> {
 
     public boolean matches(T element, String identifier) {
         if (!(element instanceof RepositoryMatcher)) {
-            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + this.getClass());
+            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + element.getClass());
         }
         return ((RepositoryMatcher) element).matches(identifier);
     }
 
     public String getIdentifier(T element) {
         if (!(element instanceof RepositoryMatcher)) {
-            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + this.getClass());
+            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + element.getClass());
         }
         return ((RepositoryMatcher)element).getRepository().getId();
     }
 
     public void updateFrom(T dest, T source) {
         if (!(dest instanceof RepositoryMatcher)) {
-            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + this.getClass());
+            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + dest.getClass());
         }
         ((RepositoryMatcher)dest).updateFrom(((RepositoryMatcher)source));
     }
@@ -84,9 +89,9 @@ public abstract class AbstractCache<T> {
             }
             log.info("Parsing cache file '" + cacheFile.getAbsolutePath() + "'.");
             String json = FileUtils.readFileToString(cacheFile, Charset.forName("UTF-8"));
-            AbstractCache readCache = JsonUtils.fromJson(this.getClass(), json);
-            if (readCache != null) {
-                this.elements = readCache.elements;
+            List<T> elements = (List<T>)JsonUtils.fromJson(typeReference, json);
+            if (elements != null) {
+                this.elements = elements;
             } else {
                 log.error("Error while parsing cache: " + cacheFile.getAbsolutePath());
             }
@@ -110,11 +115,12 @@ public abstract class AbstractCache<T> {
     /**
      * Needed by jackson for deserialization.
      */
-    AbstractCache() {
+    EntityCache() {
     }
 
-    AbstractCache(File cacheDir, String cacheFilename) {
+    EntityCache(File cacheDir, String cacheFilename, TypeReference typeReference) {
         cacheFile = new File(cacheDir, CACHE_FILE_PREFIX + cacheFilename + "." + CACHE_FILE_EXTENSION);
+        this.typeReference = typeReference;
     }
 
     public static boolean isCacheFile(File file) {

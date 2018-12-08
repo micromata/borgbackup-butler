@@ -1,6 +1,10 @@
 package de.micromata.borgbutler.cache;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
+import de.micromata.borgbutler.json.borg.ArchiveList;
+import de.micromata.borgbutler.json.borg.RepoInfo;
+import de.micromata.borgbutler.json.borg.RepoList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +17,10 @@ public class ButlerCache {
     public static final String CACHE_DIR_NAME = ".borgbutler";
     private static ButlerCache instance = new ButlerCache();
 
-    private RepoInfoCache repoInfoCache;
-    private RepoListCache repoListCache;
-    private List<AbstractCache> caches;
+    private EntityCache<RepoInfo> repoInfoCache;
+    private EntityCache<RepoList> repoListCache;
+    private EntityCache<ArchiveList> archiveListCache;
+    private List<EntityCache> caches;
 
     @JsonIgnore
     private File cacheDir;
@@ -24,22 +29,26 @@ public class ButlerCache {
         return instance;
     }
 
-    public static RepoInfoCache getRepoInfoCache() {
+    public static EntityCache<RepoInfo> getRepoInfoCache() {
         return instance.repoInfoCache;
     }
 
-    public static RepoListCache getRepoListCache() {
+    public static EntityCache<RepoList> getRepoListCache() {
         return instance.repoListCache;
     }
 
+    public static EntityCache<ArchiveList> getArchiveListCache() {
+        return instance.archiveListCache;
+    }
+
     public void read() {
-        for (AbstractCache cache : caches) {
+        for (EntityCache cache : caches) {
             cache.read();
         }
     }
 
     public void save() {
-        for (AbstractCache cache : caches) {
+        for (EntityCache cache : caches) {
             cache.save();
         }
     }
@@ -50,12 +59,12 @@ public class ButlerCache {
     public void removeAllCacheFiles() {
         File[] files = cacheDir.listFiles();
         for (File file : files) {
-            if (AbstractCache.isCacheFile(file)) {
+            if (EntityCache.isCacheFile(file)) {
                 log.info("Deleting cache file: " + file.getAbsolutePath());
                 file.delete();
             }
         }
-        for (AbstractCache cache : caches) {
+        for (EntityCache cache : caches) {
             cache.clear();
         }
     }
@@ -67,10 +76,12 @@ public class ButlerCache {
             log.info("Creating cache dir: " + cacheDir.getAbsolutePath());
             cacheDir.mkdir();
         }
-        repoInfoCache = new RepoInfoCache(cacheDir);
-        repoListCache = new RepoListCache(cacheDir);
         caches = new ArrayList<>();
-        caches.add(repoInfoCache);
-        caches.add(repoListCache);
+        caches.add(repoInfoCache = new EntityCache<RepoInfo>(cacheDir, EntityCache.CACHE_REPO_INFOS_BASENAME, new TypeReference<List<RepoInfo>>() {
+        }));
+        caches.add(repoListCache = new EntityCache<>(cacheDir, EntityCache.CACHE_REPO_LISTS_BASENAME, new TypeReference<List<RepoList>>() {
+        }));
+        caches.add(archiveListCache = new EntityCache<>(cacheDir, EntityCache.CACHE_ARCHIVE_LISTS_BASENAME, new TypeReference<List<ArchiveList>>() {
+        }));
     }
 }

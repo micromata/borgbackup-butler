@@ -35,14 +35,14 @@ public class CacheTest {
         //butlerCache.removeAllCacheFiles();
         butlerCache.read();
         {
-            RepoInfoCache repoInfoCache = ButlerCache.getRepoInfoCache();
+            EntityCache<RepoInfo> repoInfoCache = ButlerCache.getRepoInfoCache();
             if (repoInfoCache.getElements().size() != config.getRepoConfigs().size()) {
                 refreshRepoInfoCache(config, repoInfoCache);
             }
             assertEquals(config.getRepoConfigs().size(), repoInfoCache.getElements().size());
         }
         {
-            RepoListCache repoListCache = ButlerCache.getRepoListCache();
+            EntityCache<RepoList> repoListCache = ButlerCache.getRepoListCache();
             if (repoListCache.getElements().size() != config.getRepoConfigs().size()) {
                 refreshRepoListCache(config, repoListCache);
             }
@@ -65,7 +65,7 @@ public class CacheTest {
         butlerCache.save();
     }
 
-    private void refreshRepoInfoCache(Configuration config, RepoInfoCache repoInfoCache) {
+    private void refreshRepoInfoCache(Configuration config, EntityCache<RepoInfo> repoInfoCache) {
         for (BorgRepoConfig repo : config.getRepoConfigs()) {
             log.info("Processing repo info '" + repo + "'");
             RepoInfo repoInfo = BorgCommands.info(repo);
@@ -75,17 +75,7 @@ public class CacheTest {
         }
     }
 
-    private void refreshRepoListCache(Configuration config, RepoListCache repoListCache) {
-        for (BorgRepoConfig repo : config.getRepoConfigs()) {
-            log.info("Processing repo list '" + repo + "'");
-            RepoList repoList = BorgCommands.list(repo);
-            repoListCache.upsert(repoList);
-            repoList = repoListCache.get(repoList.getRepository().getId());
-            assertNotNull(repoList);
-        }
-    }
-
-    private void refresArchiveListCache(Configuration config, RepoListCache repoListCache) {
+    private void refreshRepoListCache(Configuration config, EntityCache<RepoList> repoListCache) {
         for (BorgRepoConfig repo : config.getRepoConfigs()) {
             log.info("Processing repo list '" + repo + "'");
             RepoList repoList = BorgCommands.list(repo);
