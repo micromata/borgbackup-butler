@@ -14,4 +14,16 @@ public class Configuration {
     public void add(BorgRepoConfig repo) {
         repos.add(repo);
     }
+
+    public BorgRepoConfig getRepo(String idOrName) {
+        if (idOrName == null) {
+            return null;
+        }
+        for (BorgRepoConfig repoConfig : repos) {
+            if (idOrName.equals(repoConfig.getRepo()) ||idOrName.equals(repoConfig.getName())) {
+                return repoConfig;
+            }
+        }
+        return null;
+    }
 }

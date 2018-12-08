@@ -24,4 +24,14 @@ public class RepoInfo {
     public String toString() {
         return JsonUtils.toJson(this, true);
     }
+
+
+    public void updateFrom(RepoInfo repoInfo) {
+        this.securityDir = repoInfo.securityDir;
+        this.cache = repoInfo.cache;
+        this.encryption = repoInfo.encryption;
+        this.repository = repoInfo.getRepository();
+        this.originalJson = repoInfo.originalJson;
+    }
+
 }
