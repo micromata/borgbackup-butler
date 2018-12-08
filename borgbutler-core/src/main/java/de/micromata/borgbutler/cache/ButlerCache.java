@@ -67,5 +67,6 @@ public class ButlerCache {
         caches.add(repoInfoCache = new RepoInfoCache(cacheDir));
         caches.add(repoListCache = new RepoListCache(cacheDir));
         caches.add(archiveListCache = new ArchiveListCache(cacheDir));
+        read();
     }
 }
