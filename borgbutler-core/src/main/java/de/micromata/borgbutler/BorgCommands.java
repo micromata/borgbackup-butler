@@ -19,17 +19,15 @@ public class BorgCommands {
 
     public static String info(BorgRepoConfig repoConfig) {
         try {
-            //CommandLine cmdLine = new CommandLine("/Users/kai/bin/test.sh");
-            //CommandLine cmdLine = new CommandLine("/Users/kai/bin/borgbackup-hetzner.sh");
             CommandLine cmdLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
             cmdLine.addArgument("info");
             cmdLine.addArgument(repoConfig.getRepo());
             DefaultExecutor executor = new DefaultExecutor();
             //executor.setExitValue(1);
-            //ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
-            //executor.setWatchdog(watchdog);
+            ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
+            executor.setWatchdog(watchdog);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            //ExecuteResultHandler handler = new DefaultExecuteResultHandler();
+            ExecuteResultHandler handler = new DefaultExecuteResultHandler();
             PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
             executor.setStreamHandler(streamHandler);
             log.info("Executing '" + cmdLine.getExecutable() + " " + StringUtils.join(cmdLine.getArguments(), " ") + "'...");
