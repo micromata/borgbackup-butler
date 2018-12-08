@@ -23,7 +23,7 @@ public abstract class RepositoryMatcher {
     }
 
     public boolean matches(String identifier) {
-        if (repository == null) {
+        if (repository == null || identifier == null) {
             return false;
         }
         return identifier.equals(repository.getId()) || identifier.equals(repository.getName())

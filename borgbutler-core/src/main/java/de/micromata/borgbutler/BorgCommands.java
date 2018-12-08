@@ -4,7 +4,7 @@ import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.JsonUtils;
-import de.micromata.borgbutler.json.borg.ArchiveList;
+import de.micromata.borgbutler.json.borg.ArchiveInfo;
 import de.micromata.borgbutler.json.borg.RepoInfo;
 import de.micromata.borgbutler.json.borg.RepoList;
 import org.apache.commons.exec.*;
@@ -44,12 +44,12 @@ public class BorgCommands {
      * @param archive
      * @return
      */
-    public static ArchiveList info(BorgRepoConfig repoConfig, String archive) {
+    public static ArchiveInfo info(BorgRepoConfig repoConfig, String archive) {
         String json = execute(repoConfig, "info", repoConfig.getRepo() + "::" + archive, "--json");
         if (json == null) {
             return null;
         }
-        ArchiveList archiveList = JsonUtils.fromJson(ArchiveList.class, json);
+        ArchiveInfo archiveList = JsonUtils.fromJson(ArchiveInfo.class, json);
         archiveList.setOriginalJson(json);
         return archiveList;
     }

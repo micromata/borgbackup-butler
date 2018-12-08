@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Result of <tt>borg list repo</tt>.
  */
-public class ArchiveList extends RepositoryMatcher {
+public class ArchiveInfo extends RepositoryMatcher {
     @Getter
     private List<Archive2> archives;
     @Getter
@@ -21,7 +21,7 @@ public class ArchiveList extends RepositoryMatcher {
     @JsonIgnore
     private String originalJson;
 
-    public void updateFrom(ArchiveList archiveList) {
+    public void updateFrom(ArchiveInfo archiveList) {
         super.updateFrom(archiveList);
         this.archives = archiveList.archives;
         this.cache = archiveList.cache;

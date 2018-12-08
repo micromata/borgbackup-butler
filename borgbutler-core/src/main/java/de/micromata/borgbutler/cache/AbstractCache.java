@@ -2,8 +2,8 @@ package de.micromata.borgbutler.cache;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.json.JsonUtils;
-import de.micromata.borgbutler.json.borg.RepositoryMatcher;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class AbstractCache<T> {
     private static Logger log = LoggerFactory.getLogger(AbstractCache.class);
@@ -25,40 +25,27 @@ public abstract class AbstractCache<T> {
     protected File cacheFile;
     @Getter
     @JsonProperty
-    private List<T> elements = new ArrayList<>();
+    protected Map<String, T> elements = new HashMap<>();
 
-    public T get(String identifier) {
+    public T get(BorgRepoConfig repoConfig, String identifier) {
         if (identifier == null) {
             return null;
         }
-        for (T element : elements) {
+        for (T element : elements.values()) {
             if (matches(element, identifier)) {
                 return element;
             }
         }
-        return null;
+        return load(repoConfig, identifier);
     }
 
-    public boolean matches(T element, String identifier) {
-        if (!(element instanceof RepositoryMatcher)) {
-            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + this.getClass());
-        }
-        return ((RepositoryMatcher) element).matches(identifier);
-    }
+    protected abstract T load(BorgRepoConfig repoConfig, String identifier);
 
-    public String getIdentifier(T element) {
-        if (!(element instanceof RepositoryMatcher)) {
-            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + this.getClass());
-        }
-        return ((RepositoryMatcher)element).getRepository().getId();
-    }
+    public abstract boolean matches(T element, String identifier);
 
-    public void updateFrom(T dest, T source) {
-        if (!(dest instanceof RepositoryMatcher)) {
-            throw new UnsupportedOperationException("matches not implemented, only available for RepositoryMatcher: " + this.getClass());
-        }
-        ((RepositoryMatcher)dest).updateFrom(((RepositoryMatcher)source));
-    }
+    public abstract String getIdentifier(T element);
+
+    public abstract void updateFrom(T dest, T source);
 
     /**
      * Removes all entries (doesn't effect the cache files!).
@@ -67,10 +54,10 @@ public abstract class AbstractCache<T> {
         elements.clear();
     }
 
-    public void upsert(T element) {
-        T existingElement = get(getIdentifier(element));
+    public void upsert(BorgRepoConfig repoConfig, T element) {
+        T existingElement = get(repoConfig, getIdentifier(element));
         if (existingElement == null) {
-            elements.add(element);
+            elements.put(getIdentifier(element), element);
         } else {
             updateFrom(existingElement, element);
         }
