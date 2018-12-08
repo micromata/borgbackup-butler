@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -9,17 +10,18 @@ public class Configuration {
     @Getter
     private String borgCommand = "borg";
     @Getter
-    private List<BorgRepoConfig> repos = new ArrayList<>();
+    @JsonProperty("repo-configs")
+    private List<BorgRepoConfig> repoConfigs = new ArrayList<>();
 
-    public void add(BorgRepoConfig repo) {
-        repos.add(repo);
+    public void add(BorgRepoConfig repoConfig) {
+        repoConfigs.add(repoConfig);
     }
 
-    public BorgRepoConfig getRepo(String idOrName) {
+    public BorgRepoConfig getRepoConfig(String idOrName) {
         if (idOrName == null) {
             return null;
         }
-        for (BorgRepoConfig repoConfig : repos) {
+        for (BorgRepoConfig repoConfig : repoConfigs) {
             if (idOrName.equals(repoConfig.getRepo()) ||idOrName.equals(repoConfig.getName())) {
                 return repoConfig;
             }

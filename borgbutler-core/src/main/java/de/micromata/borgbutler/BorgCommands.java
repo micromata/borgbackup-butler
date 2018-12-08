@@ -4,6 +4,7 @@ import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.JsonUtils;
+import de.micromata.borgbutler.json.borg.Archive;
 import de.micromata.borgbutler.json.borg.RepoInfo;
 import de.micromata.borgbutler.json.borg.RepoList;
 import org.apache.commons.exec.*;
@@ -20,8 +21,14 @@ import java.util.Map;
 public class BorgCommands {
     private static Logger log = LoggerFactory.getLogger(BorgCommands.class);
 
+    /**
+     * Executes borg info repository
+     *
+     * @param repoConfig
+     * @return Parsed repo config returned by Borg command.
+     */
     public static RepoInfo info(BorgRepoConfig repoConfig) {
-        String json = execute(repoConfig, "info", "--json");
+        String json = execute(repoConfig, "info", repoConfig.getRepo(), "--json");
         if (json == null) {
             return null;
         }
@@ -30,8 +37,24 @@ public class BorgCommands {
         return repoInfo;
     }
 
+    /**
+     * Executes borg info archive
+     *
+     * @param repoConfig
+     * @param archive
+     * @return
+     */
+    public static String info(BorgRepoConfig repoConfig, Archive archive) {
+        String json = execute(repoConfig, "info", repoConfig.getRepo() + "::" + archive.getArchive(), "--json");
+        if (json == null) {
+            return null;
+        }
+        log.info(json);
+        return json;
+    }
+
     public static RepoList list(BorgRepoConfig repoConfig) {
-        String json = execute(repoConfig, "list", "--json");
+        String json = execute(repoConfig, "list", repoConfig.getRepo(), "--json");
         if (json == null) {
             return null;
         }
@@ -40,17 +63,17 @@ public class BorgCommands {
         return repoList;
     }
 
-    private static String execute(BorgRepoConfig repoConfig, String command, String... args) {
+    private static String execute(BorgRepoConfig repoConfig, String command, String repoOrArchive, String... args) {
         CommandLine cmdLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
         cmdLine.addArgument(command);
         for (String arg : args) {
             cmdLine.addArgument(arg);
         }
-        cmdLine.addArgument(repoConfig.getRepo());
+        cmdLine.addArgument(repoOrArchive);
         DefaultExecutor executor = new DefaultExecutor();
         //executor.setExitValue(2);
-        ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
-        executor.setWatchdog(watchdog);
+        //ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
+        //executor.setWatchdog(watchdog);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ExecuteResultHandler handler = new DefaultExecuteResultHandler();
         PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);

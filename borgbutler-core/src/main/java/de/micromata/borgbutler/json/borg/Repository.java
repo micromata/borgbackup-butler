@@ -33,7 +33,7 @@ public class Repository {
     public Repository setLocation(String location) {
         this.location = location;
         // It's ugly but efficiently ;-)
-        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepo(location);
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(location);
         if (repoConfig != null) {
             this.name = repoConfig.getName();
         }

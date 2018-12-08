@@ -4,11 +4,15 @@ import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.json.borg.Archive;
 import de.micromata.borgbutler.json.borg.RepoInfo;
 import de.micromata.borgbutler.json.borg.RepoList;
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,7 +26,7 @@ public class CacheTest {
         ConfigurationHandler configHandler = ConfigurationHandler.getInstance();
         configHandler.read();
         Configuration config = ConfigurationHandler.getConfiguration();
-        if (config.getRepos().size() == 0) {
+        if (config.getRepoConfigs().size() == 0) {
             log.info("No repos configured. Please configure repos first in: " + configHandler.getConfigFile().getAbsolutePath());
             return;
         }
@@ -31,23 +35,36 @@ public class CacheTest {
         butlerCache.read();
         {
             RepoInfoCache repoInfoCache = ButlerCache.getRepoInfoCache();
-            if (repoInfoCache.getElements().size() != config.getRepos().size()) {
+            if (repoInfoCache.getElements().size() != config.getRepoConfigs().size()) {
                 refreshRepoInfoCache(config, repoInfoCache);
             }
-            assertEquals(config.getRepos().size(), repoInfoCache.getElements().size());
+            assertEquals(config.getRepoConfigs().size(), repoInfoCache.getElements().size());
         }
         {
             RepoListCache repoListCache = ButlerCache.getRepoListCache();
-            if (repoListCache.getElements().size() != config.getRepos().size()) {
+            if (repoListCache.getElements().size() != config.getRepoConfigs().size()) {
                 refreshRepoListCache(config, repoListCache);
             }
-            assertEquals(config.getRepos().size(), repoListCache.getElements().size());
+            assertEquals(config.getRepoConfigs().size(), repoListCache.getElements().size());
+        }
+        {
+            List<BorgRepoConfig> repoConfigs = ConfigurationHandler.getConfiguration().getRepoConfigs();
+            if (CollectionUtils.isNotEmpty(repoConfigs)) {
+                BorgRepoConfig repoConfig = repoConfigs.get(0);
+                RepoList repoList = ButlerCache.getRepoListCache().get(repoConfig.getRepo());
+                if (repoList != null && CollectionUtils.isNotEmpty(repoList.getArchives())) {
+                    Archive archive = repoList.getArchives().get(0);
+                    if (archive != null) {
+                        String json = BorgCommands.info(repoConfig, archive);
+                    }
+                }
+            }
         }
         butlerCache.save();
     }
 
     private void refreshRepoInfoCache(Configuration config, RepoInfoCache repoInfoCache) {
-        for (BorgRepoConfig repo : config.getRepos()) {
+        for (BorgRepoConfig repo : config.getRepoConfigs()) {
             log.info("Processing repo info '" + repo + "'");
             RepoInfo repoInfo = BorgCommands.info(repo);
             repoInfoCache.upsert(repoInfo);
@@ -57,7 +74,7 @@ public class CacheTest {
     }
 
     private void refreshRepoListCache(Configuration config, RepoListCache repoListCache) {
-        for (BorgRepoConfig repo : config.getRepos()) {
+        for (BorgRepoConfig repo : config.getRepoConfigs()) {
             log.info("Processing repo list '" + repo + "'");
             RepoList repoList = BorgCommands.list(repo);
             repoListCache.upsert(repoList);
