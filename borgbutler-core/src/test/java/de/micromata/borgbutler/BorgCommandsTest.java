@@ -4,6 +4,7 @@ import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.borg.RepoInfo;
+import de.micromata.borgbutler.json.borg.RepoList;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,8 @@ public class BorgCommandsTest {
             log.info("Processing repo '" + repo + "'");
             RepoInfo repoInfo = BorgCommands.info(repo);
             log.info("Repo info: " + repoInfo);
-            log.info("Repo json: " + repoInfo.getOriginalJson());
+            RepoList repoList = BorgCommands.list(repo);
+            log.info("Repo list: " + repoList);
         }
     }
 }

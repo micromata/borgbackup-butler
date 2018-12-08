@@ -5,6 +5,7 @@ import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.RepoInfo;
+import de.micromata.borgbutler.json.borg.RepoList;
 import org.apache.commons.exec.*;
 import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -20,32 +21,46 @@ public class BorgCommands {
     private static Logger log = LoggerFactory.getLogger(BorgCommands.class);
 
     public static RepoInfo info(BorgRepoConfig repoConfig) {
-        try {
-            CommandLine cmdLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
-            cmdLine.addArgument("info");
-            cmdLine.addArgument("--json");
-            cmdLine.addArgument(repoConfig.getRepo());
-            DefaultExecutor executor = new DefaultExecutor();
-            //executor.setExitValue(2);
-            ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
-            executor.setWatchdog(watchdog);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ExecuteResultHandler handler = new DefaultExecuteResultHandler();
-            PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
-            executor.setStreamHandler(streamHandler);
-            log.info("Executing '" + cmdLine.getExecutable() + " " + StringUtils.join(cmdLine.getArguments(), " ") + "'...");
-            executor.execute(cmdLine, getEnvironment(repoConfig));
-            String json = outputStream.toString(Charset.forName("UTF-8"));
-            RepoInfo repoInfo = JsonUtils.fromJson(RepoInfo.class, json);
-            repoInfo.setOriginalJson(json);
-            return repoInfo;
-        } catch (IOException ex) {
-            log.error("Error while executing borg command: " + ex.getMessage(), ex);
-            return null;
-        }
+        String json = execute(repoConfig, "info", "--json");
+        RepoInfo repoInfo = JsonUtils.fromJson(RepoInfo.class, json);
+        repoInfo.setOriginalJson(json);
+        return repoInfo;
     }
 
-    public static Map<String, String> getEnvironment(BorgRepoConfig repoConfig) throws IOException {
+    public static RepoList list(BorgRepoConfig repoConfig) {
+        String json = execute(repoConfig, "list", "--json");
+        RepoList repoList = JsonUtils.fromJson(RepoList.class, json);
+        repoList.setOriginalJson(json);
+        return repoList;
+    }
+
+    private static String execute(BorgRepoConfig repoConfig, String command, String... args) {
+        CommandLine cmdLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
+        cmdLine.addArgument(command);
+        for (String arg : args) {
+            cmdLine.addArgument(arg);
+        }
+        cmdLine.addArgument(repoConfig.getRepo());
+        DefaultExecutor executor = new DefaultExecutor();
+        //executor.setExitValue(2);
+        ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
+        executor.setWatchdog(watchdog);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ExecuteResultHandler handler = new DefaultExecuteResultHandler();
+        PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
+        executor.setStreamHandler(streamHandler);
+        String borgCall = cmdLine.getExecutable() + " " + StringUtils.join(cmdLine.getArguments(), " ");
+        log.info("Executing '" + borgCall + "'...");
+        try {
+            executor.execute(cmdLine, getEnvironment(repoConfig));
+        } catch (IOException ex) {
+            log.error("Error while creating environment for borg call '" + borgCall + "': " + ex.getMessage(), ex);
+        }
+        String json = outputStream.toString(Charset.forName("UTF-8"));
+        return json;
+    }
+
+    private static Map<String, String> getEnvironment(BorgRepoConfig repoConfig) throws IOException {
         Configuration config = ConfigurationHandler.getConfiguration();
         Map<String, String> env = EnvironmentUtils.getProcEnvironment();
         addEnvironmentVariable(env, "BORG_REPO", repoConfig.getRepo());
