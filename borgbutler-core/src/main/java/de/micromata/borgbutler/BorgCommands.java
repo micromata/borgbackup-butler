@@ -3,6 +3,8 @@ package de.micromata.borgbutler;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.json.JsonUtils;
+import de.micromata.borgbutler.json.borg.RepoInfo;
 import org.apache.commons.exec.*;
 import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -17,10 +19,11 @@ import java.util.Map;
 public class BorgCommands {
     private static Logger log = LoggerFactory.getLogger(BorgCommands.class);
 
-    public static String info(BorgRepoConfig repoConfig) {
+    public static RepoInfo info(BorgRepoConfig repoConfig) {
         try {
             CommandLine cmdLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
             cmdLine.addArgument("info");
+            cmdLine.addArgument("--json");
             cmdLine.addArgument(repoConfig.getRepo());
             DefaultExecutor executor = new DefaultExecutor();
             //executor.setExitValue(2);
@@ -32,7 +35,10 @@ public class BorgCommands {
             executor.setStreamHandler(streamHandler);
             log.info("Executing '" + cmdLine.getExecutable() + " " + StringUtils.join(cmdLine.getArguments(), " ") + "'...");
             executor.execute(cmdLine, getEnvironment(repoConfig));
-            return (outputStream.toString(Charset.forName("UTF-8")));
+            String json = outputStream.toString(Charset.forName("UTF-8"));
+            RepoInfo repoInfo = JsonUtils.fromJson(RepoInfo.class, json);
+            repoInfo.setOriginalJson(json);
+            return repoInfo;
         } catch (IOException ex) {
             log.error("Error while executing borg command: " + ex.getMessage(), ex);
             return null;
