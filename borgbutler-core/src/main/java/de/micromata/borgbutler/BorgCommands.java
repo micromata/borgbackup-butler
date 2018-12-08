@@ -23,7 +23,7 @@ public class BorgCommands {
             cmdLine.addArgument("info");
             cmdLine.addArgument(repoConfig.getRepo());
             DefaultExecutor executor = new DefaultExecutor();
-            //executor.setExitValue(1);
+            //executor.setExitValue(2);
             ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
             executor.setWatchdog(watchdog);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -45,7 +45,12 @@ public class BorgCommands {
         addEnvironmentVariable(env, "BORG_REPO", repoConfig.getRepo());
         addEnvironmentVariable(env, "BORG_RSH", repoConfig.getRsh());
         addEnvironmentVariable(env, "BORG_PASSPHRASE", repoConfig.getPassphrase());
-        addEnvironmentVariable(env, "BORG_PASSCOMMAND", repoConfig.getPasswordCommand());
+        String passcommand = repoConfig.getPasswordCommand();
+        if (StringUtils.isNotBlank(passcommand)) {
+            // For MacOS BORG_PASSCOMMAND="security find-generic-password -a $USER -s borg-passphrase -w"
+            passcommand = passcommand.replace("$USER", System.getProperty("user.name"));
+            addEnvironmentVariable(env, "BORG_PASSCOMMAND", passcommand);
+        }
         return env;
     }
 
