@@ -6,39 +6,39 @@ a.card-link:hover {
     text-decoration: none;
 }
 
-a.card.template {
+a.card.repo {
     margin: 5pt;
     cursor: pointer;
 }
 
-a.card.template div.card-footer {
+a.card.repo div.card-footer {
     color: #666;
     font-size: 12px;
 }
 
-a.card.template:hover div.card-body,
-a.card.template:hover div.card-body li.list-group-item {
+a.card.repo:hover div.card-body,
+a.card.repo:hover div.card-body li.list-group-item {
     background-color: #f5f5f5;
 }
 
-a.card.template div.card-list-entry {
+a.card.repo div.card-list-entry {
     color: grey;
     font-size: 80%;
 }
 
-a.card.template div.card-list-entry .card-list-entry-value {
+a.card.repo div.card-list-entry .card-list-entry-value {
     font-style: italic;
 }
 
-a.card.template div.card-list-entry .filename {
+a.card.repo div.card-list-entry .filename {
     font-family: monospace;
 }
 
-a.card.template div.card-footer .lastModified {
+a.card.repo div.card-footer .lastModified {
     float:right;
 }
 
-a.card.template:hover div.card-header,
-a.card.template:hover div.card-footer {
+a.card.repo:hover div.card-header,
+a.card.repo:hover div.card-footer {
     background-color: #eeee;
 }

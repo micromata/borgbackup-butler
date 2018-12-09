@@ -15,20 +15,19 @@ class RepoCard extends React.Component {
 
     render = () => {
         const repo = this.props.repo;
-        let repoId = repo.id ? repo.id : repo.name;
-        let content = [['Name', repo.name, 'name']];
+        let content = [['Id', repo.id, 'id'], ['Location', repo.location, 'location']];
         let repoText = this.buildItem(null, content);
 
         return <React.Fragment>
-            <Card tag={Link} to={`/repos/${repo.primaryKey}`} outline color="success" className={'repo'}
+            <Card tag={Link} to={`/repos/${repo.id}`} outline color="success" className={'repo'}
                   style={{backgroundColor: '#fff'}}>
-                <CardHeader>{repoId}</CardHeader>
+                <CardHeader>{repo.name}</CardHeader>
                 <CardBody>
                     <ul className="list-group list-group-flush">
                         {repoText}
                     </ul>
                 </CardBody>
-                <CardFooter><span className={'lastModified'}>{formatDateTime(repo.lastModified)}</span></CardFooter>
+                <CardFooter><span className={'lastModified'}>Last modified: {formatDateTime(repo.lastModified)}</span></CardFooter>
             </Card>
         </React.Fragment>
     };
