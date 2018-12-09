@@ -1,0 +1,93 @@
+description = 'borgbutler-server'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+dependencies {
+    compile project(':borgbutler-core')
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-text
+    compile group: 'org.apache.commons', name: 'commons-text', version: '1.6'
+    compile group: 'org.eclipse.jetty', name: 'jetty-server', version: '9.4.12.v20180830'
+    compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version: '9.4.12.v20180830'
+    compile group: 'org.eclipse.jetty', name: 'jetty-servlets', version: '9.4.12.v20180830'
+    compile group: 'org.glassfish.jaxb', name: 'jaxb-core', version: '2.3.0.1'
+    compile group: 'org.glassfish.jaxb', name: 'jaxb-runtime', version: '2.3.1'
+    compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-servlet', version: '2.27'
+    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-multipart', version: '2.27'
+    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.27'
+    compile group: 'org.glassfish.jersey.inject', name: 'jersey-hk2', version: '2.27'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.6'
+    compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
+    compile group: 'javax.xml.ws', name: 'jaxws-api', version: '2.3.1'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
+
+    // https://mvnrepository.com/artifact/commons-cli/commons-cli
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.21.0'
+}
+
+apply plugin: 'application'
+mainClassName = "de.micromata.borgbutler.server.Main"
+
+run() {
+    doFirst {
+        jvmArgs = [
+                "-DapplicationHome=${rootDir}"
+        ]
+    }
+}
+
+run.dependsOn ':borgbutler-webapp:npmBuild'
+// run.dependsOn ':borgbutler-docs:buildWebDoc'
+
+apply plugin: 'distribution'
+
+task createVersionProperties(dependsOn: processResources) {
+    doLast {
+        new File("$buildDir/resources/main/version.properties").withWriter { w ->
+            Properties p = new Properties()
+            p['version'] = project.version.toString()
+            p['name'] = project.name
+            p['build.date.millis'] = '' + System.currentTimeMillis()
+            p.store w, null
+        }
+    }
+}
+
+classes {
+    dependsOn createVersionProperties
+}
+
+// Ugly work arround for getting the applications home dir:
+applicationDefaultJvmArgs = ["-DapplicationHome=MY_APPLICATION_HOME"]
+
+startScripts {
+    doLast {
+        unixScript.text = unixScript.text.replace('MY_APPLICATION_HOME', '\$APP_HOME')
+        windowsScript.text = windowsScript.text.replace('MY_APPLICATION_HOME', '%~dp0..')
+    }
+}
+
+// Builds the distribution
+distributions {
+    main {
+        contents {
+            // Prepared by nbmBuild:
+            from ("${project(':borgbutler-webapp').projectDir}/build") {
+                into 'web'
+            }
+            // Containing test templates and other stuff:
+            from ("${rootProject.projectDir}/examples") {
+                into 'examples'
+            }
+        }
+    }
+}
+
+distZip.dependsOn ':borgbutler-webapp:npmBuild'
+//distZip.dependsOn ':borgbutler-docs:buildWebDoc'
+task(dist).dependsOn distZip

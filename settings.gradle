@@ -10,4 +10,11 @@
 rootProject.name = 'borgbackup-butler'
 
 include 'borgbutler-core'
+include 'borgbutler-server'
+include 'borgbutler-webapp'
 
+//project(':borgbutler-docs').projectDir = "$rootDir/docs" as File
+project(':borgbutler-webapp').projectDir = "$rootDir/borgbutler-webapp" as File
+
+//startParameter.excludedTaskNames << ':borgbutler-desktop:distTar'
+startParameter.excludedTaskNames << ':borgbutler-main:distTar'
