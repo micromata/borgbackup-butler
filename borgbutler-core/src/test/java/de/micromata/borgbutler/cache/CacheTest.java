@@ -4,6 +4,7 @@ import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.borg.Archive;
+import de.micromata.borgbutler.json.borg.FilesystemItem;
 import de.micromata.borgbutler.json.borg.RepoInfo;
 import de.micromata.borgbutler.json.borg.RepoList;
 import org.apache.commons.collections4.CollectionUtils;
@@ -69,7 +70,8 @@ public class CacheTest {
         }
         {
             if (archive != null) {
-                ButlerCache.getInstance().getArchiveContent(repoConfig, archive);
+                List<FilesystemItem> content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive);
+                log.info("Number of items (content) of archive: " + content.size());
             }
         }
         butlerCache.save();
