@@ -3,6 +3,7 @@ package de.micromata.borgbutler;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.config.Definitions;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.ArchiveInfo;
 import de.micromata.borgbutler.json.borg.RepoInfo;
@@ -15,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Map;
 
 public class BorgCommands {
@@ -96,11 +96,11 @@ public class BorgCommands {
             executor.execute(cmdLine, getEnvironment(repoConfig));
         } catch (Exception ex) {
             log.error("Error while creating environment for borg call '" + borgCall + "': " + ex.getMessage(), ex);
-            String response = outputStream.toString(Charset.forName("UTF-8"));
+            String response = outputStream.toString(Definitions.STD_CHARSET);
             log.error("Response: " + response);
             return null;
         }
-        String json = outputStream.toString(Charset.forName("UTF-8"));
+        String json = outputStream.toString(Definitions.STD_CHARSET);
         return json;
     }
 

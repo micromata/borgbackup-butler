@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 public class ConfigurationHandler {
     private static Logger log = LoggerFactory.getLogger(ConfigurationHandler.class);
@@ -31,7 +30,7 @@ public class ConfigurationHandler {
     public void read() {
         log.info("Reading config file '" + configFile.getAbsolutePath() + "'");
         try {
-            String json = FileUtils.readFileToString(configFile, Charset.forName("UTF-8"));
+            String json = FileUtils.readFileToString(configFile, Definitions.STD_CHARSET);
             this.configuration = JsonUtils.fromJson(Configuration.class, json);
         } catch (IOException ex) {
             log.error("Error while trying to read from config file: " + configFile.getAbsolutePath() + ": " + ex.getMessage(), ex);
@@ -48,7 +47,7 @@ public class ConfigurationHandler {
                 FileUtils.copyFile(configFile, backupConfigFile);
             }
             log.info("Writing config file '" + configFile.getAbsolutePath() + "'");
-            FileUtils.write(configFile, json, Charset.forName("UTF-8"));
+            FileUtils.write(configFile, json, Definitions.STD_CHARSET);
         } catch (IOException ex) {
             log.error("Error while trying to write config file: " + configFile.getAbsolutePath() + ": " + ex.getMessage(), ex);
         }
