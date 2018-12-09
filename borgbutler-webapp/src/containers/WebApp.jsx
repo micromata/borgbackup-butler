@@ -2,10 +2,10 @@ import React from 'react';
 import createBrowserHistory from 'history/createBrowserHistory';
 import {Route, Router, Switch} from 'react-router';
 import {connect} from 'react-redux';
-import {Badge} from 'reactstrap';
 
 import Menu from '../components/general/Menu';
 import Start from '../components/views/Start';
+import RepoListView from '../components/views/repos/RepoListView';
 import ConfigurationPage from '../components/views/config/ConfigurationPage';
 import RestServices from '../components/views/develop/RestServices';
 import {isDevelopmentMode} from '../utilities/global';
@@ -13,7 +13,6 @@ import LogPage from '../components/views/logging/LogPage';
 import Footer from '../components/views/footer/Footer';
 import {loadVersion} from '../actions';
 import {getTranslation} from '../utilities/i18n';
-import I18n from "../components/general/translation/I18n";
 
 class WebApp extends React.Component {
 
@@ -26,8 +25,9 @@ class WebApp extends React.Component {
     render() {
         let routes = [
             ['Start', '/', Start],
-            ['Log viewer', '/logging', LogPage],
-            ['Configuration', '/config', ConfigurationPage]
+            ['Repositories', '/repos', RepoListView],
+            [getTranslation('logviewer'), '/logging', LogPage],
+            [getTranslation('configuration'), '/config', ConfigurationPage]
         ];
 
         if (isDevelopmentMode()) {

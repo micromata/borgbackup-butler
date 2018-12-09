@@ -16,7 +16,7 @@ class RepoCard extends React.Component {
     render = () => {
         const repo = this.props.repo;
         let repoId = repo.id ? repo.id : repo.name;
-        let content = [[Name, repo.name, 'name']];
+        let content = [['Name', repo.name, 'name']];
         let repoText = this.buildItem(null, content);
 
         return <React.Fragment>
@@ -40,4 +40,4 @@ class RepoCard extends React.Component {
     }
 }
 
-export default repoCard;
+export default RepoCard;

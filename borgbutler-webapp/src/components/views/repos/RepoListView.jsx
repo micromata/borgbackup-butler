@@ -4,9 +4,8 @@ import {CardDeck} from 'reactstrap';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {getRestServiceUrl} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
-import TemplateCard from './TemplateCard';
+import RepoCard from './RepoCard';
 import {IconRefresh} from "../../general/IconComponents";
-import I18n from "../../general/translation/I18n";
 
 class RepoListView extends React.Component {
 
@@ -17,15 +16,14 @@ class RepoListView extends React.Component {
     };
 
     componentDidMount = () => {
-        this.fetchTemplates();
+        this.fetchRepos();
     };
 
-    fetchTemplates = () => {
+    fetchRepos = () => {
         this.setState({
             isFetching: true,
             failed: false,
-            definitions: undefined,
-            templates: undefined
+            repos: undefined
         });
         fetch(`${this.path}/list`, {
             method: 'GET',
@@ -35,31 +33,18 @@ class RepoListView extends React.Component {
         })
             .then(response => response.json())
             .then(json => {
-                const definitions = json.templateDefinitions.reduce((accumulator, current) => ({
-                    ...accumulator,
-                    [current.refId]: current
-                }), {});
 
-                const templates = json.templates.map(template => {
-                    if (typeof template.templateDefinition === 'object') {
-                        //console.log('refId: ' + template.templateDefinition.refId + ', templateDefinition: ' + JSON.stringify(template.templateDefinition))
-                        definitions[template.templateDefinition.refId] = template.templateDefinition;
-                        template.templateDefinition = template.templateDefinition.refId;
-                    }
-
+                const repos = json.repos.map(repo => {
                     return {
-                        id: template.id,
-                        primaryKey: template.fileDescriptor.primaryKey,
-                        filename: template.fileDescriptor.filename,
-                        lastModified: template.fileDescriptor.lastModified,
-                        templateDefinitionId: template.templateDefinitionId,
-                        templateDefinition: template.templateDefinition
+                        id: repo.id,
+                        name: repo.name,
+                        lastModified: repo.last_modified
                     };
                 });
 
                 this.setState({
                     isFetching: false,
-                    definitions, templates
+                    repos
                 })
             })
             .catch(() => this.setState({isFetching: false, failed: true}));
@@ -75,31 +60,28 @@ class RepoListView extends React.Component {
         } else if (this.state.failed) {
 
             content = <ErrorAlert
-                title={'Cannot load Templates'}
+                title={'Cannot load Repositories'}
                 description={'Something went wrong during contacting the rest api.'}
                 action={{
-                    handleClick: this.fetchTemplates,
+                    handleClick: this.fetchRepos,
                     title: 'Try again'
                 }}
             />;
 
-        } else if (this.state.templates) {
+        } else if (this.state.repos) {
 
             content = <React.Fragment>
                 <div
                     className={'btn btn-outline-primary refresh-button-right'}
-                    onClick={this.fetchTemplates}
+                    onClick={this.fetchRepos}
                 >
                     <IconRefresh/>
                 </div>
                 <CardDeck>
-                {this.state.templates.map(template => {
-                    const definition = this.state.definitions[template.templateDefinition];
-
-                    return <TemplateCard
-                        key={template.primaryKey}
-                        template={template}
-                        definition={definition}
+                {this.state.repos.map(repo => {
+                    return <RepoCard
+                        key={repo.id}
+                        repo={repo}
                     />;
                 })}
                 </CardDeck>
@@ -109,7 +91,7 @@ class RepoListView extends React.Component {
 
         return <React.Fragment>
             <PageHeader>
-                <I18n name={'templates'}/>
+                Repositories
             </PageHeader>
             {content}
         </React.Fragment>;
@@ -118,7 +100,7 @@ class RepoListView extends React.Component {
     constructor(props) {
         super(props);
 
-        this.fetchTemplates = this.fetchTemplates.bind(this);
+        this.fetchRepos = this.fetchRepos.bind(this);
     }
 }
 

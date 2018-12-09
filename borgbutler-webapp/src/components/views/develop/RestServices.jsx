@@ -1,7 +1,6 @@
 import React from 'react';
 import {PageHeader} from '../../general/BootstrapComponents';
-import {getRestServiceUrl, getResponseHeaderFilename} from "../../../utilities/global";
-import fileDownload from 'js-file-download';
+import {getRestServiceUrl} from "../../../utilities/global";
 
 class RestUrlLink extends React.Component {
     render() {
@@ -24,68 +23,6 @@ class RestUrlLink extends React.Component {
 }
 
 class RestServices extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            templateDefinitionId: '',
-            templatePrimaryKey: '',
-        }
-        this.onRun = this.onRun.bind(this);
-    }
-
-    componentDidMount() {
-        fetch(getRestServiceUrl("templates/example-definitions"), {
-            method: "GET",
-            dataType: "JSON",
-            headers: {
-                "Content-Type": "text/plain; charset=utf-8",
-            }
-        })
-            .then((resp) => {
-                return resp.json()
-            })
-            .then((data) => {
-                    this.setState({
-                        templateDefinitionId: data.templateDefinitionId,
-                        templatePrimaryKey: data.templatePrimaryKey
-                    });
-                }
-            )
-            .catch((error) => {
-                    console.log(error, "Oups, what's happened?")
-                }
-            )
-    }
-
-    onRun() {
-        let filename;
-        fetch(getRestServiceUrl('templates/example-run-data'), {
-            method: "GET",
-            dataType: "JSON",
-            headers: {
-                "Content-Type": "text/plain; charset=utf-8"
-            }
-        })
-            .then((resp) => {
-                return resp.json()
-            })
-            .then((data) => {
-                fetch(getRestServiceUrl("templates/run"), {
-                    method: 'POST',
-                    body: JSON.stringify(data)
-                })
-                    .then(response => {
-                        filename = getResponseHeaderFilename(response.headers.get("Content-Disposition"));
-                        //this.setState({downloadFilename: filename});
-                        return response.blob();
-                    })
-                    .then(blob => fileDownload(blob, filename));
-            })
-            .catch((error) => {
-                console.log(error, "Oups, what's happened?")
-            })
-    }
-
     render() {
         return (
             <React.Fragment>

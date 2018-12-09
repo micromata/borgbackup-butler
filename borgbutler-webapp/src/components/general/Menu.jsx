@@ -1,11 +1,8 @@
 import React from 'react';
 import {NavLink as ReactRouterNavLink} from 'react-router-dom';
-import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink, UncontrolledTooltip} from 'reactstrap';
-import {getResponseHeaderFilename, getRestServiceUrl} from '../../utilities/global';
-import fileDownload from 'js-file-download';
+import {Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from 'reactstrap';
 import LoadingOverlay from './loading/LoadingOverlay';
 import FailedOverlay from './loading/failed/Overlay';
-import I18n from "./translation/I18n";
 
 class Menu extends React.Component {
     getNavElement = (route, index) => {
