@@ -12,11 +12,13 @@ import java.io.IOException;
 public class ConfigurationHandler {
     private static Logger log = LoggerFactory.getLogger(ConfigurationHandler.class);
     private static ConfigurationHandler instance = new ConfigurationHandler();
+    private static final String APP_WORKING_DIR = ".borgbutler";
     private static final String CONFIG_FILENAME = ".borgbutler.json";
     private static final String CONFIG_BACKUP_FILENAME = ".borgbutler-bak.json";
     @Getter
     private File configFile;
     private File backupConfigFile;
+    private File workingDir;
     private Configuration configuration = new Configuration();
 
     public static ConfigurationHandler getInstance() {
@@ -53,8 +55,18 @@ public class ConfigurationHandler {
         }
     }
 
+    public File getWorkingDir() {
+        if (!workingDir.exists()) {
+            log.info("Creating borg-butlers working directory: " + workingDir.getAbsolutePath());
+            workingDir.mkdirs();
+        }
+        return workingDir;
+    }
+
     private ConfigurationHandler() {
-        configFile = new File(System.getProperty("user.home"), CONFIG_FILENAME);
-        backupConfigFile = new File(System.getProperty("user.home"), CONFIG_BACKUP_FILENAME);
+        File userHome = new File(System.getProperty("user.home"));
+        configFile = new File(userHome, CONFIG_FILENAME);
+        backupConfigFile = new File(userHome, CONFIG_BACKUP_FILENAME);
+        workingDir = new File(userHome, APP_WORKING_DIR);
     }
 }

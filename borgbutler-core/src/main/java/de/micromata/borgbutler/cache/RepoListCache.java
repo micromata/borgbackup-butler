@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class RepoListCache extends AbstractCache<RepoList> {
+public class RepoListCache extends AbstractElementsCache<RepoList> {
     private static Logger log = LoggerFactory.getLogger(RepoListCache.class);
     public static final String CACHE_REPO_LISTS_BASENAME = "repo-lists";
 

@@ -1,7 +1,6 @@
 package de.micromata.borgbutler.cache;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Definitions;
 import de.micromata.borgbutler.json.JsonUtils;
 import lombok.Getter;
@@ -15,73 +14,40 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
-public abstract class AbstractCache<T> {
+public abstract class AbstractCache {
     private static Logger log = LoggerFactory.getLogger(AbstractCache.class);
     private static final String CACHE_FILE_PREFIX = "cache-";
     private static final String CACHE_FILE_EXTENSION = "json";
-    private static final String CACHE_FILE_ZIP_EXTENSION = ".zip";
+    private static final String CACHE_FILE_ZIP_EXTENSION = ".gz";
 
     /**
      * INITIAL - on startup (not yet read), DIRTY - modifications not written, SAVED - content written to file.
      */
-    private enum STATE {INITIAL, DIRTY, SAVED}
+    protected enum STATE {INITIAL, DIRTY, SAVED}
 
     @JsonIgnore
     protected File cacheFile;
     @JsonIgnore
     @Getter
-    private boolean zip;
+    private boolean compress;
+    @Getter
     @JsonIgnore
     private STATE state = STATE.INITIAL;
     @Getter
     private Date lastModified;
     @Getter
     private Date created;
-    @Getter
-    protected Map<String, T> elements = new HashMap<>();
-
-    public T get(BorgRepoConfig repoConfig, String identifier) {
-        if (identifier == null) {
-            return null;
-        }
-        if (this.state == STATE.INITIAL) {
-            read();
-        }
-        for (T element : elements.values()) {
-            if (matches(element, identifier)) {
-                return element;
-            }
-        }
-        return load(repoConfig, identifier);
-    }
-
-    protected abstract T load(BorgRepoConfig repoConfig, String identifier);
-
-    public abstract boolean matches(T element, String identifier);
-
-    public abstract String getIdentifier(T element);
-
-    public abstract void updateFrom(T dest, T source);
 
     /**
      * Removes all entries (doesn't effect the cache files!).
      */
     public void clear() {
-        elements.clear();
         state = STATE.DIRTY;
     }
 
-    public void upsert(BorgRepoConfig repoConfig, T element) {
-        T existingElement = get(repoConfig, getIdentifier(element));
-        if (existingElement == null) {
-            elements.put(getIdentifier(element), element);
-        } else {
-            updateFrom(existingElement, element);
-        }
-        state = STATE.DIRTY; // Needed to save cache to file.
+    protected void setDirty() {
+        state = STATE.DIRTY;
     }
 
     public void read() {
@@ -93,7 +59,7 @@ public abstract class AbstractCache<T> {
             }
             log.info("Parsing cache file '" + cacheFile.getAbsolutePath() + "'.");
             String json;
-            if (zip) {
+            if (compress) {
                 try (GzipCompressorInputStream in = new GzipCompressorInputStream(new FileInputStream(cacheFile))) {
                     StringWriter writer = new StringWriter();
                     IOUtils.copy(in, writer, Definitions.STD_CHARSET);
@@ -104,10 +70,10 @@ public abstract class AbstractCache<T> {
             }
             AbstractCache readCache = JsonUtils.fromJson(this.getClass(), json);
             if (readCache != null) {
-                this.elements = readCache.elements;
                 this.lastModified = readCache.lastModified;
                 this.created = readCache.created;
                 this.state = STATE.SAVED; // State of cache is updated from cache file.
+                update(readCache);
             } else {
                 log.error("Error while parsing cache: " + cacheFile.getAbsolutePath());
                 this.state = STATE.DIRTY; // Needed to save cache to file.
@@ -118,6 +84,8 @@ public abstract class AbstractCache<T> {
             this.state = STATE.DIRTY; // Needed to save cache to file.
         }
     }
+
+    protected abstract void update(AbstractCache readCache);
 
     public void save() {
         if (this.state == STATE.SAVED || this.state == STATE.INITIAL) {
@@ -132,7 +100,7 @@ public abstract class AbstractCache<T> {
         }
         String json = JsonUtils.toJson(this);
         try {
-            if (this.zip) {
+            if (this.compress) {
                 try (GzipCompressorOutputStream out = new GzipCompressorOutputStream(new FileOutputStream(cacheFile))) {
                     IOUtils.copy(new StringReader(json), out, Definitions.STD_CHARSET);
                 }
@@ -158,9 +126,9 @@ public abstract class AbstractCache<T> {
     }
 
     AbstractCache(File cacheDir, String cacheFilename, boolean zip) {
-        this.zip = zip;
+        this.compress = zip;
         String filename = CACHE_FILE_PREFIX + cacheFilename + "." + CACHE_FILE_EXTENSION;
-        if (this.zip)
+        if (this.compress)
             filename = filename + CACHE_FILE_EXTENSION;
         cacheFile = new File(cacheDir, CACHE_FILE_PREFIX + cacheFilename + "." + CACHE_FILE_EXTENSION);
         this.state = STATE.INITIAL;

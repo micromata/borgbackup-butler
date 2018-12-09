@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.cache;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class ButlerCache {
     private static Logger log = LoggerFactory.getLogger(ButlerCache.class);
-    public static final String CACHE_DIR_NAME = ".borgbutler";
+    public static final String CACHE_DIR_NAME = "caches";
     private static ButlerCache instance = new ButlerCache();
 
     @Getter
@@ -19,7 +20,7 @@ public class ButlerCache {
     @Getter
     private RepoListCache repoListCache;
     private ArchiveListCache archiveListCache;
-    private List<AbstractCache> caches;
+    private List<AbstractElementsCache> caches;
 
     @JsonIgnore
     private File cacheDir;
@@ -29,13 +30,13 @@ public class ButlerCache {
     }
 
     public void read() {
-        for (AbstractCache cache : caches) {
+        for (AbstractElementsCache cache : caches) {
             cache.read();
         }
     }
 
     public void save() {
-        for (AbstractCache cache : caches) {
+        for (AbstractElementsCache cache : caches) {
             cache.save();
         }
     }
@@ -46,19 +47,18 @@ public class ButlerCache {
     public void removeAllCacheFiles() {
         File[] files = cacheDir.listFiles();
         for (File file : files) {
-            if (AbstractCache.isCacheFile(file)) {
+            if (AbstractElementsCache.isCacheFile(file)) {
                 log.info("Deleting cache file: " + file.getAbsolutePath());
                 file.delete();
             }
         }
-        for (AbstractCache cache : caches) {
+        for (AbstractElementsCache cache : caches) {
             cache.clear();
         }
     }
 
     private ButlerCache() {
-        String homeDir = System.getProperty("user.home");
-        cacheDir = new File(homeDir, CACHE_DIR_NAME);
+        cacheDir = new File(ConfigurationHandler.getInstance().getWorkingDir(), CACHE_DIR_NAME);
         if (!cacheDir.exists()) {
             log.info("Creating cache dir: " + cacheDir.getAbsolutePath());
             cacheDir.mkdir();

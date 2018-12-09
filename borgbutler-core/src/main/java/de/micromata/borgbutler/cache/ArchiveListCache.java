@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class ArchiveListCache extends AbstractCache<ArchiveInfo> {
+public class ArchiveListCache extends AbstractElementsCache<ArchiveInfo> {
     private static Logger log = LoggerFactory.getLogger(ArchiveListCache.class);
     public static final String CACHE_ARCHIVE_LISTS_BASENAME = "archive-lists";
 
