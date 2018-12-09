@@ -29,7 +29,7 @@ public class ConfigurationHandler {
         return instance.configuration;
     }
 
-    public void read() {
+    private void read() {
         log.info("Reading config file '" + configFile.getAbsolutePath() + "'");
         try {
             String json = FileUtils.readFileToString(configFile, Definitions.STD_CHARSET);
@@ -68,5 +68,6 @@ public class ConfigurationHandler {
         configFile = new File(userHome, CONFIG_FILENAME);
         backupConfigFile = new File(userHome, CONFIG_BACKUP_FILENAME);
         workingDir = new File(userHome, APP_WORKING_DIR);
+        read();
     }
 }

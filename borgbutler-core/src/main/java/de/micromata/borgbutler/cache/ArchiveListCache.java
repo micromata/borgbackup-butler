@@ -20,17 +20,17 @@ public class ArchiveListCache extends AbstractElementsCache<ArchiveInfo> {
     }
 
     @Override
-    public boolean matches(ArchiveInfo element, String identifier) {
+    protected boolean matches(ArchiveInfo element, String identifier) {
         return element.matches(identifier);
     }
 
     @Override
-    public String getIdentifier(ArchiveInfo element) {
+    protected String getIdentifier(ArchiveInfo element) {
         return element.getRepository().getId();
     }
 
     @Override
-    public void updateFrom(ArchiveInfo dest, ArchiveInfo source) {
+    protected void updateFrom(ArchiveInfo dest, ArchiveInfo source) {
         dest.updateFrom(source);
     }
 

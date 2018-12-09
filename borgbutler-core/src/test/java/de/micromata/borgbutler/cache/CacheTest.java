@@ -23,7 +23,6 @@ public class CacheTest {
     @Test
     void repoCacheTest() {
         ConfigurationHandler configHandler = ConfigurationHandler.getInstance();
-        configHandler.read();
         Configuration config = ConfigurationHandler.getConfiguration();
         if (config.getRepoConfigs().size() == 0) {
             log.info("No repos configured. Please configure repos first in: " + configHandler.getConfigFile().getAbsolutePath());

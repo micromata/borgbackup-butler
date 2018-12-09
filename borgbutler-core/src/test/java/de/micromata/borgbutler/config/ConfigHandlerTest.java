@@ -12,7 +12,6 @@ public class ConfigHandlerTest {
         File origConfigFile = new File(System.getProperty("user.home"), ".borgbutler-orig.json");
         FileUtils.copyFile(ConfigurationHandler.getInstance().getConfigFile(), origConfigFile);
         Configuration configuration = ConfigurationHandler.getConfiguration();
-        ConfigurationHandler.getInstance().read();
         ConfigurationHandler.getInstance().write();
         FileUtils.copyFile(origConfigFile, ConfigurationHandler.getInstance().getConfigFile());
     }

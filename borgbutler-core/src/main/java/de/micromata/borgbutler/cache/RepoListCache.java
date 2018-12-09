@@ -20,17 +20,17 @@ public class RepoListCache extends AbstractElementsCache<RepoList> {
     }
 
     @Override
-    public boolean matches(RepoList element, String identifier) {
+    protected boolean matches(RepoList element, String identifier) {
         return element.matches(identifier);
     }
 
     @Override
-    public String getIdentifier(RepoList element) {
+    protected String getIdentifier(RepoList element) {
         return element.getRepository().getId();
     }
 
     @Override
-    public void updateFrom(RepoList dest, RepoList source) {
+    protected void updateFrom(RepoList dest, RepoList source) {
         dest.updateFrom(source);
     }
 

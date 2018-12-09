@@ -93,6 +93,12 @@ class RestServices extends React.Component {
                     Rest Services
                 </PageHeader>
                 <h3>
+                    Repositories
+                </h3>
+                <ul>
+                    <li><RestUrlLink service='repos/list'/></li>
+                </ul>
+                <h3>
                     Config
                 </h3>
                 <ul>

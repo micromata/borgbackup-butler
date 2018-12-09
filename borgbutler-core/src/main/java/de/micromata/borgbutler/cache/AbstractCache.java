@@ -46,6 +46,20 @@ public abstract class AbstractCache {
         state = STATE.DIRTY;
     }
 
+    /**
+     * Calls {@link #clear()} and removes the cache files. Therefore a new creation of this cache is forced.
+     */
+    public void clearAndReset() {
+        synchronized (this) {
+            if (cacheFile.exists()) {
+                log.info("Clearing cache and deleting cache file (recreation is forced): " + cacheFile.getAbsolutePath());
+                cacheFile.delete();
+            }
+            clear();
+            state = STATE.SAVED;
+        }
+    }
+
     protected void setDirty() {
         state = STATE.DIRTY;
     }

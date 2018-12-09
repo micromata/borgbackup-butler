@@ -32,11 +32,11 @@ public abstract class AbstractElementsCache<T> extends AbstractCache {
 
     protected abstract T load(BorgRepoConfig repoConfig, String identifier);
 
-    public abstract boolean matches(T element, String identifier);
+    protected abstract boolean matches(T element, String identifier);
 
-    public abstract String getIdentifier(T element);
+    protected abstract String getIdentifier(T element);
 
-    public abstract void updateFrom(T dest, T source);
+    protected abstract void updateFrom(T dest, T source);
 
     /**
      * Removes all entries (doesn't effect the cache files!).

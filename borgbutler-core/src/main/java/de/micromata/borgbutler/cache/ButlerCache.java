@@ -5,6 +5,8 @@ import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.borg.Archive;
 import de.micromata.borgbutler.json.borg.FilesystemItem;
+import de.micromata.borgbutler.json.borg.RepoInfo;
+import de.micromata.borgbutler.json.borg.Repository;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,6 +40,29 @@ public class ButlerCache {
         for (AbstractElementsCache cache : caches) {
             cache.save();
         }
+    }
+
+    public Repository getRepository(String idOrName) {
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(idOrName);
+        RepoInfo repoInfo = repoInfoCache.get(repoConfig, idOrName);
+        if (repoInfo == null) {
+            log.warn("Repo with name or id '" + idOrName + "' not found.");
+            return null;
+        }
+        return repoInfo.getRepository();
+    }
+
+    public List<Repository> getAllRepositories() {
+        List<Repository> repositories = new ArrayList<>();
+        for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getRepoConfigs()) {
+            RepoInfo repoInfo = repoInfoCache.get(repoConfig, repoConfig.getName());
+            if (repoInfo == null) {
+                log.warn("Repo with name '" + repoConfig.getName() + "' not found.");
+                continue;
+            }
+            repositories.add(repoInfo.getRepository());
+        }
+        return repositories;
     }
 
     public List<FilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
