@@ -66,7 +66,6 @@ class ConfigServerTab extends React.Component {
             loading: true,
             failed: false,
             port: 8042,
-            showTestData: true,
             webDevelopmentMode: false,
             directoryItems: [],
             redirect: false,
@@ -115,7 +114,6 @@ class ConfigServerTab extends React.Component {
     save() {
         var config = {
             port: this.state.port,
-            showTestData: this.state.showTestData,
             webDevelopmentMode: this.state.webDevelopmentMode,
             templatesDirs: []
         };
@@ -170,11 +168,6 @@ class ConfigServerTab extends React.Component {
 
         return (
             <form>
-                <FormLabelField label={<I18n name={'configuration.showTestData'}/>} fieldLength={2}>
-                    <FormCheckbox checked={this.state.showTestData}
-                                  name="showTestData"
-                                  onChange={this.handleCheckboxChange}/>
-                </FormLabelField>
                 <FormLabelField>
                     <Button className={'btn-outline-primary'}
                             onClick={() => this.setState({expertSettingsOpen: !this.state.expertSettingsOpen})}>
