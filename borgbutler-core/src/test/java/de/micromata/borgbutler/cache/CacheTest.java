@@ -72,6 +72,7 @@ public class CacheTest {
             if (archive != null) {
                 List<FilesystemItem> content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive);
                 log.info("Number of items (content) of archive: " + content.size());
+                content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive);
             }
         }
         butlerCache.save();

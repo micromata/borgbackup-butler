@@ -32,7 +32,12 @@ class ArchiveFileListCache extends AbstractCache {
             this.content = BorgCommands.list(repoConfig, archive);
             save();
         }
-        return content;
+        List<FilesystemItem> result = this.content;
+        if (content != null && content.size() > 100000) {
+            // Don't waste the memory space...
+            this.content = null;
+        }
+        return result;
     }
 
     protected void update(AbstractCache readCache) {

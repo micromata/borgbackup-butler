@@ -76,7 +76,7 @@ public class BorgCommands {
         String response = outputStream.toString(Definitions.STD_CHARSET);
         try {
             IOUtils.copy(new StringReader(response), new FileWriter("response.json"));
-        }catch (IOException ex) {
+        } catch (IOException ex) {
 
         }
         List<FilesystemItem> content = new ArrayList<>();
@@ -101,7 +101,8 @@ public class BorgCommands {
         CommandLine cmdLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
         cmdLine.addArgument(command);
         for (String arg : args) {
-            cmdLine.addArgument(arg);
+            if (arg != null)
+                cmdLine.addArgument(arg);
         }
         cmdLine.addArgument(repoOrArchive);
         DefaultExecutor executor = new DefaultExecutor();
