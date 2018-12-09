@@ -46,7 +46,6 @@ class Menu extends React.Component {
             failed: false,
             isOpen: false
         };
-        this.uploadFile = this.uploadFile.bind(this);
     }
 
      toggle() {
@@ -70,9 +69,6 @@ class Menu extends React.Component {
                             ))
                         }
                     </Nav>
-                    <DropArea id={'menuDropZone'} className={'menu'}
-                              upload={this.uploadFile}
-                    />
                 </Collapse>
                 <LoadingOverlay active={this.state.loading} />
                 <FailedOverlay

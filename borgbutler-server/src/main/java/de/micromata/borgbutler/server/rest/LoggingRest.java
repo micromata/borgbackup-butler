@@ -26,8 +26,6 @@ public class LoggingRest {
      * @param maxSize          Max size of the result list.
      * @param ascendingOrder   Default is false (default is descending order).
      * @param lastReceivedOrderNumber The last received order number for updating log entries (preventing querying all entries again).
-     * @param mdcTemplatePk
-     * @param mdcTemplateDefinitionPk
      * @param prettyPrinter
      * @return
      */
@@ -38,8 +36,6 @@ public class LoggingRest {
                         @QueryParam("search") String search, @QueryParam("treshold") String logLevelTreshold,
                         @QueryParam("maxSize") Integer maxSize, @QueryParam("ascendingOrder") Boolean ascendingOrder,
                         @QueryParam("lastReceivedOrderNumber") Integer lastReceivedOrderNumber,
-                        @QueryParam("mdcTemplatePk") String mdcTemplatePk,
-                        @QueryParam("mdcTemplateDefinitionPk") String mdcTemplateDefinitionPk,
                         @QueryParam("prettyPrinter") boolean prettyPrinter) {
         LogFilter filter = new LogFilter();
         filter.setSearch(search);

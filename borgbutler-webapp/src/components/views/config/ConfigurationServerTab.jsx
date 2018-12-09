@@ -1,6 +1,6 @@
 import React from 'react';
 import {Button, Collapse} from 'reactstrap';
-import DirectoryItemsFieldset from './DirectoryItemsFieldset';
+//import DirectoryItemsFieldset from './DirectoryItemsFieldset';
 import {
     FormButton,
     FormCheckbox,
@@ -175,10 +175,6 @@ class ConfigServerTab extends React.Component {
                                   name="showTestData"
                                   onChange={this.handleCheckboxChange}/>
                 </FormLabelField>
-                <DirectoryItemsFieldset items={this.state.directoryItems} addItem={this.addDirectoryItem}
-                                        removeItem={this.removeDirectoryItem}
-                                        onDirectoryChange={this.handleDirectoryChange}
-                                        onRecursiveFlagChange={this.handleRecursiveFlagChange}/>
                 <FormLabelField>
                     <Button className={'btn-outline-primary'}
                             onClick={() => this.setState({expertSettingsOpen: !this.state.expertSettingsOpen})}>

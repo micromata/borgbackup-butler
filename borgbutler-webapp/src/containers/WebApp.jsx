@@ -30,13 +30,6 @@ class WebApp extends React.Component {
             [getTranslation('configuration'), '/config', ConfigurationPage]
         ];
 
-        if (this.props.version.updateVersion) {
-            routes.push([getTranslation('update'), '/update', UpdatePage, {
-                badge: <Badge color={'danger'}><I18n name={'common.new'}/></Badge>,
-                className: 'danger'
-            }]);
-        }
-
         if (isDevelopmentMode()) {
             routes.push(['Rest services', '/restServices', RestServices]);
         }
