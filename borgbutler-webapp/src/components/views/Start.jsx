@@ -7,11 +7,11 @@ class Start extends React.Component {
         return (
             <React.Fragment>
                 <PageHeader>
-                    <I18n name={'startscreen.welcome.title'}/>
+                    Welcome to BorgButler
                 </PageHeader>
-                <div className="welcome-intro"><I18n name={'startscreen.welcome.text'}/></div>
-                <div className="welcome-enjoy"><I18n name={'startscreen.welcome.enjoy'}/></div>
-                <div className="welcome-documentation-link"><a className={'btn btn-link btn-outline-primary'} href={'/docs/index.html'} target="_blank" rel="noopener noreferrer"><I18n name={'startscreen.welcome.documentation'}/></a></div>
+                <div className="welcome-intro">BorgButler is the frontend for BorgBackup.</div>
+                <div className="welcome-enjoy">Enjoy your work with BorgButler.</div>
+                <div className="welcome-documentation-link"><a className={'btn btn-link btn-outline-primary'} href={'https://github.com/micromata/borgbackup-butler'} target="_blank" rel="noopener noreferrer">Documentation</a></div>
             </React.Fragment>
         );
     }

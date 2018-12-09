@@ -19,3 +19,11 @@ Or go to
 [.text-center]
 https://projectlombok.org/[Lombok home page^] +
 [.text-left]
+
+=== Work with borgbutler-server
+==== npm
+
+1. `cd borgbutler-webapp`
+2. `npm install`
+3. `npm start`
+4. Start borgbutler-server's Main.

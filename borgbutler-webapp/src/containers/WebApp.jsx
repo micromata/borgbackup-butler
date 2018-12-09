@@ -26,8 +26,8 @@ class WebApp extends React.Component {
     render() {
         let routes = [
             ['Start', '/', Start],
-            [getTranslation('logviewer'), '/logging', LogPage],
-            [getTranslation('configuration'), '/config', ConfigurationPage]
+            ['Log viewer', '/logging', LogPage],
+            ['Configuration', '/config', ConfigurationPage]
         ];
 
         if (isDevelopmentMode()) {

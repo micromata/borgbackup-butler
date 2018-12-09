@@ -92,45 +92,15 @@ class RestServices extends React.Component {
                 <PageHeader>
                     Rest Services
                 </PageHeader>
-                <h3>Templates</h3>
-                <ul>
-                    <li><RestUrlLink service='templates/list'/></li>
-                    <li><RestUrlLink service='templates/definition-list'/></li>
-                    <li><RestUrlLink service={'templates/definition'} params={`id=${this.state.templateDefinitionId}`}/> (by id)</li>
-                </ul>
-                <h4>How to get and run a template:</h4>
-                <ol>
-                    <li>Get a list of all templates:<br/>
-                        <RestUrlLink service='templates/list'/></li>
-                    <li>Get a single template from list or get one by its primary key via rest
-                        (primaryKey={this.state.templatePrimaryKey}):<br/>
-                        <RestUrlLink service='templates/template'
-                                     params={'primaryKey=' + encodeURIComponent(this.state.templatePrimaryKey)}/>
-                    </li>
-                    <li>You will receive a template including its template definition if assigned.</li>
-                    <li>Run template with <a
-                        href={getRestServiceUrl('templates/example-run-data') + '?prettyPrinter=true'}>json post parameter</a> for service<br/>
-                        <button tabIndex={1} onClick={this.onRun} type="button" className="btn btn-link">rest/templates/run</button>
-                    </li>
-                </ol>
                 <h3>
                     Config
                 </h3>
                 <ul>
                     <li><RestUrlLink service='configuration/user'/></li>
                     <li><RestUrlLink service='configuration/config'/></li>
-                    <li><RestUrlLink service='configuration/config-ui'/> (as a trial for dynamic forms)</li>
                     <li><RestUrlLink service='version'/> Gets the version and build date of the server.</li>
-                    <li><RestUrlLink service='updates/info'/> Gets the update version.</li>
                     <li><RestUrlLink service='i18n/list'/> Gets all translations. And keys only:{' '}
                         <RestUrlLink service='i18n/list' params={'keysOnly=true'}/> </li>
-                </ul>
-                <h3>Browse local filesystem</h3>
-                <ul>
-                    <li><RestUrlLink service='files/browse-local-filesystem' params='type=dir'/></li>
-                    <li><RestUrlLink service='files/browse-local-filesystem' params='type=excel'/></li>
-                    <li><RestUrlLink service='files/browse-local-filesystem' params='type=word'/></li>
-                    <li><RestUrlLink service='files/browse-local-filesystem' params='type=file'/></li>
                 </ul>
                 <h3>Logging</h3>
                 <ul>
