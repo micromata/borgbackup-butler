@@ -6,7 +6,7 @@ import java.util.List;
 
 public class RepoList extends RepositoryMatcher {
     @Getter
-    private List<Archive1> archives;
+    private List<Archive> archives;
     @Getter
     private Encryption encryption;
 

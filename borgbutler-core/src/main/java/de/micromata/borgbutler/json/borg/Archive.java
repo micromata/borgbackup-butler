@@ -8,7 +8,7 @@ import lombok.Setter;
 /**
  * This object is given by <tt>borg list repo</tt>.
  */
-public class Archive1 {
+public class Archive {
     @Getter
     private String archive;
     @Getter

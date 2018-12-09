@@ -3,7 +3,7 @@ package de.micromata.borgbutler.cache;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
-import de.micromata.borgbutler.json.borg.Archive1;
+import de.micromata.borgbutler.json.borg.Archive;
 import de.micromata.borgbutler.json.borg.RepoInfo;
 import de.micromata.borgbutler.json.borg.RepoList;
 import org.apache.commons.collections4.CollectionUtils;
@@ -43,7 +43,7 @@ public class CacheTest {
             assertEquals(config.getRepoConfigs().size(), ButlerCache.getInstance().getRepoInfoCache().getElements().size());
         }
         List<BorgRepoConfig> repoConfigs = ConfigurationHandler.getConfiguration().getRepoConfigs();
-        Archive1 archive = null;
+        Archive archive = null;
         BorgRepoConfig repoConfig = null;
         if (CollectionUtils.isNotEmpty(repoConfigs)) {
             repoConfig = repoConfigs.get(0);
@@ -67,11 +67,10 @@ public class CacheTest {
                 }
             }*/
         }
-        {/*
+        {
             if (archive != null) {
-                String json = BorgCommands.list(repoConfig, archive.getArchive());
-                log.info(json);
-            }*/
+                ButlerCache.getInstance().getArchiveContent(repoConfig, archive);
+            }
         }
         butlerCache.save();
     }

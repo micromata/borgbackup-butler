@@ -129,8 +129,8 @@ public abstract class AbstractCache {
         this.compress = zip;
         String filename = CACHE_FILE_PREFIX + cacheFilename + "." + CACHE_FILE_EXTENSION;
         if (this.compress)
-            filename = filename + CACHE_FILE_EXTENSION;
-        cacheFile = new File(cacheDir, CACHE_FILE_PREFIX + cacheFilename + "." + CACHE_FILE_EXTENSION);
+            filename = filename + CACHE_FILE_ZIP_EXTENSION;
+        cacheFile = new File(cacheDir, filename);
         this.state = STATE.INITIAL;
     }
 

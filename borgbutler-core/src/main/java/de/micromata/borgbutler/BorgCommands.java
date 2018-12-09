@@ -5,18 +5,23 @@ import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.config.Definitions;
 import de.micromata.borgbutler.json.JsonUtils;
-import de.micromata.borgbutler.json.borg.ArchiveInfo;
-import de.micromata.borgbutler.json.borg.RepoInfo;
-import de.micromata.borgbutler.json.borg.RepoList;
+import de.micromata.borgbutler.json.borg.*;
 import org.apache.commons.exec.*;
 import org.apache.commons.exec.environment.EnvironmentUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class BorgCommands {
     private static Logger log = LoggerFactory.getLogger(BorgCommands.class);
@@ -64,18 +69,35 @@ public class BorgCommands {
         return repoList;
     }
 
-    public static String list(BorgRepoConfig repoConfig, String archive) {
-        String json = execute(repoConfig, "list", repoConfig.getRepo() + "::" + archive,
+    public static List<FilesystemItem> list(BorgRepoConfig repoConfig, Archive archive) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        execute(outputStream, repoConfig, "list", repoConfig.getRepo() + "::" + archive.getArchive(),
                 "--json-lines");
-        if (json == null) {
-            return null;
+        String response = outputStream.toString(Definitions.STD_CHARSET);
+        try {
+            IOUtils.copy(new StringReader(response), new FileWriter("response.json"));
+        }catch (IOException ex) {
+
         }
-       // RepoList repoList = JsonUtils.fromJson(RepoList.class, json);
-       // repoList.setOriginalJson(json);
-        return json;
+        List<FilesystemItem> content = new ArrayList<>();
+        try (Scanner scanner = new Scanner(response)) {
+            while (scanner.hasNextLine()) {
+                String json = scanner.nextLine();
+                FilesystemItem item = JsonUtils.fromJson(FilesystemItem.class, json);
+                content.add(item);
+            }
+        }
+        return content;
     }
 
     private static String execute(BorgRepoConfig repoConfig, String command, String repoOrArchive, String... args) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        execute(outputStream, repoConfig, command, repoOrArchive, args);
+        String json = outputStream.toString(Definitions.STD_CHARSET);
+        return json;
+    }
+
+    private static void execute(OutputStream outputStream, BorgRepoConfig repoConfig, String command, String repoOrArchive, String... args) {
         CommandLine cmdLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
         cmdLine.addArgument(command);
         for (String arg : args) {
@@ -86,7 +108,6 @@ public class BorgCommands {
         //executor.setExitValue(2);
         //ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
         //executor.setWatchdog(watchdog);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ExecuteResultHandler handler = new DefaultExecuteResultHandler();
         PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
         executor.setStreamHandler(streamHandler);
@@ -96,13 +117,11 @@ public class BorgCommands {
             executor.execute(cmdLine, getEnvironment(repoConfig));
         } catch (Exception ex) {
             log.error("Error while creating environment for borg call '" + borgCall + "': " + ex.getMessage(), ex);
-            String response = outputStream.toString(Definitions.STD_CHARSET);
-            log.error("Response: " + response);
-            return null;
+            log.error("Response: " + StringUtils.abbreviate(outputStream.toString(), 10000));
+            return;
         }
-        String json = outputStream.toString(Definitions.STD_CHARSET);
-        return json;
     }
+
 
     private static Map<String, String> getEnvironment(BorgRepoConfig repoConfig) throws IOException {
         Configuration config = ConfigurationHandler.getConfiguration();
