@@ -8,7 +8,7 @@ import java.beans.Transient;
 
 public class ServerConfiguration {
     private static Logger log = LoggerFactory.getLogger(ServerConfiguration.class);
-    private final static String[] SUPPORTED_LANGUAGES = {"en"};
+    private final static String[] SUPPORTED_LANGUAGES = {"en", "de"};
     private static String applicationHome;
 
     private int port;

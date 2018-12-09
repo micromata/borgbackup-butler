@@ -1,5 +1,7 @@
 package de.micromata.borgbutler.server.rest;
 
+import de.micromata.borgbutler.json.JsonUtils;
+import de.micromata.borgbutler.server.I18nClientMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.Locale;
+import java.util.Map;
 
 @Path("/i18n")
 public class I18nRest {
@@ -36,6 +39,8 @@ public class I18nRest {
         } else {
             localeObject = RestUtils.getUserLocale(requestContext);
         }
-        return ""; // i18n not yet supported.
+        Map<String, String> translations = I18nClientMessages.getInstance().getAllMessages(localeObject, keysOnly);
+        String json = JsonUtils.toJson(translations, prettyPrinter);
+        return json;
     }
 }
