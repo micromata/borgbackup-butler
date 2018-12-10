@@ -8,13 +8,13 @@ import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.*;
 import org.apache.commons.exec.*;
 import org.apache.commons.exec.environment.EnvironmentUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -68,23 +68,9 @@ public class BorgCommands {
 
     public static List<FilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        //execute(outputStream, repoConfig, "list", repoConfig.getRepo() + "::" + archive.getArchive(),
-        //        "--json-lines");
-        //String response = outputStream.toString(Definitions.STD_CHARSET);
-        String response = null;
-        try {
-            File file = new File("/Users/kai/tmp/response.json");
-            if (file.exists()) {
-                log.info("******** Reading test file....");
-                StringWriter writer = new StringWriter();
-                IOUtils.copy(new FileReader(file), writer);
-                response = writer.toString();
-            } else {
-                log.info("******** Writing test file....");
-                IOUtils.copy(new StringReader(response), new FileWriter(file));
-            }
-        } catch (IOException ex) {
-        }
+        execute(outputStream, repoConfig, "list", repoConfig.getRepo() + "::" + archive.getArchive(),
+                "--json-lines");
+        String response = outputStream.toString(Definitions.STD_CHARSET);
         List<FilesystemItem> content = new ArrayList<>();
         try (Scanner scanner = new Scanner(response)) {
             while (scanner.hasNextLine()) {
