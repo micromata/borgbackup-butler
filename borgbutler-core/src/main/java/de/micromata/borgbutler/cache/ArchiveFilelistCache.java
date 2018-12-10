@@ -33,7 +33,7 @@ class ArchiveFilelistCache {
             return;
         }
         log.info("Saving archive content as file list: " + file.getAbsolutePath());
-        try (ObjectOutputStream outputStream = new ObjectOutputStream(new GzipCompressorOutputStream(new FileOutputStream(file)))) {
+        try (ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(file))))) {
             outputStream.writeObject(filesystemItems.size());
             for (FilesystemItem item : filesystemItems) {
                 outputStream.writeObject(item);
@@ -52,7 +52,7 @@ class ArchiveFilelistCache {
         }
         log.info("Loading archive content as file list from: " + file.getAbsolutePath());
         FilesystemItem[] list = null;
-        try (ObjectInputStream inputStream = new ObjectInputStream(new GzipCompressorInputStream(new FileInputStream(file)))) {
+        try (ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(new GzipCompressorInputStream(new FileInputStream(file))))) {
             Object obj = inputStream.readObject();
             if (!(obj instanceof Integer)) {
                 log.error("Can't load archive content. Integer expected, but received: " + obj.getClass());
