@@ -1,7 +1,7 @@
 package de.micromata.borgbutler.cache;
 
-import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
+import lombok.Getter;
 import org.apache.commons.jcs.JCS;
 import org.apache.commons.jcs.access.CacheAccess;
 import org.slf4j.Logger;
@@ -22,13 +22,15 @@ public class JCSCache {
         return instance;
     }
 
+    @Getter
+    private File cacheDir;
+
     public <K, V> CacheAccess<K, V> getJCSCache(String region) {
         return JCS.getInstance(region);
     }
 
     private JCSCache() {
-        Configuration configuration = ConfigurationHandler.getConfiguration();
-        File cacheDir = new File(ConfigurationHandler.getInstance().getWorkingDir(), CACHE_DIR_NAME);
+        cacheDir = new File(ConfigurationHandler.getInstance().getWorkingDir(), CACHE_DIR_NAME);
         if (!cacheDir.exists()) {
             log.info("Creating cache dir: " + cacheDir.getAbsolutePath());
             cacheDir.mkdir();

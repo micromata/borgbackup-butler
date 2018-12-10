@@ -1,10 +1,10 @@
 package de.micromata.borgbutler.cache;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.borg.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.jcs.JCS;
 import org.apache.commons.jcs.access.CacheAccess;
 import org.apache.commons.lang3.StringUtils;
@@ -17,16 +17,13 @@ import java.util.List;
 
 public class ButlerCache {
     private static Logger log = LoggerFactory.getLogger(ButlerCache.class);
-    public static final String CACHE_DIR_NAME = "caches";
+    public static final String CACHE_DIR_NAME = "cache";
     private static ButlerCache instance = new ButlerCache();
 
-    private JCSCache jcsCache = JCSCache.getInstance();
+    private JCSCache jcsCache;
     private CacheAccess<String, RepoInfo> repoInfoCacheAccess;
     private CacheAccess<String, RepoList> repoListCacheAccess;
-    private CacheAccess<String, List<FilesystemItem>> archiveContentCacheAccess;
-
-    @JsonIgnore
-    private File cacheDir;
+    private ArchiveFilelistCache archiveFilelistCache;
 
     public static ButlerCache getInstance() {
         return instance;
@@ -79,41 +76,36 @@ public class ButlerCache {
         return repoList;
     }
 
-    public List<FilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
+    public FilesystemItem[] getArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
         if (archive == null || StringUtils.isBlank(archive.getArchive())) {
             return null;
         }
-        String repoArchiveId = getRepoArchiveId(repoConfig.getRepo(), archive.getId());
-        List<FilesystemItem> content = archiveContentCacheAccess.get(repoArchiveId);
-        if (content == null) {
-            content = BorgCommands.listArchiveContent(repoConfig, archive);
-            archiveContentCacheAccess.put(repoArchiveId, content);
-            archiveContentCacheAccess.getStatistics();
+        FilesystemItem[] items = archiveFilelistCache.load(repoConfig, archive);
+        if (items == null) {
+            List<FilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive);
+            if (CollectionUtils.isNotEmpty(list)) {
+                archiveFilelistCache.save(repoConfig, archive, list);
+                items = list.toArray(new FilesystemItem[0]);
+            }
         }
-        log.info("archiveContentCacheAccess.stats: " + this.archiveContentCacheAccess.getStats());
-        if (content == null) {
+        if (items == null) {
             log.warn("Repo::archiv with name '" + repoConfig.getRepo() + "::" + archive.getArchive() + "' not found.");
         }
-        return content;
-    }
-
-    public String getRepoArchiveId(String repo, String archiveId) {
-        return repo + "::" + archiveId;
+        return items;
     }
 
     public void shutdown() {
-        log.info("archiveContentCacheAccess.stats: " + this.archiveContentCacheAccess.getStats());
         JCS.shutdown();
     }
 
+    public File getCacheDir() {
+        return jcsCache.getCacheDir();
+    }
+
     private ButlerCache() {
-        cacheDir = new File(ConfigurationHandler.getInstance().getWorkingDir(), CACHE_DIR_NAME);
-        if (!cacheDir.exists()) {
-            log.info("Creating cache dir: " + cacheDir.getAbsolutePath());
-            cacheDir.mkdir();
-        }
+        this.jcsCache = JCSCache.getInstance();
         this.repoInfoCacheAccess = jcsCache.getJCSCache("repoInfo");
         this.repoListCacheAccess = jcsCache.getJCSCache("repoList");
-        this.archiveContentCacheAccess = jcsCache.getJCSCache("archiveContent");
+        this.archiveFilelistCache = new ArchiveFilelistCache(getCacheDir());
     }
 }

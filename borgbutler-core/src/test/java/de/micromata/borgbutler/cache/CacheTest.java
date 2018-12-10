@@ -69,10 +69,10 @@ public class CacheTest {
         }
         {
             if (archive != null) {
-                List<FilesystemItem> content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive);
-                log.info("Number of items (content) of archive: " + content.size());
+                FilesystemItem[] content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive);
+                log.info("Number of items (content) of archive: " + content.length);
                 content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive);
-                log.info("Number of items (content) of archive: " + content.size());
+                log.info("Number of items (content) of archive: " + content.length);
             }
         }
         ButlerCache.getInstance().shutdown();
