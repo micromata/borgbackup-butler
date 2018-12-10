@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Result of <tt>borg list repo</tt>.
  */
-public class ArchiveInfo extends RepositoryMatcher {
+public class ArchiveInfo extends RepositoryMatcher implements Serializable {
+    private static final long serialVersionUID = -4200553322856662346L;
     @Getter
     private List<Archive2> archives;
     @Getter

@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.cache;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.borg.Archive;
@@ -8,6 +9,7 @@ import de.micromata.borgbutler.json.borg.FilesystemItem;
 import de.micromata.borgbutler.json.borg.RepoInfo;
 import de.micromata.borgbutler.json.borg.Repository;
 import lombok.Getter;
+import org.apache.commons.jcs.access.CacheAccess;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,8 +23,8 @@ public class ButlerCache {
     public static final String CACHE_DIR_NAME = "caches";
     private static ButlerCache instance = new ButlerCache();
 
-    @Getter
-    private RepoInfoCache repoInfoCache;
+    private JCSCache jcsCache = JCSCache.getInstance();
+    private CacheAccess<String, RepoInfo> repoInfoCacheAccess;
     @Getter
     private RepoListCache repoListCache;
     private ArchiveListCache archiveListCache;
@@ -43,21 +45,31 @@ public class ButlerCache {
     }
 
     public Repository getRepository(String idOrName) {
-        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(idOrName);
-        RepoInfo repoInfo = repoInfoCache.get(repoConfig, idOrName);
+        RepoInfo repoInfo = getRepoInfo(idOrName);
         if (repoInfo == null) {
-            log.warn("Repo with name or id '" + idOrName + "' not found.");
             return null;
         }
         return repoInfo.getRepository();
     }
 
+    public RepoInfo getRepoInfo(String idOrName) {
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(idOrName);
+        RepoInfo repoInfo = repoInfoCacheAccess.get(repoConfig.getRepo());
+        if (repoInfo == null) {
+            repoInfo = BorgCommands.info(repoConfig);
+            repoInfoCacheAccess.put(repoConfig.getRepo(), repoInfo);
+        }
+        if (repoInfo == null) {
+            log.warn("Repo with name '" + idOrName + "' not found.");
+        }
+        return repoInfo;
+    }
+
     public List<Repository> getAllRepositories() {
         List<Repository> repositories = new ArrayList<>();
         for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getRepoConfigs()) {
-            RepoInfo repoInfo = repoInfoCache.get(repoConfig, repoConfig.getName());
+            RepoInfo repoInfo = getRepoInfo(repoConfig.getName());
             if (repoInfo == null) {
-                log.warn("Repo with name '" + repoConfig.getName() + "' not found.");
                 continue;
             }
             repositories.add(repoInfo.getRepository());
@@ -106,9 +118,9 @@ public class ButlerCache {
             cacheDir.mkdir();
         }
         caches = new ArrayList<>();
-        caches.add(repoInfoCache = new RepoInfoCache(cacheDir));
         caches.add(repoListCache = new RepoListCache(cacheDir));
         caches.add(archiveListCache = new ArchiveListCache(cacheDir));
         archiveFileListCaches = new ArrayList<>();
+        this.repoInfoCacheAccess = jcsCache.getJCSCache();
     }
 }

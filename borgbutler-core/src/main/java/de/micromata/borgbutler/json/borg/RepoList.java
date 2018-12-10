@@ -2,9 +2,11 @@ package de.micromata.borgbutler.json.borg;
 
 import lombok.Getter;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class RepoList extends RepositoryMatcher {
+public class RepoList extends RepositoryMatcher implements Serializable {
+    private static final long serialVersionUID = 1006757749929526034L;
     @Getter
     private List<Archive> archives;
     @Getter

@@ -5,7 +5,11 @@ import de.micromata.borgbutler.json.JsonUtils;
 import lombok.Getter;
 import lombok.Setter;
 
-public abstract class RepositoryMatcher {
+import java.io.Serializable;
+
+public abstract class RepositoryMatcher implements Serializable {
+    private static final long serialVersionUID = -3672403959096363628L;
+
     @Getter
     protected Repository repository;
     @Getter

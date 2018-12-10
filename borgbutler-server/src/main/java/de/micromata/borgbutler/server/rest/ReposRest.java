@@ -4,6 +4,8 @@ import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.Repository;
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -14,6 +16,8 @@ import java.util.List;
 
 @Path("/repos")
 public class ReposRest {
+    private static Logger log = LoggerFactory.getLogger(ReposRest.class);
+
     @GET
     @Path("refresh")
     @Produces(MediaType.TEXT_PLAIN)
@@ -22,8 +26,8 @@ public class ReposRest {
      * @return "OK"
      */
     public String refresh() {
-        ButlerCache.getInstance().getRepoInfoCache().clearAndReset();
-        return "OK";
+        log.error("refresh not yet implemented.");
+        return "FAILED";
     }
 
     @GET

@@ -3,7 +3,10 @@ package de.micromata.borgbutler.json.borg;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
-public class RepoInfo extends RepositoryMatcher {
+import java.io.Serializable;
+
+public class RepoInfo extends RepositoryMatcher implements Serializable {
+    private static final long serialVersionUID = -1588038325129799400L;
     @Getter
     @JsonProperty("security_dir")
     private String securityDir;

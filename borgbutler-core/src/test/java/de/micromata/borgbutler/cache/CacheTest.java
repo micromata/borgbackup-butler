@@ -32,15 +32,15 @@ public class CacheTest {
         //butlerCache.removeAllCacheFiles();
         {
             for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getRepoConfigs()) {
-                RepoInfo repoInfo = ButlerCache.getInstance().getRepoInfoCache().get(repoConfig, repoConfig.getRepo());
+                RepoInfo repoInfo = ButlerCache.getInstance().getRepoInfo(repoConfig.getRepo());
             }
-            assertEquals(config.getRepoConfigs().size(), ButlerCache.getInstance().getRepoInfoCache().getElements().size());
+            assertEquals(config.getRepoConfigs().size(), ButlerCache.getInstance().getAllRepositories().size());
         }
         {
             for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getRepoConfigs()) {
                 RepoList repoList = ButlerCache.getInstance().getRepoListCache().get(repoConfig, repoConfig.getRepo());
             }
-            assertEquals(config.getRepoConfigs().size(), ButlerCache.getInstance().getRepoInfoCache().getElements().size());
+            assertEquals(config.getRepoConfigs().size(), ButlerCache.getInstance().getAllRepositories().size());
         }
         List<BorgRepoConfig> repoConfigs = ConfigurationHandler.getConfiguration().getRepoConfigs();
         Archive archive = null;

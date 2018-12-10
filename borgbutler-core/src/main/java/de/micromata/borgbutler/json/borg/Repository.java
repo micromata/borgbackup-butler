@@ -6,7 +6,10 @@ import de.micromata.borgbutler.config.ConfigurationHandler;
 import lombok.Getter;
 import lombok.Setter;
 
-public class Repository {
+import java.io.Serializable;
+
+public class Repository implements Serializable {
+    private static final long serialVersionUID = 1278802519434516280L;
     /**
      * A name describing this config. Only used for displaying purposes. This is automatically set with the name
      * of the repository configuration.

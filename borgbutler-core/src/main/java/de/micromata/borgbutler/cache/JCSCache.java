@@ -1,4 +1,4 @@
-package de.micromata.borgbutler.jcs;
+package de.micromata.borgbutler.cache;
 
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
@@ -18,6 +18,30 @@ public class JCSCache {
     private static final String CONFIG_FILE = "jcs-basic-config.properties";
     public static final String CACHE_DIR_NAME = "cache";
 
+    public enum Region {DEFAULT, ARCHIVE_CONTENT}
+
+    public static JCSCache getInstance() {
+        return instance;
+    }
+
+    /**
+     * @param <K>
+     * @param <V>
+     * @return JCS cache for default region.
+     */
+    public <K, V> CacheAccess<K, V> getJCSCache() {
+        return JCS.getInstance("default");
+    }
+
+    public <K, V> CacheAccess<K, V> getJCSCache(Region region) {
+        switch (region) {
+            case ARCHIVE_CONTENT:
+                return JCS.getInstance("default");
+            default:
+                return getJCSCache();
+        }
+    }
+
     private JCSCache() {
         Configuration configuration = ConfigurationHandler.getConfiguration();
         File cacheDir = new File(ConfigurationHandler.getInstance().getWorkingDir(), CACHE_DIR_NAME);
@@ -32,7 +56,6 @@ public class JCSCache {
         } catch (IOException ex) {
             log.error("Error while loading jcs config file '" + CONFIG_FILE + "': " + ex.getMessage(), ex);
         }
-        CacheAccess<String, String> jcs = JCS.getInstance("default");
         props.setProperty("jcs.auxiliary.DC.attributes.DiskPath", cacheDir.getAbsolutePath());
         props.setProperty("jcs.auxiliary.DC2.attributes.DiskPath", cacheDir.getAbsolutePath());
         int cacheMaxDiscSizeMB = configuration.getCacheMaxDiscSizeMB();

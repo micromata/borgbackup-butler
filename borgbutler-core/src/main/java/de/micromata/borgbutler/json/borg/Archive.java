@@ -5,10 +5,13 @@ import de.micromata.borgbutler.json.JsonUtils;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * This object is given by <tt>borg list repo</tt>.
  */
-public class Archive {
+public class Archive implements Serializable {
+    private static final long serialVersionUID = -7872260170265536732L;
     @Getter
     private String archive;
     @Getter
