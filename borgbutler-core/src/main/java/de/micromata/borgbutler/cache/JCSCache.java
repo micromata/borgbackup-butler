@@ -18,28 +18,12 @@ public class JCSCache {
     private static final String CONFIG_FILE = "jcs-basic-config.properties";
     public static final String CACHE_DIR_NAME = "cache";
 
-    public enum Region {DEFAULT, ARCHIVE_CONTENT}
-
     public static JCSCache getInstance() {
         return instance;
     }
 
-    /**
-     * @param <K>
-     * @param <V>
-     * @return JCS cache for default region.
-     */
-    public <K, V> CacheAccess<K, V> getJCSCache() {
-        return JCS.getInstance("default");
-    }
-
-    public <K, V> CacheAccess<K, V> getJCSCache(Region region) {
-        switch (region) {
-            case ARCHIVE_CONTENT:
-                return JCS.getInstance("default");
-            default:
-                return getJCSCache();
-        }
+    public <K, V> CacheAccess<K, V> getJCSCache(String region) {
+        return JCS.getInstance(region);
     }
 
     private JCSCache() {
@@ -57,9 +41,10 @@ public class JCSCache {
             log.error("Error while loading jcs config file '" + CONFIG_FILE + "': " + ex.getMessage(), ex);
         }
         props.setProperty("jcs.auxiliary.DC.attributes.DiskPath", cacheDir.getAbsolutePath());
-        props.setProperty("jcs.auxiliary.DC2.attributes.DiskPath", cacheDir.getAbsolutePath());
-        int cacheMaxDiscSizeMB = configuration.getCacheMaxDiscSizeMB();
-        props.setProperty("jcs.auxiliary.DC2.attributes.MaxKeySize", String.valueOf(cacheMaxDiscSizeMB * 1000));
+        //props.setProperty("jcs.auxiliary.DC2.attributes.DiskPath", cacheDir.getAbsolutePath());
+        //int cacheMaxDiscSizeMB = configuration.getCacheMaxDiscSizeMB();
+        //log.info("Using cache size for archive contents: " + cacheMaxDiscSizeMB + "MB.");
+        //props.setProperty("jcs.auxiliary.DC2.attributes.MaxKeySize", String.valueOf(cacheMaxDiscSizeMB * 1000));
         JCS.setConfigProperties(props);
     }
 }

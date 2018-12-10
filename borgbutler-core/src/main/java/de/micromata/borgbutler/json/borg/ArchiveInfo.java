@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * Result of <tt>borg list repo</tt>.
+ * Result of <tt>borg info repo::archive</tt>.
  */
 public class ArchiveInfo extends RepositoryMatcher implements Serializable {
     private static final long serialVersionUID = -4200553322856662346L;

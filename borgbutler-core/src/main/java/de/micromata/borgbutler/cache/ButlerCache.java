@@ -5,6 +5,7 @@ import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.borg.*;
+import org.apache.commons.jcs.JCS;
 import org.apache.commons.jcs.access.CacheAccess;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ public class ButlerCache {
     private JCSCache jcsCache = JCSCache.getInstance();
     private CacheAccess<String, RepoInfo> repoInfoCacheAccess;
     private CacheAccess<String, RepoList> repoListCacheAccess;
+    private CacheAccess<String, List<FilesystemItem>> archiveContentCacheAccess;
 
     @JsonIgnore
     private File cacheDir;
@@ -65,17 +67,43 @@ public class ButlerCache {
 
     public RepoList getRepoList(String idOrName) {
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(idOrName);
-        ArchiveInfo archiveInfo = BorgCommands.info(repoConfig, repoConfig.getRepo());
-        RepoList repoList = BorgCommands.list(repoConfig);
-        return null;
+        //ArchiveInfo archiveInfo = BorgCommands.info(repoConfig, repoConfig.getRepo());
+        RepoList repoList = repoListCacheAccess.get(repoConfig.getRepo());
+        if (repoList == null) {
+            repoList = BorgCommands.list(repoConfig);
+            repoListCacheAccess.put(repoConfig.getRepo(), repoList);
+        }
+        if (repoList == null) {
+            log.warn("Repo with name '" + idOrName + "' not found.");
+        }
+        return repoList;
     }
 
-    public List<FilesystemItem> getArchiveContent_(BorgRepoConfig repoConfig, Archive archive) {
+    public List<FilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
         if (archive == null || StringUtils.isBlank(archive.getArchive())) {
             return null;
         }
-        List<FilesystemItem> content = BorgCommands.list(repoConfig, archive);
+        String repoArchiveId = getRepoArchiveId(repoConfig.getRepo(), archive.getId());
+        List<FilesystemItem> content = archiveContentCacheAccess.get(repoArchiveId);
+        if (content == null) {
+            content = BorgCommands.listArchiveContent(repoConfig, archive);
+            archiveContentCacheAccess.put(repoArchiveId, content);
+            archiveContentCacheAccess.getStatistics();
+        }
+        log.info("archiveContentCacheAccess.stats: " + this.archiveContentCacheAccess.getStats());
+        if (content == null) {
+            log.warn("Repo::archiv with name '" + repoConfig.getRepo() + "::" + archive.getArchive() + "' not found.");
+        }
         return content;
+    }
+
+    public String getRepoArchiveId(String repo, String archiveId) {
+        return repo + "::" + archiveId;
+    }
+
+    public void shutdown() {
+        log.info("archiveContentCacheAccess.stats: " + this.archiveContentCacheAccess.getStats());
+        JCS.shutdown();
     }
 
     private ButlerCache() {
@@ -84,6 +112,8 @@ public class ButlerCache {
             log.info("Creating cache dir: " + cacheDir.getAbsolutePath());
             cacheDir.mkdir();
         }
-        this.repoInfoCacheAccess = jcsCache.getJCSCache();
+        this.repoInfoCacheAccess = jcsCache.getJCSCache("repoInfo");
+        this.repoListCacheAccess = jcsCache.getJCSCache("repoList");
+        this.archiveContentCacheAccess = jcsCache.getJCSCache("archiveContent");
     }
 }

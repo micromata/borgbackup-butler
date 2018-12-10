@@ -5,6 +5,9 @@ import lombok.Getter;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * Result of borg list repo
+ */
 public class RepoList extends RepositoryMatcher implements Serializable {
     private static final long serialVersionUID = 1006757749929526034L;
     @Getter

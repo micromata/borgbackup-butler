@@ -14,10 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +39,16 @@ public class BorgCommands {
         return repoInfo;
     }
 
+    public static RepoList list(BorgRepoConfig repoConfig) {
+        String json = execute(repoConfig, "list", repoConfig.getRepo(), "--json");
+        if (json == null) {
+            return null;
+        }
+        RepoList repoList = JsonUtils.fromJson(RepoList.class, json);
+        repoList.setOriginalJson(json);
+        return repoList;
+    }
+
     /**
      * Executes borg info archive
      *
@@ -54,30 +61,29 @@ public class BorgCommands {
         if (json == null) {
             return null;
         }
-        ArchiveInfo archiveList = JsonUtils.fromJson(ArchiveInfo.class, json);
-        archiveList.setOriginalJson(json);
-        return archiveList;
+        ArchiveInfo archiveInfo = JsonUtils.fromJson(ArchiveInfo.class, json);
+        archiveInfo.setOriginalJson(json);
+        return archiveInfo;
     }
 
-    public static RepoList list(BorgRepoConfig repoConfig) {
-        String json = execute(repoConfig, "list", repoConfig.getRepo(), "--json");
-        if (json == null) {
-            return null;
-        }
-        RepoList repoList = JsonUtils.fromJson(RepoList.class, json);
-        repoList.setOriginalJson(json);
-        return repoList;
-    }
-
-    public static List<FilesystemItem> list(BorgRepoConfig repoConfig, Archive archive) {
+    public static List<FilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        execute(outputStream, repoConfig, "list", repoConfig.getRepo() + "::" + archive.getArchive(),
-                "--json-lines");
-        String response = outputStream.toString(Definitions.STD_CHARSET);
+        //execute(outputStream, repoConfig, "list", repoConfig.getRepo() + "::" + archive.getArchive(),
+        //        "--json-lines");
+        //String response = outputStream.toString(Definitions.STD_CHARSET);
+        String response = null;
         try {
-            IOUtils.copy(new StringReader(response), new FileWriter("response.json"));
+            File file = new File("/Users/kai/tmp/response.json");
+            if (file.exists()) {
+                log.info("******** Reading test file....");
+                StringWriter writer = new StringWriter();
+                IOUtils.copy(new FileReader(file), writer);
+                response = writer.toString();
+            } else {
+                log.info("******** Writing test file....");
+                IOUtils.copy(new StringReader(response), new FileWriter(file));
+            }
         } catch (IOException ex) {
-
         }
         List<FilesystemItem> content = new ArrayList<>();
         try (Scanner scanner = new Scanner(response)) {
