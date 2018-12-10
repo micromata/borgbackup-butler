@@ -9,6 +9,13 @@ import java.util.List;
 public class Configuration {
     @Getter
     private String borgCommand = "borg";
+    /**
+     * Default is 200 MB (approximately).
+     */
+    @Getter
+    @JsonProperty("cache_max_disc_size_mb")
+    private int cacheMaxDiscSizeMB = 200;
+
     @Getter
     @JsonProperty("repo-configs")
     private List<BorgRepoConfig> repoConfigs = new ArrayList<>();
