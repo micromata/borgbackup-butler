@@ -4,11 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
-import de.micromata.borgbutler.json.borg.Archive;
-import de.micromata.borgbutler.json.borg.FilesystemItem;
-import de.micromata.borgbutler.json.borg.RepoInfo;
-import de.micromata.borgbutler.json.borg.Repository;
-import lombok.Getter;
+import de.micromata.borgbutler.json.borg.*;
 import org.apache.commons.jcs.access.CacheAccess;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -25,23 +21,13 @@ public class ButlerCache {
 
     private JCSCache jcsCache = JCSCache.getInstance();
     private CacheAccess<String, RepoInfo> repoInfoCacheAccess;
-    @Getter
-    private RepoListCache repoListCache;
-    private ArchiveListCache archiveListCache;
-    private List<AbstractElementsCache> caches;
-    private List<ArchiveFileListCache> archiveFileListCaches;
+    private CacheAccess<String, RepoList> repoListCacheAccess;
 
     @JsonIgnore
     private File cacheDir;
 
     public static ButlerCache getInstance() {
         return instance;
-    }
-
-    public void save() {
-        for (AbstractElementsCache cache : caches) {
-            cache.save();
-        }
     }
 
     public Repository getRepository(String idOrName) {
@@ -77,38 +63,19 @@ public class ButlerCache {
         return repositories;
     }
 
-    public List<FilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
+    public RepoList getRepoList(String idOrName) {
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(idOrName);
+        ArchiveInfo archiveInfo = BorgCommands.info(repoConfig, repoConfig.getRepo());
+        RepoList repoList = BorgCommands.list(repoConfig);
+        return null;
+    }
+
+    public List<FilesystemItem> getArchiveContent_(BorgRepoConfig repoConfig, Archive archive) {
         if (archive == null || StringUtils.isBlank(archive.getArchive())) {
             return null;
         }
-        ArchiveFileListCache cache = null;
-        for (ArchiveFileListCache existingCache : archiveFileListCaches) {
-            if (archive.equals(existingCache.getArchive())) {
-                // Cache is already known:
-                cache = existingCache;
-                break;
-            }
-        }
-        if (cache == null) {
-            cache = new ArchiveFileListCache(cacheDir, repoConfig, archive);
-        }
-        return cache.getContent(repoConfig);
-    }
-
-    /**
-     * Removes all cache files and clears all caches.
-     */
-    public void removeAllCacheFiles() {
-        File[] files = cacheDir.listFiles();
-        for (File file : files) {
-            if (AbstractElementsCache.isCacheFile(file)) {
-                log.info("Deleting cache file: " + file.getAbsolutePath());
-                file.delete();
-            }
-        }
-        for (AbstractElementsCache cache : caches) {
-            cache.clear();
-        }
+        List<FilesystemItem> content = BorgCommands.list(repoConfig, archive);
+        return content;
     }
 
     private ButlerCache() {
@@ -117,10 +84,6 @@ public class ButlerCache {
             log.info("Creating cache dir: " + cacheDir.getAbsolutePath());
             cacheDir.mkdir();
         }
-        caches = new ArrayList<>();
-        caches.add(repoListCache = new RepoListCache(cacheDir));
-        caches.add(archiveListCache = new ArchiveListCache(cacheDir));
-        archiveFileListCaches = new ArrayList<>();
         this.repoInfoCacheAccess = jcsCache.getJCSCache();
     }
 }
