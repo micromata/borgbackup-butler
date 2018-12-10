@@ -8,6 +8,30 @@ Copyright (C) 2018
 
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
+== Configuration
+
+
+~/.borgbutler.json
+----
+{
+  "cache_max_disc_size_mb" : 1000,
+  "repo-configs" : [ {
+    "name" : "My-Laptop-Local-Backup",
+    "repo" : "/Volumes/backup/my-laptop-backup",
+  },
+  {
+    "name" : "My-Laptop-Remote-Backup",
+    "repo" : "ssh://backup.acme.com/./backups/my-laptop",
+    "passwordCommand" : "security find-generic-password -a $USER -s borg-passphrase -w",
+    "rsh" : "ssh -i /Users/horst/.ssh/acme_rsa"
+  } ]
+}
+----
+* `cache_max_disc_size_mb` specifies the cache size BorgButler may use for caching borg results (such as repository
+information, archive information and also file list of archive content.
+* `repo-configs`: You may add a list of all your repos with the borg variables. The name is only used for displaying
+purposes.
+
 == For developers
 
 === Lombok required
