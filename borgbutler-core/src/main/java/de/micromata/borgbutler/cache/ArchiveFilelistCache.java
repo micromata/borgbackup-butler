@@ -1,7 +1,5 @@
 package de.micromata.borgbutler.cache;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.json.borg.Archive;
 import de.micromata.borgbutler.json.borg.FilesystemItem;
@@ -18,13 +16,12 @@ import java.util.List;
 
 class ArchiveFilelistCache {
     private static Logger log = LoggerFactory.getLogger(ArchiveFilelistCache.class);
-    public static final String CACHE_ARCHIVE_LISTS_BASENAME = "archive-content-";
+    private static final String CACHE_ARCHIVE_LISTS_BASENAME = "archive-content-";
+    private static final String CACHE_FILE_GZIP_EXTENSION = "gz";
     private File cacheDir;
 
-    @JsonIgnore
     @Getter
     private Archive archive;
-    @JsonProperty
     private List<FilesystemItem> content;
 
     public void save(BorgRepoConfig repoConfig, Archive archive, List<FilesystemItem> filesystemItems) {
@@ -77,13 +74,31 @@ class ArchiveFilelistCache {
         return list;
     }
 
-    private File getFile(BorgRepoConfig repoConfig, Archive archive) {
-        return new File(cacheDir, ReplaceUtils.encodeFilename(CACHE_ARCHIVE_LISTS_BASENAME + "-"
-                + repoConfig.getRepo() + "-" + archive.getArchive() + ".gz", true));
+    /**
+     * Deletes archive contents older than 7 days and deletes the oldest archive contents if the max cache size is
+     * exceeded.
+     */
+    public void cleanUp() {
+        File[] files = cacheDir.listFiles();
+        for (File file : files) {
+            if (isCacheFile(file)) {
+                log.info("Processing cache file: " + file.getAbsolutePath());
+                //file.delete();
+            }
+        }
+    }
+
+    File getFile(BorgRepoConfig repoConfig, Archive archive) {
+        return new File(cacheDir, ReplaceUtils.encodeFilename(CACHE_ARCHIVE_LISTS_BASENAME + archive.getTime()
+                + "-" + repoConfig.getRepo() + "-" + archive.getArchive() + ".gz", true));
     }
 
     ArchiveFilelistCache(File cacheDir) {
         this.cacheDir = cacheDir;
+    }
+
+    private boolean isCacheFile(File file) {
+        return file.getName().startsWith(CACHE_ARCHIVE_LISTS_BASENAME);
     }
 }
 

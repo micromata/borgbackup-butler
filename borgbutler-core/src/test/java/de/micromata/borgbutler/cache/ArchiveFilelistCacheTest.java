@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 public class ArchiveFilelistCacheTest {
@@ -39,6 +40,23 @@ public class ArchiveFilelistCacheTest {
         for (int i = 0; i < filesystemItems.length; i++) {
             assertEquals(list.get(i).getPath(), filesystemItems[i].getPath());
         }
+    }
+
+    @Test
+    void readWriteEmptyTest() throws Exception {
+        List<FilesystemItem> list = new ArrayList<>();
+        ArchiveFilelistCache cache = new ArchiveFilelistCache(new File("out"));
+        BorgRepoConfig repoConfig = new BorgRepoConfig();
+        repoConfig.setRepo("repo");
+        Archive archive = new Archive();
+        set(archive, "archive", "archive-2018-12-09");
+        if (cache.getFile(repoConfig, archive).exists()) {
+            cache.getFile(repoConfig, archive).delete();
+        }
+        assertNull(cache.load(repoConfig, archive));
+        cache.save(repoConfig, archive, list);
+        FilesystemItem[] filesystemItems = cache.load(repoConfig, archive);
+        assertNull(cache.load(repoConfig, archive));
     }
 
     private FilesystemItem create(int i) throws Exception {
