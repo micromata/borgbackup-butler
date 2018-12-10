@@ -19,7 +19,7 @@ public abstract class AbstractElementsCache<T> extends AbstractCache {
         if (identifier == null) {
             return null;
         }
-        if (getState() == STATE.INITIAL) {
+        if (getState() == CacheState.INITIAL) {
             read();
         }
         for (T element : elements.values()) {

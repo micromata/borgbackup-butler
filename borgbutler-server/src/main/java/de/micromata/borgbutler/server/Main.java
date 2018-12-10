@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.server;
 
+import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.server.jetty.JettyServer;
 import de.micromata.borgbutler.server.user.SingleUserManager;
 import de.micromata.borgbutler.server.user.UserManager;
@@ -104,6 +105,7 @@ public class Main {
         }
         log.info("Shutting down BorgButler web server...");
         server.stop();
+        ButlerCache.getInstance().save();
     }
 
     private static void printHelp(Options options) {
