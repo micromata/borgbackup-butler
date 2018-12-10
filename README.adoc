@@ -14,7 +14,7 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 ~/.borgbutler.json
 ----
 {
-  "cache_max_disc_size_mb" : 1000,
+  "cache_archive_content_max_disc_size_mb" : 1000,
   "repo-configs" : [ {
     "name" : "My-Laptop-Local-Backup",
     "repo" : "/Volumes/backup/my-laptop-backup",

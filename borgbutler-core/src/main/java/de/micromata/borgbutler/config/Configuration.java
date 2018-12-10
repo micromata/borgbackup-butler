@@ -10,11 +10,11 @@ public class Configuration {
     @Getter
     private String borgCommand = "borg";
     /**
-     * Default is 200 MB (approximately).
+     * Default is 100 MB (approximately).
      */
     @Getter
-    @JsonProperty("cache_max_disc_size_mb")
-    private int cacheMaxDiscSizeMB = 200;
+    @JsonProperty("cache_archive_content_max_disc_size_mb")
+    private int cacheArchiveContentMaxDiscSizeMB = 100;
 
     @Getter
     @JsonProperty("repo-configs")

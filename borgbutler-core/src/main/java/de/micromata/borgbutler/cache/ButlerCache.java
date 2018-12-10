@@ -2,6 +2,7 @@ package de.micromata.borgbutler.cache;
 
 import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.BorgRepoConfig;
+import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.borg.*;
 import org.apache.commons.collections4.CollectionUtils;
@@ -103,9 +104,10 @@ public class ButlerCache {
     }
 
     private ButlerCache() {
+        Configuration configuration = ConfigurationHandler.getConfiguration();
         this.jcsCache = JCSCache.getInstance();
         this.repoInfoCacheAccess = jcsCache.getJCSCache("repoInfo");
         this.repoListCacheAccess = jcsCache.getJCSCache("repoList");
-        this.archiveFilelistCache = new ArchiveFilelistCache(getCacheDir());
+        this.archiveFilelistCache = new ArchiveFilelistCache(getCacheDir(), configuration.getCacheArchiveContentMaxDiscSizeMB());
     }
 }
