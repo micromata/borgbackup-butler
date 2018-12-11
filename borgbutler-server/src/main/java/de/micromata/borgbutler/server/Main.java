@@ -1,12 +1,23 @@
 package de.micromata.borgbutler.server;
 
 import de.micromata.borgbutler.cache.ButlerCache;
+import de.micromata.borgbutler.json.borg.FilesystemItem;
 import de.micromata.borgbutler.server.jetty.JettyServer;
 import de.micromata.borgbutler.server.user.SingleUserManager;
 import de.micromata.borgbutler.server.user.UserManager;
 import org.apache.commons.cli.*;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class Main {
     private static Logger log = LoggerFactory.getLogger(Main.class);
@@ -35,6 +46,7 @@ public class Main {
     private void _start(String[] args) {
         // create Options object
         Options options = new Options();
+        options.addOption("e", "extract-archive-content", true, "Extracts the content of an archive cache file only (doesn't start the server). A complete file list of the archive will be extracted to stdout.");
         options.addOption("p", "port", true, "The default port for the web server.");
         options.addOption("q", "quiet", false, "Don't open browser automatically.");
         options.addOption("h", "help", false, "Print this help screen.");
@@ -44,6 +56,11 @@ public class Main {
             CommandLine line = parser.parse(options, args);
             if (line.hasOption('h')) {
                 printHelp(options);
+                return;
+            }
+            if (line.hasOption('e')) {
+                String file = line.getOptionValue("e");
+                printArchiveContent(file);
                 return;
             }
             if (line.hasOption('p')) {
@@ -111,5 +128,40 @@ public class Main {
     private static void printHelp(Options options) {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("borgbutler-server", options);
+    }
+
+    private static void printArchiveContent(String fileName) {
+        File file = new File(fileName);
+        FilesystemItem[] fileList = ButlerCache.getInstance().getArchiveContent(file);
+        boolean parseFormatExceptionPrinted = false;
+        if (fileList != null && fileList.length > 0) {
+            TimeZone tz = TimeZone.getTimeZone("UTC");
+            DateFormat iso = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+            iso.setTimeZone(tz);
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.S");
+            File out = new File(FilenameUtils.getBaseName(fileName) + ".txt.gz");
+            log.info("Writing file list to: " + out.getAbsolutePath());
+            try (PrintWriter writer = new PrintWriter(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(out))))) {
+                for (FilesystemItem item : fileList) {
+                    String time = item.getMtime();
+                    try {
+                        Date date = df.parse(item.getMtime());
+                        time = iso.format(date);
+                    } catch (java.text.ParseException ex) {
+                        if (!parseFormatExceptionPrinted) {
+                            parseFormatExceptionPrinted = true;
+                            log.error("Can't parse date: " + item.getMtime());
+                        }
+                    }
+                    writer.write(item.getMode() + " " + item.getUser() + " "
+                            + StringUtils.rightPad(FileUtils.byteCountToDisplaySize(item.getSize()), 10)
+                            + " " + time + " " + item.getPath());
+                    writer.write("\n");
+                }
+            } catch (IOException ex) {
+                log.error("Can't write file '" + out.getAbsolutePath() + "': " + ex.getMessage());
+            }
+        }
+        // 2018-12-04T22:44:58.924642
     }
 }

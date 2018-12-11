@@ -95,6 +95,10 @@ public class ButlerCache {
         return items;
     }
 
+    public FilesystemItem[] getArchiveContent(File file) {
+        return archiveFilelistCache.load(file);
+    }
+
     public void shutdown() {
         JCS.shutdown();
     }

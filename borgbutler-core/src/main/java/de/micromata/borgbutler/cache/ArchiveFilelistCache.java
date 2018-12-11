@@ -62,6 +62,14 @@ class ArchiveFilelistCache {
         if (!file.exists()) {
             return null;
         }
+        return load(file);
+    }
+
+    public FilesystemItem[] load(File file) {
+        if (file.exists() == false) {
+            log.error("File '" + file.getAbsolutePath() + "' doesn't exist. Can't get archive content files.");
+            return null;
+        }
         log.info("Loading archive content as file list from: " + file.getAbsolutePath());
         FilesystemItem[] list = null;
         try {
