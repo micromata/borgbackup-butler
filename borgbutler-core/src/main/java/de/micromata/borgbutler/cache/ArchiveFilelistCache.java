@@ -26,7 +26,7 @@ class ArchiveFilelistCache {
     private static final String CACHE_FILE_GZIP_EXTENSION = "gz";
     private File cacheDir;
     private int cacheArchiveContentMaxDiscSizeMB;
-    private long FILES_EXPIRE_TIME = 5 * 24 * 3660 * 1000; // Expires after 5 days.
+    private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
 
     @Getter
     private Archive archive;
@@ -50,6 +50,13 @@ class ArchiveFilelistCache {
         log.info("Saving done.");
     }
 
+    /**
+     * Will load and touch the archive file if exist. The file will be touched (last modified time will be set to now)
+     * for pruning oldest cache files. The last modified time will be the time of the last usage.
+     * @param repoConfig
+     * @param archive
+     * @return
+     */
     public FilesystemItem[] load(BorgRepoConfig repoConfig, Archive archive) {
         File file = getFile(repoConfig, archive);
         if (!file.exists()) {
@@ -57,6 +64,12 @@ class ArchiveFilelistCache {
         }
         log.info("Loading archive content as file list from: " + file.getAbsolutePath());
         FilesystemItem[] list = null;
+        try {
+            // Set last modified time of file:
+            Files.setAttribute(file.toPath(), "lastModifiedTime", FileTime.fromMillis(System.currentTimeMillis()));
+        } catch (IOException ex) {
+            log.error("Can't set lastModifiedTime on file '" + file.getAbsolutePath() + "'. Pruning old cache files may not work.");
+        }
         try (ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(new GzipCompressorInputStream(new FileInputStream(file))))) {
             Object obj = inputStream.readObject();
             if (!(obj instanceof Integer)) {
@@ -84,7 +97,7 @@ class ArchiveFilelistCache {
 
     /**
      * Deletes archive contents older than 7 days and deletes the oldest archive contents if the max cache size is
-     * exceeded.
+     * exceeded. The last modified time of a file is equals to the last usage by {@link #load(BorgRepoConfig, Archive)}.
      */
     public void cleanUp() {
         File[] files = cacheDir.listFiles();
@@ -92,37 +105,40 @@ class ArchiveFilelistCache {
         for (File file : files) {
             try {
                 if (!file.exists() || !isCacheFile(file)) continue;
-                // Get last access time of file:
-                FileTime time = Files.readAttributes(file.toPath(), BasicFileAttributes.class).lastAccessTime();
+                // Get last modified time of file:
+                FileTime time = Files.readAttributes(file.toPath(), BasicFileAttributes.class).lastModifiedTime();
                 if (currentMillis - FILES_EXPIRE_TIME > time.toMillis()) {
-                    log.info("Delete old cache file (last access " + time + " older than 5 days): " + file.getAbsolutePath());
+                    log.info("Delete expired cache file (last usage " + time + " older than 7 days): " + file.getAbsolutePath());
                     file.delete();
                 }
             } catch (IOException ex) {
-                log.error("Can't get last accesstime from cache files (ignore file '" + file.getAbsolutePath() + "'): " + ex.getMessage(), ex);
+                log.error("Can't get last modified time from cache files (ignore file '" + file.getAbsolutePath() + "'): " + ex.getMessage(), ex);
             }
         }
         int sizeInMB = getCacheDiskSizeInMB(files);
         if (sizeInMB > cacheArchiveContentMaxDiscSizeMB) {
             log.info("Maximum size of cache files exceeded (" + sizeInMB + "MB > " + cacheArchiveContentMaxDiscSizeMB
-                    + "MB). Deleting the old ones (with the oldest access)...");
+                    + "MB). Deleting the old ones (with the oldest usage)...");
+        } else {
+            // Nothing to clean up anymore.
+            return;
         }
         SortedMap<FileTime, File> sortedFiles = new TreeMap<>();
         for (File file : files) {
             if (!file.exists() || !isCacheFile(file)) continue;
             try {
-                // Get last access time of file:
-                FileTime time = Files.readAttributes(file.toPath(), BasicFileAttributes.class).lastAccessTime();
+                // Get last modified time of file:
+                FileTime time = Files.readAttributes(file.toPath(), BasicFileAttributes.class).lastModifiedTime();
                 sortedFiles.put(time, file);
             } catch (IOException ex) {
-                log.error("Can't get last accesstime from cache files (ignore file '" + file.getAbsolutePath() + "'): " + ex.getMessage(), ex);
+                log.error("Can't get last modified time from cache files (ignore file '" + file.getAbsolutePath() + "'): " + ex.getMessage(), ex);
             }
         }
         for (Map.Entry<FileTime, File> entry : sortedFiles.entrySet()) {
             FileTime time = entry.getKey();
             File file = entry.getValue();
             if (!file.exists() || !isCacheFile(file)) continue;
-            log.info("Deleting cache file (last access " + time + "): " + file.getAbsolutePath());
+            log.info("Deleting cache file (last usage " + time + "): " + file.getAbsolutePath());
             file.delete();
             int newSizeInMB = getCacheDiskSizeInMB(files);
             if (newSizeInMB < cacheArchiveContentMaxDiscSizeMB) {

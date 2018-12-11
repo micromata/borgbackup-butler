@@ -16,8 +16,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ArchiveFilelistCacheTest {
@@ -60,9 +59,9 @@ public class ArchiveFilelistCacheTest {
     }
 
     @Test
-    void cleanUpTest() throws Exception {
+    void cleanUpMaximumSizeTest() throws Exception {
         List<FilesystemItem> list = createList(1000000);
-        ArchiveFilelistCache cache = new ArchiveFilelistCache(new File("out"), 5);
+        ArchiveFilelistCache cache = new ArchiveFilelistCache(new File("out"), 3);
         cache.removeAllCacheFiles();
         BorgRepoConfig repoConfig = new BorgRepoConfig();
         repoConfig.setRepo("repo");
@@ -71,14 +70,56 @@ public class ArchiveFilelistCacheTest {
 
         Archive archive = createArchive("2018-11-20");
         cache.save(repoConfig, archive, list);
-        setLastAccessTime(cache.getFile(repoConfig, archive), millis - 10 * 3600000); // Fake lastAccessTime - 10 h
+        File oldestFile = cache.getFile(repoConfig, archive);
+        setLastModificationTime(oldestFile, millis - 10 * 3600000); // Fake lastModifiedTime - 10 h
 
         archive = createArchive("2018-11-21");
         cache.save(repoConfig, archive, list);
-        setLastAccessTime(cache.getFile(repoConfig, archive), millis - 60000); // Fake lastAccessTime - 1min
+        File newestFile = cache.getFile(repoConfig, archive);
+        setLastModificationTime(newestFile, millis - 60000); // Fake lastModifiedTime - 1min
 
+        archive = createArchive("2018-11-22");
         cache.save(repoConfig, archive, list);
+        File file = cache.getFile(repoConfig, archive);
+        setLastModificationTime(file, millis - 3600000); // Fake lastModifiedTime - 1 hour
+
+        assertTrue(oldestFile.exists());
+        assertTrue(newestFile.exists());
+        assertTrue(file.exists());
+
         cache.cleanUp();
+        assertFalse(oldestFile.exists());
+        assertFalse(file.exists());
+        assertTrue(newestFile.exists());
+        cache.removeAllCacheFiles();
+    }
+
+    @Test
+    void cleanUpExpiredTest() throws Exception {
+        List<FilesystemItem> list = createList(1000);
+        ArchiveFilelistCache cache = new ArchiveFilelistCache(new File("out"), 3);
+        cache.removeAllCacheFiles();
+        BorgRepoConfig repoConfig = new BorgRepoConfig();
+        repoConfig.setRepo("repo");
+
+        long millis = System.currentTimeMillis();
+
+        Archive archive = createArchive("2018-10-20");
+        cache.save(repoConfig, archive, list);
+        File notExpiredFile = cache.getFile(repoConfig, archive);
+        setLastModificationTime(notExpiredFile, millis - 6 * 24 * 3600000); // Fake lastModifiedTime - 10 h
+
+        archive = createArchive("2018-10-21");
+        cache.save(repoConfig, archive, list);
+        File expiredFile = cache.getFile(repoConfig, archive);
+        setLastModificationTime(expiredFile, millis - 8 * 24 * 3600000); // Fake lastModifiedTime - 10 h
+
+        assertTrue(expiredFile.exists());
+        assertTrue(notExpiredFile.exists());
+
+        cache.cleanUp();
+        assertFalse(expiredFile.exists());
+        assertTrue(notExpiredFile.exists());
         cache.removeAllCacheFiles();
     }
 
@@ -112,9 +153,9 @@ public class ArchiveFilelistCacheTest {
         return archive;
     }
 
-    private void setLastAccessTime(File file, long accessTime) throws IOException {
+    private void setLastModificationTime(File file, long lastModificationTime) throws IOException {
         Path path = file.toPath();
-        FileTime fileTime = FileTime.fromMillis(accessTime);
-        Files.setAttribute(path, "lastAccessTime", fileTime);
+        FileTime fileTime = FileTime.fromMillis(lastModificationTime);
+        Files.setAttribute(path, "lastModifiedTime", fileTime);
     }
 }
