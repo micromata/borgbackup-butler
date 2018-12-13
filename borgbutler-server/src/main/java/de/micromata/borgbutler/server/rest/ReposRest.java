@@ -19,18 +19,6 @@ public class ReposRest {
     private static Logger log = LoggerFactory.getLogger(ReposRest.class);
 
     @GET
-    @Path("refresh")
-    @Produces(MediaType.TEXT_PLAIN)
-    /**
-     * Reloads all templates on the server.
-     * @return "OK"
-     */
-    public String refresh() {
-        log.error("refresh not yet implemented.");
-        return "FAILED";
-    }
-
-    @GET
     @Path("repo")
     @Produces(MediaType.APPLICATION_JSON)
     /**
@@ -49,10 +37,14 @@ public class ReposRest {
     @Produces(MediaType.APPLICATION_JSON)
     /**
      *
+     * @param force If true, a reload of all repositories is forced.
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @see JsonUtils#toJson(Object, boolean)
      */
-    public String getList(@QueryParam("prettyPrinter") boolean prettyPrinter) {
+    public String getList(@QueryParam("force") boolean force, @QueryParam("prettyPrinter") boolean prettyPrinter) {
+        if (force) {
+            ButlerCache.getInstance().clearRepoInfoCacheAccess();
+        }
         List<Repository> repositories = ButlerCache.getInstance().getAllRepositories();
         if (CollectionUtils.isEmpty(repositories)) {
             return "";

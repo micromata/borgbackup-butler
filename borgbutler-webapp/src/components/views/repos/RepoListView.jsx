@@ -19,13 +19,13 @@ class RepoListView extends React.Component {
         this.fetchRepos();
     };
 
-    fetchRepos = () => {
+    fetchRepos = (force) => {
         this.setState({
             isFetching: true,
             failed: false,
             repos: undefined
         });
-        fetch(`${this.path}/list`, {
+        fetch(`${this.path}/list?force=${force}`, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -73,7 +73,7 @@ class RepoListView extends React.Component {
             content = <React.Fragment>
                 <div
                     className={'btn btn-outline-primary refresh-button-right'}
-                    onClick={this.fetchRepos}
+                    onClick={this.fetchRepos.bind(this, true)}
                 >
                     <IconRefresh/>
                 </div>

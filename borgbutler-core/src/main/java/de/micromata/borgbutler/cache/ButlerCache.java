@@ -63,6 +63,10 @@ public class ButlerCache {
         return repositories;
     }
 
+    public void clearRepoInfoCacheAccess() {
+        this.repoInfoCacheAccess.clear();
+    }
+
     public RepoList getRepoList(String idOrName) {
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(idOrName);
         //ArchiveInfo archiveInfo = BorgCommands.info(repoConfig, repoConfig.getRepo());
