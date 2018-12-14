@@ -77,6 +77,7 @@ class ConfigServerTab extends React.Component {
         this.addDirectoryItem = this.addDirectoryItem.bind(this);
         this.removeDirectoryItem = this.removeDirectoryItem.bind(this);
         this.onResetConfiguration = this.onResetConfiguration.bind(this);
+        this.onClearAllCaches = this.onClearAllCaches.bind(this);
         this.loadConfig = this.loadConfig.bind(this);
     }
 
@@ -143,6 +144,16 @@ class ConfigServerTab extends React.Component {
         }
     }
 
+    onClearAllCaches() {
+        fetch(getRestServiceUrl("configuration/clearAllCaches"), {
+            method: "GET",
+            dataType: "JSON",
+            headers: {
+                "Content-Type": "text/plain; charset=utf-8"
+            }
+        })
+    }
+
     addDirectoryItem() {
         directoryItems.push({
             index: directoryItems.length + 1,
@@ -163,11 +174,15 @@ class ConfigServerTab extends React.Component {
         }
 
         if (this.state.failed) {
-            return <ErrorAlertGenericRestFailure handleClick={this.loadConfig} />;
+            return <ErrorAlertGenericRestFailure handleClick={this.loadConfig}/>;
         }
 
         return (
             <form>
+                <FormLabelField>
+                    <FormButton id={'clearCahces'} onClick={this.onClearCaches}> Clear all caches
+                    </FormButton>
+                </FormLabelField>
                 <FormLabelField>
                     <Button className={'btn-outline-primary'}
                             onClick={() => this.setState({expertSettingsOpen: !this.state.expertSettingsOpen})}>

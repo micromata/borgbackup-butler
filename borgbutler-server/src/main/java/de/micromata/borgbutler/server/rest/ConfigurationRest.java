@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.server.rest;
 
+import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.server.ServerConfiguration;
 import de.micromata.borgbutler.server.ServerConfigurationHandler;
@@ -83,5 +84,17 @@ public class ConfigurationRest {
             ServerConfigurationHandler.getInstance().removeAllSettings();
         }
         return getConfig(false);
+    }
+
+    /**
+     * Resets the settings to default values (deletes all settings).
+     */
+    @GET
+    @Path("clearAllCaches")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String clearAllCaches() {
+        log.info("Clear all caches called...");
+        ButlerCache.getInstance().clearRepoInfoCacheAccess();
+        return "OK";
     }
 }
