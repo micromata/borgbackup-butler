@@ -1,10 +1,15 @@
-description = 'borgbutler-server'
-
 buildscript {
     repositories {
         mavenCentral()
     }
 }
+
+plugins {
+    id 'io.franzbecker.gradle-lombok' version '1.14'
+    id 'java'
+}
+
+description = 'borgbutler-server'
 
 dependencies {
     compile project(':borgbutler-core')
@@ -28,6 +33,19 @@ dependencies {
     // https://mvnrepository.com/artifact/commons-cli/commons-cli
     compile group: 'commons-cli', name: 'commons-cli', version: '1.4'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.21.0'
+
+    compileOnly "org.projectlombok:lombok:1.18.4"
+    testCompileOnly "org.projectlombok:lombok:1.18.4"
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+lombok {
+    version = '1.18.4'
+    sha256 = "" // skip verifyLombok task
 }
 
 apply plugin: 'application'
