@@ -1,6 +1,6 @@
 {
-  "short_name": "Merlin Webapp",
-  "name": "Control Merlin with this webapp.",
+  "short_name": "BorgButler Webapp",
+  "name": "Control BorgButler with this webapp.",
   "start_url": "./index.html",
   "display": "standalone",
   "theme_color": "#000000",
