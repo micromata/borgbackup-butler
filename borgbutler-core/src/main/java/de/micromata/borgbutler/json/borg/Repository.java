@@ -8,6 +8,9 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
+/**
+ * Part of Borg json objects to refer objects to repositories.
+ */
 public class Repository implements Serializable {
     private static final long serialVersionUID = 1278802519434516280L;
     /**

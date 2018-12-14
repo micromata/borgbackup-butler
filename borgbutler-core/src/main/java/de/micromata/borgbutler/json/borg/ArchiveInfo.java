@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Result of <tt>borg info repo::archive</tt>.
  */
-public class ArchiveInfo extends RepositoryMatcher implements Serializable {
+public class ArchiveInfo implements Serializable {
     private static final long serialVersionUID = -4200553322856662346L;
     @Getter
     private List<Archive2> archives;
@@ -19,14 +19,9 @@ public class ArchiveInfo extends RepositoryMatcher implements Serializable {
     @Getter
     private Encryption encryption;
     @Getter
+    private Repository repository;
+    @Getter
     @Setter
     @JsonIgnore
     private String originalJson;
-
-    public void updateFrom(ArchiveInfo archiveList) {
-        super.updateFrom(archiveList);
-        this.archives = archiveList.archives;
-        this.cache = archiveList.cache;
-        this.encryption = archiveList.encryption;
-    }
 }
