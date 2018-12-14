@@ -51,3 +51,8 @@ https://projectlombok.org/[Lombok home page^] +
 2. `npm install`
 3. `npm start`
 4. Start borgbutler-server's Main.
+
+=== Ideas
+==== 2 factor authentication
+https://github.com/j256/two-factor-auth
+

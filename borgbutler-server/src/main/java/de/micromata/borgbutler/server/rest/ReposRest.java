@@ -39,6 +39,7 @@ public class ReposRest {
      *
      * @param force If true, a reload of all repositories is forced.
      * @param prettyPrinter If true then the json output will be in pretty format.
+     * @return A list of repositories of type {@link Repository}.
      * @see JsonUtils#toJson(Object, boolean)
      */
     public String getList(@QueryParam("force") boolean force, @QueryParam("prettyPrinter") boolean prettyPrinter) {
