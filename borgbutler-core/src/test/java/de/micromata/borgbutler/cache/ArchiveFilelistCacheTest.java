@@ -1,8 +1,8 @@
 package de.micromata.borgbutler.cache;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.json.borg.Archive;
-import de.micromata.borgbutler.json.borg.FilesystemItem;
+import de.micromata.borgbutler.json.borg.BorgArchive;
+import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,17 +24,17 @@ public class ArchiveFilelistCacheTest {
 
     @Test
     void readWriteTest() throws Exception {
-        List<FilesystemItem> list = createList(1000000);
+        List<BorgFilesystemItem> list = createList(1000000);
         ArchiveFilelistCache cache = new ArchiveFilelistCache(new File("out"), 100);
         cache.removeAllCacheFiles();
         BorgRepoConfig repoConfig = new BorgRepoConfig();
         repoConfig.setRepo("repo");
-        Archive archive = createArchive("2018-12-10");
+        BorgArchive archive = createArchive("2018-12-10");
         log.info("Saving " + list.size() + " items to out dir.");
         cache.save(repoConfig, archive, list);
         log.info("Saving done.");
         log.info("Loading items from out dir.");
-        FilesystemItem[] filesystemItems = cache.load(repoConfig, archive);
+        BorgFilesystemItem[] filesystemItems = cache.load(repoConfig, archive);
         log.info("Loading " + filesystemItems.length + " items done.");
         assertEquals(list.size(), filesystemItems.length);
         for (int i = 0; i < filesystemItems.length; i++) {
@@ -45,22 +45,22 @@ public class ArchiveFilelistCacheTest {
 
     @Test
     void readWriteEmptyTest() throws Exception {
-        List<FilesystemItem> list = new ArrayList<>();
+        List<BorgFilesystemItem> list = new ArrayList<>();
         ArchiveFilelistCache cache = new ArchiveFilelistCache(new File("out"), 100);
         cache.removeAllCacheFiles();
         BorgRepoConfig repoConfig = new BorgRepoConfig();
         repoConfig.setRepo("repo");
-        Archive archive = createArchive("2018-12-09");
+        BorgArchive archive = createArchive("2018-12-09");
         assertNull(cache.load(repoConfig, archive));
         cache.save(repoConfig, archive, list);
-        FilesystemItem[] filesystemItems = cache.load(repoConfig, archive);
+        BorgFilesystemItem[] filesystemItems = cache.load(repoConfig, archive);
         assertNull(cache.load(repoConfig, archive));
         cache.removeAllCacheFiles();
     }
 
     @Test
     void cleanUpMaximumSizeTest() throws Exception {
-        List<FilesystemItem> list = createList(1000000);
+        List<BorgFilesystemItem> list = createList(1000000);
         ArchiveFilelistCache cache = new ArchiveFilelistCache(new File("out"), 3);
         cache.removeAllCacheFiles();
         BorgRepoConfig repoConfig = new BorgRepoConfig();
@@ -68,7 +68,7 @@ public class ArchiveFilelistCacheTest {
 
         long millis = System.currentTimeMillis();
 
-        Archive archive = createArchive("2018-11-20");
+        BorgArchive archive = createArchive("2018-11-20");
         cache.save(repoConfig, archive, list);
         File oldestFile = cache.getFile(repoConfig, archive);
         setLastModificationTime(oldestFile, millis - 10 * 3600000); // Fake lastModifiedTime - 10 h
@@ -96,7 +96,7 @@ public class ArchiveFilelistCacheTest {
 
     @Test
     void cleanUpExpiredTest() throws Exception {
-        List<FilesystemItem> list = createList(1000);
+        List<BorgFilesystemItem> list = createList(1000);
         ArchiveFilelistCache cache = new ArchiveFilelistCache(new File("out"), 3);
         cache.removeAllCacheFiles();
         BorgRepoConfig repoConfig = new BorgRepoConfig();
@@ -104,7 +104,7 @@ public class ArchiveFilelistCacheTest {
 
         long millis = System.currentTimeMillis();
 
-        Archive archive = createArchive("2018-10-20");
+        BorgArchive archive = createArchive("2018-10-20");
         cache.save(repoConfig, archive, list);
         File notExpiredFile = cache.getFile(repoConfig, archive);
         setLastModificationTime(notExpiredFile, millis - 6 * 24 * 3600000); // Fake lastModifiedTime - 10 h
@@ -123,16 +123,16 @@ public class ArchiveFilelistCacheTest {
         cache.removeAllCacheFiles();
     }
 
-    private List<FilesystemItem> createList(int number) throws Exception {
-        List<FilesystemItem> list = new ArrayList<>();
+    private List<BorgFilesystemItem> createList(int number) throws Exception {
+        List<BorgFilesystemItem> list = new ArrayList<>();
         for (int i = 0; i < 1000000; i++) {
             list.add(create(i));
         }
         return list;
     }
 
-    private FilesystemItem create(int i) throws Exception {
-        FilesystemItem item = new FilesystemItem();
+    private BorgFilesystemItem create(int i) throws Exception {
+        BorgFilesystemItem item = new BorgFilesystemItem();
         set(item, "type", "-").set(item, "mode", "drwxr-xr-x")
                 .set(item, "user", "kai").set(item, "group", "user")
                 .set(item, "path", "/Users/kai/Test" + i + ".java").set(item, "size", 1000);
@@ -146,8 +146,8 @@ public class ArchiveFilelistCacheTest {
         return this;
     }
 
-    private Archive createArchive(String time) throws Exception {
-        Archive archive = new Archive();
+    private BorgArchive createArchive(String time) throws Exception {
+        BorgArchive archive = new BorgArchive();
         set(archive, "archive", "archive-" + time);
         set(archive, "time", time);
         return archive;

@@ -10,14 +10,14 @@ import java.util.List;
 /**
  * Result of borg list repo
  */
-public class RepoList implements Serializable {
+public class BorgRepoList implements Serializable {
     private static final long serialVersionUID = 1006757749929526034L;
     @Getter
-    private List<Archive> archives;
+    private List<BorgArchive> archives;
     @Getter
-    private Encryption encryption;
+    private BorgEncryption encryption;
     @Getter
-    private Repository repository;
+    private BorgRepository repository;
     @Getter
     @Setter
     @JsonIgnore

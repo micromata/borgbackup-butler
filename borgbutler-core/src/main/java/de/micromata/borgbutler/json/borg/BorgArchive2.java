@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * This object is given by <tt>borg list archive</tt>.
  */
-public class Archive2 implements Serializable {
+public class BorgArchive2 implements Serializable {
     private static final long serialVersionUID = 4734056884088174992L;
     @Getter
     @JsonProperty("chunker_params")
@@ -25,7 +25,7 @@ public class Archive2 implements Serializable {
     @Getter
     private String start;
     @Getter
-    private ArchiveStats stats;
+    private BorgArchiveStats stats;
     @Getter
     private String username;
     public String toString() {

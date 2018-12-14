@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * This object is given by <tt>borg list repo</tt>.
  */
-public class Archive implements Serializable {
+public class BorgArchive implements Serializable {
     private static final long serialVersionUID = -7872260170265536732L;
     @Getter
     private String archive;

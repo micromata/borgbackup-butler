@@ -27,7 +27,7 @@ class RepoCard extends React.Component {
                         {repoText}
                     </ul>
                 </CardBody>
-                <CardFooter><span className={'lastModified'}>Last modified: {formatDateTime(repo.lastModified)}</span></CardFooter>
+                <CardFooter><span className={'lastModified'}>Last modified: {repo.lastModified}</span></CardFooter>
             </Card>
         </React.Fragment>
     };

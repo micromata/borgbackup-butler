@@ -10,17 +10,17 @@ import java.io.Serializable;
 /**
  * Result of borg info repo
  */
-public class RepoInfo implements Serializable {
+public class BorgRepoInfo implements Serializable {
     private static final long serialVersionUID = -1588038325129799400L;
     @Getter
     @JsonProperty("security_dir")
     private String securityDir;
     @Getter
-    private Cache cache;
+    private BorgCache cache;
     @Getter
-    private Encryption encryption;
+    private BorgEncryption encryption;
     @Getter
-    private Repository repository;
+    private BorgRepository repository;
     @Getter
     @Setter
     @JsonIgnore

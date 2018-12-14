@@ -5,7 +5,7 @@ import lombok.Getter;
 
 import java.io.Serializable;
 
-public class ArchiveStats implements Serializable {
+public class BorgArchiveStats implements Serializable {
     private static final long serialVersionUID = -7603297185652222010L;
     @Getter
     @JsonProperty("compressed_size")

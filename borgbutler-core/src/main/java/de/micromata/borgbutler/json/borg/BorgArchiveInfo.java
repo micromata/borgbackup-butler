@@ -10,16 +10,16 @@ import java.util.List;
 /**
  * Result of <tt>borg info repo::archive</tt>.
  */
-public class ArchiveInfo implements Serializable {
+public class BorgArchiveInfo implements Serializable {
     private static final long serialVersionUID = -4200553322856662346L;
     @Getter
-    private List<Archive2> archives;
+    private List<BorgArchive2> archives;
     @Getter
-    private Cache cache;
+    private BorgCache cache;
     @Getter
-    private Encryption encryption;
+    private BorgEncryption encryption;
     @Getter
-    private Repository repository;
+    private BorgRepository repository;
     @Getter
     @Setter
     @JsonIgnore

@@ -4,8 +4,10 @@ import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.config.Definitions;
+import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.*;
+import de.micromata.borgbutler.utils.DateUtils;
 import org.apache.commons.exec.*;
 import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -29,22 +31,31 @@ public class BorgCommands {
      * @param repoConfig
      * @return Parsed repo config returned by Borg command.
      */
-    public static RepoInfo info(BorgRepoConfig repoConfig) {
+    public static Repository info(BorgRepoConfig repoConfig) {
         String json = execute(repoConfig, "info", repoConfig.getRepo(), "--json");
         if (json == null) {
             return null;
         }
-        RepoInfo repoInfo = JsonUtils.fromJson(RepoInfo.class, json);
+        BorgRepoInfo repoInfo = JsonUtils.fromJson(BorgRepoInfo.class, json);
         repoInfo.setOriginalJson(json);
-        return repoInfo;
+        Repository repository = new Repository();
+        BorgRepository borgRepository = repoInfo.getRepository();
+        repository.setId(borgRepository.getId())
+                .setLastModified(DateUtils.get(borgRepository.getLastModified()))
+                .setLocation(borgRepository.getLocation())
+                .setName(borgRepository.getName())
+                .setCache(repoInfo.getCache())
+                .setEncryption(repoInfo.getEncryption())
+                .setSecurityDir(repoInfo.getSecurityDir());
+        return repository;
     }
 
-    public static RepoList list(BorgRepoConfig repoConfig) {
+    public static BorgRepoList list(BorgRepoConfig repoConfig) {
         String json = execute(repoConfig, "list", repoConfig.getRepo(), "--json");
         if (json == null) {
             return null;
         }
-        RepoList repoList = JsonUtils.fromJson(RepoList.class, json);
+        BorgRepoList repoList = JsonUtils.fromJson(BorgRepoList.class, json);
         repoList.setOriginalJson(json);
         return repoList;
     }
@@ -56,26 +67,26 @@ public class BorgCommands {
      * @param archive
      * @return
      */
-    public static ArchiveInfo info(BorgRepoConfig repoConfig, String archive) {
+    public static BorgArchiveInfo info(BorgRepoConfig repoConfig, String archive) {
         String json = execute(repoConfig, "info", repoConfig.getRepo() + "::" + archive, "--json");
         if (json == null) {
             return null;
         }
-        ArchiveInfo archiveInfo = JsonUtils.fromJson(ArchiveInfo.class, json);
+        BorgArchiveInfo archiveInfo = JsonUtils.fromJson(BorgArchiveInfo.class, json);
         archiveInfo.setOriginalJson(json);
         return archiveInfo;
     }
 
-    public static List<FilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
+    public static List<BorgFilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, BorgArchive archive) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         execute(outputStream, repoConfig, "list", repoConfig.getRepo() + "::" + archive.getArchive(),
                 "--json-lines");
         String response = outputStream.toString(Definitions.STD_CHARSET);
-        List<FilesystemItem> content = new ArrayList<>();
+        List<BorgFilesystemItem> content = new ArrayList<>();
         try (Scanner scanner = new Scanner(response)) {
             while (scanner.hasNextLine()) {
                 String json = scanner.nextLine();
-                FilesystemItem item = JsonUtils.fromJson(FilesystemItem.class, json);
+                BorgFilesystemItem item = JsonUtils.fromJson(BorgFilesystemItem.class, json);
                 content.add(item);
             }
         }

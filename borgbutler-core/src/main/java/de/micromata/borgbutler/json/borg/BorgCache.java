@@ -4,10 +4,10 @@ import lombok.Getter;
 
 import java.io.Serializable;
 
-public class Cache implements Serializable {
+public class BorgCache implements Serializable {
     private static final long serialVersionUID = -1728825838475013561L;
     @Getter
     private String path;
     @Getter
-    private Stats stats;
+    private BorgStats stats;
 }

@@ -1,10 +1,7 @@
 import React from 'react'
-import './RepoListView.css';
-import {CardDeck} from 'reactstrap';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {getRestServiceUrl} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
-import RepoCard from './RepoCard';
 import {IconRefresh} from "../../general/IconComponents";
 
 class RepoListView extends React.Component {
@@ -38,7 +35,7 @@ class RepoListView extends React.Component {
                         id: repo.id,
                         name: repo.name,
                         location: repo.location,
-                        lastModified: repo.lastModified
+                        lastModified: repo.last_modified
                     };
                 });
 

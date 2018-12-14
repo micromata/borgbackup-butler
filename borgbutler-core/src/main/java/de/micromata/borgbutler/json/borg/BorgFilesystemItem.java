@@ -4,7 +4,7 @@ import lombok.Getter;
 
 import java.io.Serializable;
 
-public class FilesystemItem implements Serializable {
+public class BorgFilesystemItem implements Serializable {
     private static final long serialVersionUID = -5545350851640655468L;
     /**
      * d (directory), - (file)

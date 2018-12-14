@@ -1,8 +1,8 @@
-package de.micromata.borgbutler.json.borg;
+package de.micromata.borgbutler.data;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.json.borg.BorgCache;
+import de.micromata.borgbutler.json.borg.BorgEncryption;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,26 +23,28 @@ public class Repository implements Serializable {
     @Setter
     String name;
     @Getter
+    @Setter
     private String id;
+    /**
+     * UTC date.
+     */
     @Getter
-    @JsonProperty("last_modified")
+    @Setter
     private String lastModified;
     @Getter
+    @Setter
     private String location;
 
-    /**
-     * Sets also the name for this repository if available in the configuration.
-     *
-     * @param location
-     * @return
-     */
-    public Repository setLocation(String location) {
-        this.location = location;
-        // It's ugly but efficiently ;-)
-        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(location);
-        if (repoConfig != null) {
-            this.name = repoConfig.getName();
-        }
-        return this;
+    @Getter
+    @Setter
+    private String securityDir;
+    @Getter
+    @Setter
+    private BorgCache cache;
+    @Getter
+    @Setter
+    private BorgEncryption encryption;
+
+    public Repository() {
     }
 }

@@ -1,8 +1,8 @@
 package de.micromata.borgbutler.cache;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.json.borg.Archive;
-import de.micromata.borgbutler.json.borg.FilesystemItem;
+import de.micromata.borgbutler.json.borg.BorgArchive;
+import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import de.micromata.borgbutler.utils.ReplaceUtils;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
@@ -29,10 +29,10 @@ class ArchiveFilelistCache {
     private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
 
     @Getter
-    private Archive archive;
-    private List<FilesystemItem> content;
+    private BorgArchive archive;
+    private List<BorgFilesystemItem> content;
 
-    public void save(BorgRepoConfig repoConfig, Archive archive, List<FilesystemItem> filesystemItems) {
+    public void save(BorgRepoConfig repoConfig, BorgArchive archive, List<BorgFilesystemItem> filesystemItems) {
         File file = getFile(repoConfig, archive);
         if (CollectionUtils.isEmpty(filesystemItems)) {
             return;
@@ -40,7 +40,7 @@ class ArchiveFilelistCache {
         log.info("Saving archive content as file list: " + file.getAbsolutePath());
         try (ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(file))))) {
             outputStream.writeObject(filesystemItems.size());
-            for (FilesystemItem item : filesystemItems) {
+            for (BorgFilesystemItem item : filesystemItems) {
                 outputStream.writeObject(item);
             }
             outputStream.writeObject("EOF");
@@ -57,7 +57,7 @@ class ArchiveFilelistCache {
      * @param archive
      * @return
      */
-    public FilesystemItem[] load(BorgRepoConfig repoConfig, Archive archive) {
+    public BorgFilesystemItem[] load(BorgRepoConfig repoConfig, BorgArchive archive) {
         File file = getFile(repoConfig, archive);
         if (!file.exists()) {
             return null;
@@ -65,13 +65,13 @@ class ArchiveFilelistCache {
         return load(file);
     }
 
-    public FilesystemItem[] load(File file) {
+    public BorgFilesystemItem[] load(File file) {
         if (file.exists() == false) {
             log.error("File '" + file.getAbsolutePath() + "' doesn't exist. Can't get archive content files.");
             return null;
         }
         log.info("Loading archive content as file list from: " + file.getAbsolutePath());
-        FilesystemItem[] list = null;
+        BorgFilesystemItem[] list = null;
         try {
             // Set last modified time of file:
             Files.setAttribute(file.toPath(), "lastModifiedTime", FileTime.fromMillis(System.currentTimeMillis()));
@@ -85,11 +85,11 @@ class ArchiveFilelistCache {
                 return null;
             }
             int size = (Integer) obj;
-            list = new FilesystemItem[size];
+            list = new BorgFilesystemItem[size];
             for (int i = 0; i < size; i++) {
                 obj = inputStream.readObject();
-                if (obj instanceof FilesystemItem) {
-                    list[i] = (FilesystemItem) obj;
+                if (obj instanceof BorgFilesystemItem) {
+                    list[i] = (BorgFilesystemItem) obj;
                 } else {
                     log.error("Can't load archive content. FilesystemItem expected, but received: " + obj.getClass()
                             + " at position " + i + ".");
@@ -105,7 +105,7 @@ class ArchiveFilelistCache {
 
     /**
      * Deletes archive contents older than 7 days and deletes the oldest archive contents if the max cache size is
-     * exceeded. The last modified time of a file is equals to the last usage by {@link #load(BorgRepoConfig, Archive)}.
+     * exceeded. The last modified time of a file is equals to the last usage by {@link #load(BorgRepoConfig, BorgArchive)}.
      */
     public void cleanUp() {
         File[] files = cacheDir.listFiles();
@@ -180,7 +180,7 @@ class ArchiveFilelistCache {
         }
     }
 
-    File getFile(BorgRepoConfig repoConfig, Archive archive) {
+    File getFile(BorgRepoConfig repoConfig, BorgArchive archive) {
         return new File(cacheDir, ReplaceUtils.encodeFilename(CACHE_ARCHIVE_LISTS_BASENAME + archive.getTime()
                 + "-" + repoConfig.getRepo() + "-" + archive.getArchive() + ".gz", true));
     }
