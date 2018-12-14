@@ -16,6 +16,8 @@ public class ServerConfigurationHandler {
     public static final int WEBSERVER_PORT_DEFAULT = 8042;
     private static final String LANGUAGE_PREF = "language";
     private static final String LANGUAGE_DEFAULT = null;
+    private static final String SHOW_TEST_DATA_PREF = "show-test-data";
+    private static final boolean SHOW_TEST_DATA_PREF_DEFAULT = true;
     private static final String WEB_DEVELOPMENT_MODE_PREF = "web-development-mode";
     private static final boolean WEB_DEVELOPMENT_MODE_PREF_DEFAULT = false;
 
@@ -51,6 +53,7 @@ public class ServerConfigurationHandler {
 
     public void load() {
         configuration.setPort(preferences.getInt(WEBSERVER_PORT_PREF, WEBSERVER_PORT_DEFAULT));
+        configuration.setShowTestData(preferences.getBoolean(SHOW_TEST_DATA_PREF, SHOW_TEST_DATA_PREF_DEFAULT));
         configuration.setWebDevelopmentMode(preferences.getBoolean(WEB_DEVELOPMENT_MODE_PREF, WEB_DEVELOPMENT_MODE_PREF_DEFAULT));
         configuration.resetModifiedFlag();
     }
@@ -58,6 +61,7 @@ public class ServerConfigurationHandler {
     public void save() {
         log.info("Saving configuration to user prefs.");
         preferences.putInt(WEBSERVER_PORT_PREF, configuration.getPort());
+        preferences.putBoolean(SHOW_TEST_DATA_PREF, configuration.isShowTestData());
         preferences.putBoolean(WEB_DEVELOPMENT_MODE_PREF, configuration.isWebDevelopmentMode());
         try {
             preferences.flush();
@@ -98,6 +102,7 @@ public class ServerConfigurationHandler {
         log.warn("Removes all configuration settings from user prefs.");
         preferences.remove(WEBSERVER_PORT_PREF);
         preferences.remove(LANGUAGE_PREF);
+        preferences.remove(SHOW_TEST_DATA_PREF);
         preferences.remove(WEB_DEVELOPMENT_MODE_PREF);
         for(String extraKey : extraPreferences) {
             preferences.remove(extraKey);

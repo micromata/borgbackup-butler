@@ -1,5 +1,7 @@
 package de.micromata.borgbutler.server;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +14,9 @@ public class ServerConfiguration {
     private static String applicationHome;
 
     private int port;
+    @Getter
+    @Setter
+    private boolean showTestData = true;
     private boolean webDevelopmentMode = false;
     private boolean templatesDirModified = false;
 
@@ -64,6 +69,7 @@ public class ServerConfiguration {
 
     public void copyFrom(ServerConfiguration other) {
         this.port = other.port;
+        this.showTestData = other.showTestData;
         this.webDevelopmentMode = other.webDevelopmentMode;
     }
 }
