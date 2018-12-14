@@ -30,7 +30,7 @@ public class RunningMode {
 
     public static boolean isDevelopmentMode() {
         if (development == null) {
-            development = new File(ServerConfiguration.getApplicationHome(), "merlin-core").exists();
+            development = new File(ServerConfiguration.getApplicationHome(), "borgbutler-core").exists();
             if (development) {
                 log.warn("*** Starting Merlin server in development mode. This mode shouldn't be used in production environments. ***");
             }

@@ -76,7 +76,7 @@ public class JettyServer {
         try {
             Path path;
             if (RunningMode.isDevelopmentMode()) {
-                path = Paths.get(ServerConfiguration.getApplicationHome(), "merlin-webapp", "build");
+                path = Paths.get(ServerConfiguration.getApplicationHome(), "borgbutler-webapp", "build");
             } else {
                 path = Paths.get(ServerConfiguration.getApplicationHome(), "web");
             }
