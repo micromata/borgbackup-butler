@@ -34,12 +34,7 @@ class RepoListView extends React.Component {
             .then(response => response.json())
             .then(json => {
                 const repos = json.map(repo => {
-                    return {
-                        id: repo.id,
-                        name: repo.name,
-                        location: repo.location,
-                        lastModified: repo.lastModified
-                    };
+                    return repo;
                 });
 
                 this.setState({

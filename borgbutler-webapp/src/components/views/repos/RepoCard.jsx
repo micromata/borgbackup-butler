@@ -1,7 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import {Card, CardBody, CardFooter, CardHeader} from 'reactstrap';
-import {formatDateTime} from "../../../utilities/global";
 
 class RepoCard extends React.Component {
 
@@ -21,7 +20,7 @@ class RepoCard extends React.Component {
         return <React.Fragment>
             <Card tag={Link} to={`/repoArchives/${repo.id}`} outline color="success" className={'repo'}
                   style={{backgroundColor: '#fff'}}>
-                <CardHeader>{repo.name}</CardHeader>
+                <CardHeader>{repo.displayName}</CardHeader>
                 <CardBody>
                     <ul className="list-group list-group-flush">
                         {repoText}
