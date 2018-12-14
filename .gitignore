@@ -39,3 +39,4 @@ borgbutler-core/build
 borgbutler-core/out
 borgbutler-server/out
 borgbutler-webapp/node_modules
+borgbutler-webapp/build

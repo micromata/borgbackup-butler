@@ -47,10 +47,11 @@ https://projectlombok.org/[Lombok home page^] +
 === Work with borgbutler-server
 ==== npm
 
-1. `cd borgbutler-webapp`
-2. `npm install`
-3. `npm start`
-4. Start borgbutler-server's Main.
+1. `gradle npmBuild`
+2. `cd borgbutler-webapp`
+3. `npm install`
+4. `npm start`
+5. Start borgbutler-server's Main.
 
 === Ideas
 ==== 2 factor authentication

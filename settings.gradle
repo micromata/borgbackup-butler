@@ -17,4 +17,4 @@ include 'borgbutler-webapp'
 project(':borgbutler-webapp').projectDir = "$rootDir/borgbutler-webapp" as File
 
 //startParameter.excludedTaskNames << ':borgbutler-desktop:distTar'
-startParameter.excludedTaskNames << ':borgbutler-main:distTar'
+startParameter.excludedTaskNames << ':borgbutler-server:distTar'
