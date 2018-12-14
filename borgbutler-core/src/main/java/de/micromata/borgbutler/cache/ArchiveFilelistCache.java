@@ -91,7 +91,8 @@ class ArchiveFilelistCache {
                 if (obj instanceof BorgFilesystemItem) {
                     list[i] = (BorgFilesystemItem) obj;
                 } else {
-                    log.error("Can't load archive content. FilesystemItem expected, but received: " + obj.getClass()
+                    log.error("Can't load archive content. FilesystemItem expected, but received: "
+                            + (obj != null ? obj.getClass() : "null")
                             + " at position " + i + ".");
                     return null;
                 }

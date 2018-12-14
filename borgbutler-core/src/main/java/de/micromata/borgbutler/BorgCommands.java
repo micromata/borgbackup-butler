@@ -112,7 +112,7 @@ public class BorgCommands {
         //executor.setExitValue(2);
         //ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
         //executor.setWatchdog(watchdog);
-        ExecuteResultHandler handler = new DefaultExecuteResultHandler();
+        //  ExecuteResultHandler handler = new DefaultExecuteResultHandler();
         PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
         executor.setStreamHandler(streamHandler);
         String borgCall = cmdLine.getExecutable() + " " + StringUtils.join(cmdLine.getArguments(), " ");

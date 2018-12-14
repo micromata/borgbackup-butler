@@ -6,6 +6,7 @@ import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.borg.BorgArchive;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,22 +34,22 @@ public class CacheTest {
             }
             assertEquals(config.getRepoConfigs().size(), ButlerCache.getInstance().getAllRepositories().size());
         }
-/*        {
+        {
             for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getRepoConfigs()) {
-                BorgRepoList repoList = ButlerCache.getInstance().getRepoList(repoConfig.getRepo());
+                Repository repository = ButlerCache.getInstance().getRepositoryArchives(repoConfig.getRepo());
             }
             assertEquals(config.getRepoConfigs().size(), ButlerCache.getInstance().getAllRepositories().size());
-        }*/
+        }
         List<BorgRepoConfig> repoConfigs = ConfigurationHandler.getConfiguration().getRepoConfigs();
         BorgArchive archive = null;
         BorgRepoConfig repoConfig = null;
-/*        if (CollectionUtils.isNotEmpty(repoConfigs)) {
+        if (CollectionUtils.isNotEmpty(repoConfigs)) {
             repoConfig = repoConfigs.get(0);
-            BorgRepoList repoList = ButlerCache.getInstance().getRepoList(repoConfig.getRepo());
-            if (repoList != null && CollectionUtils.isNotEmpty(repoList.getArchives())) {
-                archive = repoList.getArchives().get(0);
+            Repository rerepositoryoList = ButlerCache.getInstance().getRepositoryArchives(repoConfig.getRepo());
+            if (rerepositoryoList != null && CollectionUtils.isNotEmpty(rerepositoryoList.getArchives())) {
+                archive = rerepositoryoList.getArchives().get(0);
             }
-        }*/
+        }
         {
             if (archive != null) {
                 BorgFilesystemItem[] content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive);
