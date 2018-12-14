@@ -8,9 +8,12 @@ import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.*;
 import de.micromata.borgbutler.utils.DateUtils;
-import org.apache.commons.exec.*;
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +29,10 @@ public class BorgCommands {
     private static Logger log = LoggerFactory.getLogger(BorgCommands.class);
 
     /**
-     * Executes borg info repository
+     * Executes borg info repository.
      *
      * @param repoConfig
-     * @return Parsed repo config returned by Borg command.
+     * @return Parsed repo config returned by Borg command (without archives).
      */
     public static Repository info(BorgRepoConfig repoConfig) {
         String json = execute(repoConfig, "info", repoConfig.getRepo(), "--json");
@@ -37,27 +40,42 @@ public class BorgCommands {
             return null;
         }
         BorgRepoInfo repoInfo = JsonUtils.fromJson(BorgRepoInfo.class, json);
-        repoInfo.setOriginalJson(json);
-        Repository repository = new Repository();
         BorgRepository borgRepository = repoInfo.getRepository();
-        repository.setId(borgRepository.getId())
+        Repository repository = new Repository()
+                .setId(borgRepository.getId())
+                .setName(repoConfig.getRepo())
+                .setDisplayName(repoConfig.getDisplayName())
                 .setLastModified(DateUtils.get(borgRepository.getLastModified()))
                 .setLocation(borgRepository.getLocation())
-                .setName(borgRepository.getName())
                 .setCache(repoInfo.getCache())
                 .setEncryption(repoInfo.getEncryption())
                 .setSecurityDir(repoInfo.getSecurityDir());
         return repository;
     }
 
-    public static BorgRepoList list(BorgRepoConfig repoConfig) {
-        String json = execute(repoConfig, "list", repoConfig.getRepo(), "--json");
+    /**
+     * Executes borg list repository.
+     * The given repository will be cloned and archives will be added.
+     * The field {@link Repository#getLastModified()} of masterRepository will be updated.
+     *
+     * @param masterRepository Repository without archives.
+     * @return Parsed repo config returned by Borg command including archives.
+     */
+    public static Repository list(BorgRepoConfig repoConfig, Repository masterRepository) {
+        String json = execute(repoConfig, "list", masterRepository.getName(), "--json");
         if (json == null) {
+            log.error("Can't load archives from repo '" + masterRepository.getName() + "'.");
             return null;
         }
         BorgRepoList repoList = JsonUtils.fromJson(BorgRepoList.class, json);
-        repoList.setOriginalJson(json);
-        return repoList;
+        if (repoList == null) {
+            log.error("Can't load archives from repo '" + masterRepository.getName() + "'.");
+            return null;
+        }
+        masterRepository.setLastModified(repoList.getRepository().getLastModified());
+        Repository repository = ObjectUtils.clone(masterRepository)
+                .setArchives(repoList.getArchives());
+        return repository;
     }
 
     /**
@@ -73,7 +91,6 @@ public class BorgCommands {
             return null;
         }
         BorgArchiveInfo archiveInfo = JsonUtils.fromJson(BorgArchiveInfo.class, json);
-        archiveInfo.setOriginalJson(json);
         return archiveInfo;
     }
 

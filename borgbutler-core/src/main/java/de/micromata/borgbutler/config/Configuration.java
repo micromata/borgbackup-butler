@@ -24,12 +24,12 @@ public class Configuration {
         repoConfigs.add(repoConfig);
     }
 
-    public BorgRepoConfig getRepoConfig(String idOrName) {
-        if (idOrName == null) {
+    public BorgRepoConfig getRepoConfig(String name) {
+        if (name == null) {
             return null;
         }
         for (BorgRepoConfig repoConfig : repoConfigs) {
-            if (idOrName.equals(repoConfig.getRepo()) ||idOrName.equals(repoConfig.getName())) {
+            if (name.equals(repoConfig.getRepo())) {
                 return repoConfig;
             }
         }

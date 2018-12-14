@@ -24,12 +24,28 @@ public class ReposRest {
     @Produces(MediaType.APPLICATION_JSON)
     /**
      *
-     * @param id
+     * @param id id or name of repo.
      * @param prettyPrinter If true then the json output will be in pretty format.
+     * @return Repository (without list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
-    public String getTemplate(@QueryParam("id") String id, @QueryParam("prettyPrinter") boolean prettyPrinter) {
+    public String getRepo(@QueryParam("id") String id, @QueryParam("prettyPrinter") boolean prettyPrinter) {
         Repository repository = ButlerCache.getInstance().getRepository(id);
+        return JsonUtils.toJson(repository, prettyPrinter);
+    }
+
+    @GET
+    @Path("repoArchiveList")
+    @Produces(MediaType.APPLICATION_JSON)
+    /**
+     *
+     * @param id id or name of repo.
+     * @param prettyPrinter If true then the json output will be in pretty format.
+     * @return Repository (including list of archives) as json string.
+     * @see JsonUtils#toJson(Object, boolean)
+     */
+    public String getRepoArchiveList(@QueryParam("id") String id, @QueryParam("prettyPrinter") boolean prettyPrinter) {
+        Repository repository = ButlerCache.getInstance().getRepositoryArchives(id);
         return JsonUtils.toJson(repository, prettyPrinter);
     }
 

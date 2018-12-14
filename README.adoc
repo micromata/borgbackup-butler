@@ -16,14 +16,14 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 {
   "cache_archive_content_max_disc_size_mb" : 1000,
   "repo-configs" : [ {
-    "name" : "My-Laptop-Local-Backup",
-    "repo" : "/Volumes/backup/my-laptop-backup",
+    "display_name" : "My-Laptop-Local-Backup",
+    "repo"         : "/Volumes/backup/my-laptop-backup",
   },
   {
-    "name" : "My-Laptop-Remote-Backup",
-    "repo" : "ssh://backup.acme.com/./backups/my-laptop",
+    "display_name"    : "My-Laptop-Remote-Backup",
+    "repo"            : "ssh://backup.acme.com/./backups/my-laptop",
     "passwordCommand" : "security find-generic-password -a $USER -s borg-passphrase -w",
-    "rsh" : "ssh -i /Users/horst/.ssh/acme_rsa"
+    "rsh"             : "ssh -i /Users/horst/.ssh/acme_rsa"
   } ]
 }
 ----
@@ -47,13 +47,14 @@ https://projectlombok.org/[Lombok home page^] +
 === Work with borgbutler-server
 ==== npm
 
-1. `gradle npmBuild`
-2. `cd borgbutler-webapp`
-3. `npm install`
-4. `npm start`
-5. Start borgbutler-server's Main.
+1. `cd borgbutler-webapp`
+2. `npm install`
+3. `npm start`
+4. Start borgbutler-server's Main.
 
 === Ideas
 ==== 2 factor authentication
 https://github.com/j256/two-factor-auth
 
+=== Install server
+==== Debian

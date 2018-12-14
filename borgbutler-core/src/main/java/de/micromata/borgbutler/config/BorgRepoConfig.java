@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.config;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +9,8 @@ public class BorgRepoConfig {
      * A name describing this config. Only used for displaying purposes.
      */
     @Getter @Setter
-    private String name;
+    @JsonProperty("display_name")
+    private String displayName;
     @Getter @Setter
     private String repo;
     @Getter @Setter

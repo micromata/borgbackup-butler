@@ -16,14 +16,22 @@ import java.util.List;
 public class Repository implements Serializable, Cloneable {
     private static final long serialVersionUID = 1278802519434516280L;
     /**
-     * A name describing this config. Only used for displaying purposes. This is automatically set with the name
-     * of the repository configuration.
+     * The repo configured for borg.
      *
-     * @see BorgRepoConfig#getName()
+     * @see BorgRepoConfig#getRepo()
      */
     @Getter
     @Setter
     String name;
+    /**
+     * A name describing this config. Only used for displaying purposes. This is automatically set with the name
+     * of the repository configuration.
+     *
+     * @see BorgRepoConfig#getDisplayName()
+     */
+    @Getter
+    @Setter
+    String displayName;
     @Getter
     @Setter
     private String id;

@@ -4,7 +4,7 @@ import {getRestServiceUrl} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
 import {IconRefresh} from "../../general/IconComponents";
 
-class RepoListView extends React.Component {
+class RepoArchiveListView extends React.Component {
 
 
     path = getRestServiceUrl('repos');
@@ -74,14 +74,6 @@ class RepoListView extends React.Component {
                 >
                     <IconRefresh/>
                 </div>
-                <CardDeck>
-                {this.state.repos.map(repo => {
-                    return <RepoCard
-                        key={repo.id}
-                        repo={repo}
-                    />;
-                })}
-                </CardDeck>
             </React.Fragment>;
 
         }
@@ -101,4 +93,4 @@ class RepoListView extends React.Component {
     }
 }
 
-export default RepoListView;
+export default RepoArchiveListView;

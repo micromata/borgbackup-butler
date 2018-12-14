@@ -7,11 +7,9 @@ import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.borg.BorgArchive;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
-import de.micromata.borgbutler.json.borg.BorgRepoList;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.jcs.JCS;
 import org.apache.commons.jcs.access.CacheAccess;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +38,44 @@ public class ButlerCache {
      */
     public Repository getRepository(String idOrName) {
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(idOrName);
+        if (repoConfig != null) {
+            return getRepository(repoConfig);
+        }
+        List<Repository> repositories = getAllRepositories();
+        if (CollectionUtils.isNotEmpty(repositories)) {
+            for (Repository repository : repositories) {
+                if (StringUtils.equals(idOrName, repository.getName()) || StringUtils.equals(idOrName, repository.getId())) {
+                    return repository;
+                }
+            }
+        }
+        log.warn("Repo with id or name '" + idOrName + "' not found.");
+        return null;
+    }
+
+    /**
+     * @param repoConfig
+     * @return Repository without list of archives.
+     */
+    private Repository getRepository(BorgRepoConfig repoConfig) {
         Repository repository = repoCacheAccess.get(repoConfig.getRepo());
         if (repository == null || repository.getLocation() == null) {
             repository = BorgCommands.info(repoConfig);
             repoCacheAccess.put(repoConfig.getRepo(), repository);
         }
         if (repository == null) {
-            log.warn("Repo with name '" + idOrName + "' not found.");
+            log.warn("Repo with name '" + repoConfig.getRepo() + "' not found.");
         }
         return repository;
+    }
+
+    private BorgRepoConfig getBorgRepoConfig(String name) {
+        for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getRepoConfigs()) {
+            if (StringUtils.equals(repoConfig.getRepo(), name))
+                return repoConfig;
+        }
+        log.error("Repo config with name '" + name + "' not found.");
+        return null;
     }
 
     /**
@@ -57,7 +84,7 @@ public class ButlerCache {
     public List<Repository> getAllRepositories() {
         List<Repository> repositories = new ArrayList<>();
         for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getRepoConfigs()) {
-            Repository repository = getRepository(repoConfig.getName());
+            Repository repository = getRepository(repoConfig);
             if (repository == null) {
                 continue;
             }
@@ -84,25 +111,16 @@ public class ButlerCache {
      * @return The repository including all archives.
      */
     public Repository getRepositoryArchives(String idOrName) {
-        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(idOrName);
-        //ArchiveInfo archiveInfo = BorgCommands.info(repoConfig, repoConfig.getRepo());
-        Repository plainRepository = repoArchivesCacheAccess.get(repoConfig.getRepo());
-        if (plainRepository != null) {
-            return plainRepository;
-        }
-        plainRepository = repoCacheAccess.get(repoConfig.getRepo());
-        if (plainRepository == null) {
-            log.warn("Repo with name '" + idOrName + "' not found.");
+        Repository masterRepository = getRepository(idOrName);
+        if (masterRepository == null) {
             return null;
         }
-        BorgRepoList repoList = BorgCommands.list(repoConfig);
-        if (repoList == null) {
-            log.warn("Repo with name '" + idOrName + "' not found.");
-            return null;
+        Repository repository = repoArchivesCacheAccess.get(masterRepository.getName());
+        if (repository != null) {
+            return repository;
         }
-        Repository repository = ObjectUtils.clone(plainRepository);
-        repository.setArchives(repoList.getArchives());
-        repoArchivesCacheAccess.put(repoConfig.getRepo(), repository);
+        repository = BorgCommands.list(getBorgRepoConfig(masterRepository.getName()), masterRepository);
+        repoArchivesCacheAccess.put(repository.getName(), repository);
         return repository;
     }
 

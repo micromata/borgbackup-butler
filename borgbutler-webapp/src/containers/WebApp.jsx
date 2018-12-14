@@ -6,6 +6,7 @@ import {connect} from 'react-redux';
 import Menu from '../components/general/Menu';
 import Start from '../components/views/Start';
 import RepoListView from '../components/views/repos/RepoListView';
+import RepoArchiveListView from '../components/views/repos/RepoArchiveListView';
 import ConfigurationPage from '../components/views/config/ConfigurationPage';
 import RestServices from '../components/views/develop/RestServices';
 import {isDevelopmentMode} from '../utilities/global';
@@ -50,6 +51,7 @@ class WebApp extends React.Component {
                                     />
                                 ))
                             }
+                            <Route path={'/repoArchives/:repoId'} component={RepoArchiveListView}/>
                         </Switch>
                     </div>
                     <Footer versionInfo={this.props.version}/>
