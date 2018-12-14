@@ -63,7 +63,7 @@ public class ButlerCache {
         return repositories;
     }
 
-    public void clearAllCacheAccess(){
+    public void clearAllCaches(){
         log.info("Clearing repositories cache (with list of archives)...");
         this.repoListCacheAccess.clear();
         clearRepoInfoCacheAccess();

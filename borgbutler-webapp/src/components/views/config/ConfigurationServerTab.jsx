@@ -180,7 +180,7 @@ class ConfigServerTab extends React.Component {
         return (
             <form>
                 <FormLabelField>
-                    <FormButton id={'clearCahces'} onClick={this.onClearCaches}> Clear all caches
+                    <FormButton id={'clearAllCaches'} onClick={this.onClearAllCaches}> Clear all caches
                     </FormButton>
                 </FormLabelField>
                 <FormLabelField>

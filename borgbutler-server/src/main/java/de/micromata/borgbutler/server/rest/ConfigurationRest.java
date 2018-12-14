@@ -94,7 +94,7 @@ public class ConfigurationRest {
     @Produces(MediaType.APPLICATION_JSON)
     public String clearAllCaches() {
         log.info("Clear all caches called...");
-        ButlerCache.getInstance().clearRepoInfoCacheAccess();
+        ButlerCache.getInstance().clearAllCaches();
         return "OK";
     }
 }
