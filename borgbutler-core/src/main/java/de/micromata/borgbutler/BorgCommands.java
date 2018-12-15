@@ -77,7 +77,7 @@ public class BorgCommands {
         masterRepository.setLastModified(DateUtils.format(repoList.getRepository().getLastModified()))
                 .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
         Repository repository = ObjectUtils.clone(masterRepository)
-                .setArchives(repoList.getArchives());
+                .addAll(repoList.getArchives());
         if (repository.getArchives() != null) {
             for (BorgArchive archive : repository.getArchives()) {
                 // Reformat Borg date strings.

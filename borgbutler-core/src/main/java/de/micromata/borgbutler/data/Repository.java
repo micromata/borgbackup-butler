@@ -8,7 +8,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Part of Borg json objects to refer objects to repositories.
@@ -66,7 +68,15 @@ public class Repository implements Serializable, Cloneable {
      */
     @Getter
     @Setter
-    private List<BorgArchive> archives;
+    private SortedSet<BorgArchive> archives;
+
+    public Repository addAll(Collection<BorgArchive> archives) {
+        if (this.archives == null) {
+            this.archives = new TreeSet<>();
+        }
+        this.archives.addAll(archives);
+        return this;
+    }
 
     @Override
     public Object clone() throws CloneNotSupportedException {
