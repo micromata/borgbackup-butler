@@ -42,10 +42,28 @@ export const formatDateTime = (millis) => {
 }
 
 export const humanFileSize = (size) => {
-    const i = Math.floor( Math.log(size) / Math.log(1024) );
+    const i = Math.floor(Math.log(size) / Math.log(1024));
     const amount = size / Math.pow(1024, i);
     const digits = amount < 10 ? 2 : (amount < 100 ? 1 : 0);
-    return amount.toLocaleString(undefined,{maximumFractionDigits: digits}) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+    return amount.toLocaleString(undefined, {maximumFractionDigits: digits}) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+}
+
+export const humanSeconds = (seconds) => {
+    //var sec_num = parseInt(seconds, 10); // don't forget the second param
+    var hours = Math.floor(seconds / 3600);
+    var minutes = Math.floor((seconds - (hours * 3600)) / 60);
+    var seconds = seconds - (hours * 3600) - (minutes * 60);
+
+    if (hours < 10) {
+        hours = "0" + hours;
+    }
+    if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+    if (seconds < 10) {
+        seconds = "0" + seconds;
+    }
+    return hours + ':' + minutes + ':' + seconds.toLocaleString(undefined, {maximumFractionDigits: 0});
 }
 
 export const revisedRandId = () => Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
