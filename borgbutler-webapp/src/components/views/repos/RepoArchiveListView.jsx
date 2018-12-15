@@ -93,7 +93,24 @@ class RepoArchiveListView extends React.Component {
                 </Nav>
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId={'1'}>
-                        Hurzel
+                        <Table>
+                            <tbody>
+                            <tr>
+                                <th>Archive</th>
+                                <th>Time</th>
+                                <th>Id</th>
+                            </tr>
+                            {repo.archives.map((archive) => {
+                                // Return the element. Also pass key
+                                return (
+                                    <tr key={archive.id}>
+                                        <td>{archive.archive}</td>
+                                        <td>{archive.time}</td>
+                                        <td>{archive.id}</td>
+                                    </tr>);
+                            })}
+                            </tbody>
+                        </Table>
                     </TabPane>
                     <TabPane tabId={'2'}>
                         <Table hover>

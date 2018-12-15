@@ -78,6 +78,13 @@ public class BorgCommands {
                 .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
         Repository repository = ObjectUtils.clone(masterRepository)
                 .setArchives(repoList.getArchives());
+        if (repository.getArchives() != null) {
+            for (BorgArchive archive : repository.getArchives()) {
+                // Reformat Borg date strings.
+                archive.setStart(DateUtils.format(archive.getStart()));
+                archive.setTime(DateUtils.format(archive.getTime()));
+            }
+        }
         return repository;
     }
 
