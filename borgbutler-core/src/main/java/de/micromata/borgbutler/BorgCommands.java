@@ -15,7 +15,6 @@ import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,71 +58,65 @@ public class BorgCommands {
 
     /**
      * Executes borg list repository.
-     * The given repository will be cloned and archives will be added.
-     * The field {@link Repository#getLastModified()} of masterRepository will be updated.
+     * The given repository will be used and archives will be added.
      *
-     * @param repoConfig       The repo config associated to the masterRepository. Needed for the borg call.
-     * @param masterRepository Repository without archives.
-     * @return Parsed repo config returned by Borg command including archives.
+     * @param repoConfig The repo config associated to the masterRepository. Needed for the borg call.
+     * @param repository Repository without archives, archives will be loaded.
      */
-    public static Repository list(BorgRepoConfig repoConfig, Repository masterRepository) {
-        String json = execute(repoConfig, "list", masterRepository.getName(), "--json");
+    public static void list(BorgRepoConfig repoConfig, Repository repository) {
+        String json = execute(repoConfig, "list", repository.getName(), "--json");
         if (json == null) {
-            log.error("Can't load archives from repo '" + masterRepository.getName() + "'.");
-            return null;
+            log.error("Can't load archives from repo '" + repository.getName() + "'.");
+            return;
         }
         BorgRepoList repoList = JsonUtils.fromJson(BorgRepoList.class, json);
-        if (repoList == null) {
-            log.error("Can't load archives from repo '" + masterRepository.getName() + "'.");
-            return null;
+        if (repoList == null || CollectionUtils.isEmpty(repoList.getArchives())) {
+            log.error("Can't load archives from repo '" + repository.getName() + "'.");
+            return;
         }
-        masterRepository.setLastModified(DateUtils.format(repoList.getRepository().getLastModified()))
+        repository.setLastModified(DateUtils.format(repoList.getRepository().getLastModified()))
                 .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
-        Repository repository = ObjectUtils.clone(masterRepository)
-                .addAll(repoList.getArchives());
-        if (repository.getArchives() != null) {
-            for (BorgArchive archive : repository.getArchives()) {
-                // Reformat Borg date strings.
-                archive.setStart(DateUtils.format(archive.getStart()));
-                archive.setTime(DateUtils.format(archive.getTime()));
-            }
+        for (BorgArchive borgArchive : repoList.getArchives()) {
+            Archive archive = new Archive()
+                    .setName(borgArchive.getArchive())
+                    .setId(borgArchive.getId())
+                    .setStart(DateUtils.format(borgArchive.getStart()))
+                    .setTime(DateUtils.format(borgArchive.getTime()))
+                    .setRepoId(repository.getId())
+                    .setRepoName(repository.getName());
+            repository.add(archive);
         }
-        return repository;
     }
 
     /**
      * Executes borg info repository::archive.
-     * The given repository will be cloned and assigned to the returned archive.
+     * The given repository will be modified.
      * The field {@link Repository#getLastModified()} of masterRepository will be updated.
      *
-     * @param repoConfig       The repo config associated to the masterRepository. Needed for the borg call.
-     * @param archiveName      The name of the archive returned by {@link BorgArchive#getArchive()}
-     * @param masterRepository Repository without archives.
-     * @return Parsed repo config returned by Borg command including archives.
+     * @param repoConfig The repo config associated to the repository. Needed for the borg call.
+     * @param archive    The archive to update.
+     * @param repository Repository without archives.
      */
-    public static Archive info(BorgRepoConfig repoConfig, String archiveName, Repository masterRepository) {
-        String archiveFullname = repoConfig.getRepo() + "::" + archiveName;
+    public static void info(BorgRepoConfig repoConfig, Archive archive, Repository repository) {
+        String archiveFullname = repoConfig.getRepo() + "::" + archive.getName();
         String json = execute(repoConfig, "info", archiveFullname, "--json");
         if (json == null) {
-            return null;
+            return;
         }
         BorgArchiveInfo archiveInfo = JsonUtils.fromJson(BorgArchiveInfo.class, json);
         if (archiveInfo == null) {
             log.error("Archive '" + archiveFullname + "' not found.");
-            return null;
+            return;
         }
-        masterRepository.setLastModified(DateUtils.format(archiveInfo.getRepository().getLastModified()))
+        repository.setLastModified(DateUtils.format(archiveInfo.getRepository().getLastModified()))
                 .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
-        Repository repository = ObjectUtils.clone(masterRepository);
-        Archive archive = new Archive()
-                .setCache(archiveInfo.getCache())
-                .setEncryption(archiveInfo.getEncryption())
-                .setRepository(repository);
+        archive.setCache(archiveInfo.getCache())
+                .setEncryption(archiveInfo.getEncryption());
         if (CollectionUtils.isEmpty(archiveInfo.getArchives())) {
             log.error("The returned borg archive contains no archive infos: " + json);
-            return null;
+            return;
         }
-        if (archiveInfo.getArchives().size() > 1   ) {
+        if (archiveInfo.getArchives().size() > 1) {
             log.warn("Archive '" + archiveFullname + "' contains more than one archives!? (Using only first.)");
         }
         BorgArchive2 borgArchive2 = archiveInfo.getArchives().get(0);
@@ -131,8 +124,8 @@ public class BorgCommands {
                 .setChunkerParams(borgArchive2.getChunkerParams())
                 .setCommandLine(borgArchive2.getCommandLine())
                 .setComment(borgArchive2.getComment())
-                .setStats(borgArchive2.getStats());
-        return archive;
+                .setStats(borgArchive2.getStats())
+                .setUsername(borgArchive2.getUsername());
     }
 
     public static List<BorgFilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, String archiveId) {

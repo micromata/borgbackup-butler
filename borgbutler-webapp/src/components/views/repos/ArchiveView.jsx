@@ -38,7 +38,7 @@ class ArchiveView extends React.Component {
             .then(json => {
                 this.setState({
                     isFetching: false,
-                    repo: json
+                    archive: json
                 })
             })
             .catch(() => this.setState({isFetching: false, failed: true}));
@@ -46,7 +46,7 @@ class ArchiveView extends React.Component {
 
     render = () => {
         let content = undefined;
-        const repo = this.state.repo;
+        const archive = this.state.archive;
         let pageHeader = '';
 
         if (this.state.isFetching) {
@@ -62,7 +62,7 @@ class ArchiveView extends React.Component {
             />;
         } else if (this.state.repo) {
             pageHeader = <React.Fragment>
-                {repo.displayName}
+                {archive.id}
                 <div
                     className={'btn btn-outline-primary refresh-button-right'}
                     onClick={this.fetchArchive.bind(this, true)}

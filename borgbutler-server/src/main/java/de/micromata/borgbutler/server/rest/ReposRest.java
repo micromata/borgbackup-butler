@@ -49,7 +49,7 @@ public class ReposRest {
     public String getRepoArchiveList(@QueryParam("id") String id, @QueryParam("force") boolean force,
                                      @QueryParam("prettyPrinter") boolean prettyPrinter) {
         if (force) {
-            ButlerCache.getInstance().clearRepoArchicesCacheAccess();
+            ButlerCache.getInstance().clearRepoCacheAccess();
         }
         Repository repository = ButlerCache.getInstance().getRepositoryArchives(id);
         return JsonUtils.toJson(repository, prettyPrinter);
@@ -86,7 +86,6 @@ public class ReposRest {
     public String getList(@QueryParam("force") boolean force, @QueryParam("prettyPrinter") boolean prettyPrinter) {
         if (force) {
             ButlerCache.getInstance().clearRepoCacheAccess();
-            ButlerCache.getInstance().clearRepoArchicesCacheAccess();
         }
         List<Repository> repositories = ButlerCache.getInstance().getAllRepositories();
         if (CollectionUtils.isEmpty(repositories)) {

@@ -6,7 +6,6 @@ import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
-import de.micromata.borgbutler.json.borg.BorgArchive;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.jcs.JCS;
@@ -26,8 +25,6 @@ public class ButlerCache {
 
     private JCSCache jcsCache;
     private CacheAccess<String, Repository> repoCacheAccess;
-    private CacheAccess<String, Repository> repoArchivesCacheAccess;
-    private CacheAccess<String, Archive> archivesCacheAccess;
     private ArchiveFilelistCache archiveFilelistCache;
 
     public static ButlerCache getInstance() {
@@ -36,7 +33,7 @@ public class ButlerCache {
 
     /**
      * @param idOrName
-     * @return Repository without list of archives.
+     * @return Repository.
      */
     public Repository getRepository(String idOrName) {
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(idOrName);
@@ -57,7 +54,7 @@ public class ButlerCache {
 
     /**
      * @param repoConfig
-     * @return Repository without list of archives.
+     * @return Repository.
      */
     private Repository getRepository(BorgRepoConfig repoConfig) {
         Repository repository = repoCacheAccess.get(repoConfig.getRepo());
@@ -74,7 +71,7 @@ public class ButlerCache {
     }
 
     /**
-     * @return the list of all repositories without the list of archives.
+     * @return the list of all repositories.
      */
     public List<Repository> getAllRepositories() {
         List<Repository> repositories = new ArrayList<>();
@@ -90,11 +87,8 @@ public class ButlerCache {
 
     public void clearAllCaches() {
         clearRepoCacheAccess();
-        clearRepoArchicesCacheAccess();
         log.info("Clearing cache with file lists of archives...");
         this.archiveFilelistCache.removeAllCacheFiles();
-        log.info("Clearing archives cache...");
-        this.archivesCacheAccess.clear();
     }
 
     public void clearRepoCacheAccess() {
@@ -102,28 +96,20 @@ public class ButlerCache {
         this.repoCacheAccess.clear();
     }
 
-    public void clearRepoArchicesCacheAccess() {
-        log.info("Clearing repositories cache (with included archives)...");
-        this.repoArchivesCacheAccess.clear();
-    }
-
     /**
      * @param idOrName
-     * @return The repository including all archives.
+     * @return The repository (ensures that the list of archives is loaded).
      */
     public Repository getRepositoryArchives(String idOrName) {
-        Repository masterRepository = getRepository(idOrName);
-        if (masterRepository == null) {
+        Repository repository = getRepository(idOrName);
+        if (repository == null) {
             return null;
         }
-        Repository repository = repoArchivesCacheAccess.get(masterRepository.getName());
-        if (repository != null) {
+        if (repository.isArchivesLoaded()) {
             return repository;
         }
-        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(masterRepository.getName());
-        repository = BorgCommands.list(repoConfig, masterRepository);
-        if (repository == null) return null;
-        repoArchivesCacheAccess.put(repository.getName(), repository);
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repository.getName());
+        BorgCommands.list(repoConfig, repository);
         return repository;
     }
 
@@ -147,50 +133,50 @@ public class ButlerCache {
     }
 
     public Archive getArchive(BorgRepoConfig repoConfig, String archiveIdOrName, boolean forceReload) {
-        Repository masterRepository = getRepositoryArchives(repoConfig.getRepo());
-        if (masterRepository == null) {
+        Repository repository = getRepositoryArchives(repoConfig.getRepo());
+        if (repository == null) {
             log.error("Repository '" + repoConfig.getRepo() + "' not found.");
             return null;
         }
-        String archiveName = archiveIdOrName;
-        if (CollectionUtils.isEmpty(masterRepository.getArchives())) {
+        Archive archive = null;
+        if (CollectionUtils.isEmpty(repository.getArchives())) {
             log.warn("Repository '" + repoConfig.getRepo() + "' doesn't contain archives.");
         } else {
-            for (BorgArchive borgArchive : masterRepository.getArchives()) {
-                if (StringUtils.equals(borgArchive.getArchive(), archiveIdOrName)
-                        || StringUtils.equals(borgArchive.getId(), archiveIdOrName)) {
-                    archiveName = borgArchive.getArchive();
+            for (Archive arch : repository.getArchives()) {
+                if (StringUtils.equals(arch.getName(), archiveIdOrName)
+                        || StringUtils.equals(arch.getId(), archiveIdOrName)) {
+                    archive = arch;
                     break;
                 }
             }
         }
-        String archiveFullname = repoConfig.getRepo() + "::" + archiveName;
-        if (!forceReload) {
-            Archive archive = this.archivesCacheAccess.get(archiveFullname);
-            if (archive != null) {
-                return archive;
-            }
+        if (archive == null) {
+            log.error("Archive with id or name '" + archiveIdOrName + "' not found for repo '" + repoConfig.getRepo()
+                    + "'.");
+            return null;
         }
-        Archive archive = BorgCommands.info(repoConfig, archiveName, masterRepository);
-        if (archive != null)
-            this.archivesCacheAccess.put(archiveFullname, archive);
+        if (!forceReload && archive.hasInfoData()) {
+            // borg info archive was already called.
+            return archive;
+        }
+        BorgCommands.info(repoConfig, archive, repository);
         return archive;
     }
 
-    public BorgFilesystemItem[] getArchiveContent(BorgRepoConfig repoConfig, BorgArchive archive) {
-        if (archive == null || StringUtils.isBlank(archive.getArchive())) {
+    public BorgFilesystemItem[] getArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
+        if (archive == null || StringUtils.isBlank(archive.getName())) {
             return null;
         }
         BorgFilesystemItem[] items = archiveFilelistCache.load(repoConfig, archive);
         if (items == null) {
-            List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive.getArchive());
+            List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive.getName());
             if (CollectionUtils.isNotEmpty(list)) {
                 archiveFilelistCache.save(repoConfig, archive, list);
                 items = list.toArray(new BorgFilesystemItem[0]);
             }
         }
         if (items == null) {
-            log.warn("Repo::archiv with name '" + repoConfig.getRepo() + "::" + archive.getArchive() + "' not found.");
+            log.warn("Repo::archiv with name '" + archive.getBorgIdentifier() + "' not found.");
         }
         return items;
     }
@@ -211,8 +197,6 @@ public class ButlerCache {
         Configuration configuration = ConfigurationHandler.getConfiguration();
         this.jcsCache = JCSCache.getInstance();
         this.repoCacheAccess = jcsCache.getJCSCache("repositories");
-        this.repoArchivesCacheAccess = jcsCache.getJCSCache("repositoriesArchives");
-        this.archivesCacheAccess = jcsCache.getJCSCache("archives");
         this.archiveFilelistCache = new ArchiveFilelistCache(getCacheDir(), configuration.getCacheArchiveContentMaxDiscSizeMB());
     }
 }

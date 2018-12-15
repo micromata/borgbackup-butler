@@ -112,7 +112,7 @@ class RepoArchiveListView extends React.Component {
                                 // Return the element. Also pass key
                                 return (
                                     <tr key={archive.id}>
-                                        <td><Link to={`/archives/${repo.id}/${archive.id}`}>{archive.archive}</Link></td>
+                                        <td><Link to={`/archives/${repo.id}/${archive.id}`}>{archive.name}</Link></td>
                                         <td>{archive.time}</td>
                                         <td>{archive.id}</td>
                                     </tr>);

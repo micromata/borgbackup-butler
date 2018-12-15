@@ -1,7 +1,7 @@
 package de.micromata.borgbutler.cache;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.json.borg.BorgArchive;
+import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ public class ArchiveFilelistCacheTest {
         cache.removeAllCacheFiles();
         BorgRepoConfig repoConfig = new BorgRepoConfig();
         repoConfig.setRepo("repo");
-        BorgArchive archive = createArchive("2018-12-10");
+        Archive archive = createArchive("2018-12-10");
         log.info("Saving " + list.size() + " items to out dir.");
         cache.save(repoConfig, archive, list);
         log.info("Saving done.");
@@ -50,7 +50,7 @@ public class ArchiveFilelistCacheTest {
         cache.removeAllCacheFiles();
         BorgRepoConfig repoConfig = new BorgRepoConfig();
         repoConfig.setRepo("repo");
-        BorgArchive archive = createArchive("2018-12-09");
+        Archive archive = createArchive("2018-12-09");
         assertNull(cache.load(repoConfig, archive));
         cache.save(repoConfig, archive, list);
         BorgFilesystemItem[] filesystemItems = cache.load(repoConfig, archive);
@@ -68,7 +68,7 @@ public class ArchiveFilelistCacheTest {
 
         long millis = System.currentTimeMillis();
 
-        BorgArchive archive = createArchive("2018-11-20");
+        Archive archive = createArchive("2018-11-20");
         cache.save(repoConfig, archive, list);
         File oldestFile = cache.getFile(repoConfig, archive);
         setLastModificationTime(oldestFile, millis - 10 * 3600000); // Fake lastModifiedTime - 10 h
@@ -104,7 +104,7 @@ public class ArchiveFilelistCacheTest {
 
         long millis = System.currentTimeMillis();
 
-        BorgArchive archive = createArchive("2018-10-20");
+        Archive archive = createArchive("2018-10-20");
         cache.save(repoConfig, archive, list);
         File notExpiredFile = cache.getFile(repoConfig, archive);
         setLastModificationTime(notExpiredFile, millis - 6 * 24 * 3600000); // Fake lastModifiedTime - 10 h
@@ -146,8 +146,8 @@ public class ArchiveFilelistCacheTest {
         return this;
     }
 
-    private BorgArchive createArchive(String time) throws Exception {
-        BorgArchive archive = new BorgArchive();
+    private Archive createArchive(String time) throws Exception {
+        Archive archive = new Archive();
         set(archive, "archive", "archive-" + time);
         set(archive, "time", time);
         return archive;

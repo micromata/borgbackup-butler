@@ -1,21 +1,20 @@
 package de.micromata.borgbutler.data;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.json.borg.BorgArchive;
 import de.micromata.borgbutler.json.borg.BorgCache;
 import de.micromata.borgbutler.json.borg.BorgEncryption;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
  * Part of Borg json objects to refer objects to repositories.
  */
-public class Repository implements Serializable, Cloneable {
+public class Repository implements Serializable {
     private static final long serialVersionUID = 1278802519434516280L;
     /**
      * The repo configured for borg.
@@ -68,18 +67,21 @@ public class Repository implements Serializable, Cloneable {
      */
     @Getter
     @Setter
-    private SortedSet<BorgArchive> archives;
+    private SortedSet<Archive> archives;
 
-    public Repository addAll(Collection<BorgArchive> archives) {
+    public Repository add(Archive archive) {
         if (this.archives == null) {
             this.archives = new TreeSet<>();
         }
-        this.archives.addAll(archives);
+        this.archives.add(archive);
         return this;
     }
 
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    /**
+     * Is <tt>borg list repo</tt> already called?
+     * @return
+     */
+    public boolean isArchivesLoaded() {
+        return CollectionUtils.isNotEmpty(archives);
     }
 }

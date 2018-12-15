@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.cache;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
+import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.json.borg.BorgArchive;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import de.micromata.borgbutler.utils.ReplaceUtils;
@@ -29,10 +30,10 @@ class ArchiveFilelistCache {
     private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
 
     @Getter
-    private BorgArchive archive;
+    private Archive archive;
     private List<BorgFilesystemItem> content;
 
-    public void save(BorgRepoConfig repoConfig, BorgArchive archive, List<BorgFilesystemItem> filesystemItems) {
+    public void save(BorgRepoConfig repoConfig, Archive archive, List<BorgFilesystemItem> filesystemItems) {
         File file = getFile(repoConfig, archive);
         if (CollectionUtils.isEmpty(filesystemItems)) {
             return;
@@ -57,7 +58,7 @@ class ArchiveFilelistCache {
      * @param archive
      * @return
      */
-    public BorgFilesystemItem[] load(BorgRepoConfig repoConfig, BorgArchive archive) {
+    public BorgFilesystemItem[] load(BorgRepoConfig repoConfig, Archive archive) {
         File file = getFile(repoConfig, archive);
         if (!file.exists()) {
             return null;
@@ -181,9 +182,9 @@ class ArchiveFilelistCache {
         }
     }
 
-    File getFile(BorgRepoConfig repoConfig, BorgArchive archive) {
+    File getFile(BorgRepoConfig repoConfig, Archive archive) {
         return new File(cacheDir, ReplaceUtils.encodeFilename(CACHE_ARCHIVE_LISTS_BASENAME + archive.getTime()
-                + "-" + repoConfig.getRepo() + "-" + archive.getArchive() + ".gz", true));
+                + "-" + repoConfig.getRepo() + "-" + archive.getName() + ".gz", true));
     }
 
     ArchiveFilelistCache(File cacheDir, int cacheArchiveContentMaxDiscSizeMB) {
