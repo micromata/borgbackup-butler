@@ -15,11 +15,11 @@ class RepoArchiveListView extends React.Component {
     };
 
     componentDidMount = () => {
-        this.fetchRepos();
+        this.fetchRepo();
     };
 
 
-    fetchRepos = (force) => {
+    fetchRepo = (force) => {
         this.setState({
             isFetching: true,
             failed: false
@@ -62,7 +62,7 @@ class RepoArchiveListView extends React.Component {
                 title={'Cannot load Repositories'}
                 description={'Something went wrong during contacting the rest api.'}
                 action={{
-                    handleClick: this.fetchRepos,
+                    handleClick: this.fetchRepo,
                     title: 'Try again'
                 }}
             />;
@@ -71,7 +71,7 @@ class RepoArchiveListView extends React.Component {
                 {repo.displayName}
                 <div
                     className={'btn btn-outline-primary refresh-button-right'}
-                    onClick={this.fetchRepos.bind(this, true)}
+                    onClick={this.fetchRepo.bind(this, true)}
                 >
                     <IconRefresh/>
                 </div>
@@ -93,7 +93,7 @@ class RepoArchiveListView extends React.Component {
                 </Nav>
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId={'1'}>
-                        <Table>
+                        <Table hover>
                             <tbody>
                             <tr>
                                 <th>Archive</th>
@@ -190,7 +190,7 @@ class RepoArchiveListView extends React.Component {
     constructor(props) {
         super(props);
 
-        this.fetchRepos = this.fetchRepos.bind(this);
+        this.fetchRepo = this.fetchRepo.bind(this);
         this.toggleTab = this.toggleTab.bind(this);
     }
 }
