@@ -41,6 +41,11 @@ export const formatDateTime = (millis) => {
     //return date.toLocaleDateString("de-DE", options);
 }
 
+export const humanFileSize = (size) => {
+    var i = Math.floor( Math.log(size) / Math.log(1024) );
+    return (size / Math.pow(1024, i) ).toLocaleString(undefined,{maximumFractionDigits: 2}) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+}
+
 export const revisedRandId = () => Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
 
 /* Checks if a given array is definied and is not empty. */

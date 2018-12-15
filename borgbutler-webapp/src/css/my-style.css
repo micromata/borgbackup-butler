@@ -1,147 +1,147 @@
 body {
-	color: #50555f;
+    color: #50555f;
 }
 
 a:hover {
-	color: #47a7eb;
+    color: #47a7eb;
 }
 
 a.card-link:hover {
-	color: #50555f !important;
+    color: #50555f !important;
 }
 
 
 /* Scaffolding */
 
 .container {
-	max-width: 1260px;
-	margin-top: 100px;
+    max-width: 1260px;
+    margin-top: 100px;
 }
 
 div.main-view {
-	min-height: calc(100vh - 140px);
+    min-height: calc(100vh - 140px);
 }
 
 /* Typo */
 
 h2 {
-	font-weight: bold;
-	margin-bottom: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
 }
 
 h3 {
-	font-weight: bold;
+    font-weight: bold;
 }
 
 h4 {
-	font-size: 18px;
-	font-weight: bold;
-	margin-top: 20px;
-	margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 h5 {
-	margin-top: 30px;
-	margin-bottom: 10px;
+    margin-top: 30px;
+    margin-bottom: 10px;
 }
 
 /* Navbar */
 
 .navbar.bg-light {
-	background: white !important;
-	//box-shadow: 0 0 10px rgba(0,0,0,.1);
-	border-bottom: 1px solid rgba(0,0,0,.1);
-	height: 60px;
+    background: white !important;
+/ / box-shadow: 0 0 10 px rgba(0, 0, 0, .1);
+    border-bottom: 1px solid rgba(0, 0, 0, .1);
+    height: 60px;
 }
 
 .navbar-brand {
-	font-weight: bold;
+    font-weight: bold;
 }
 
 .navbar.navbar-light a.nav-link {
-	color: #7c8495;
-	font-size: 1rem;
-	font-weight: bold;
+    color: #7c8495;
+    font-size: 1rem;
+    font-weight: bold;
 }
 
 .navbar a.nav-link.danger {
-	color: #dc3545;
+    color: #dc3545;
 }
 
 .navbar.navbar-light a.nav-link.active {
-	color: #47a7eb;
+    color: #47a7eb;
 }
 
 div.pageheader {
-	font-weight: bold;
-	font-size: 1.5rem;
-	color: #414650;
-	margin-bottom: 40px !important;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #414650;
+    margin-bottom: 40px !important;
 }
 
 
 /* Forms */
 
 .form-inline {
-	margin-bottom: 30px;
+    margin-bottom: 30px;
 }
 
 input:focus,
 select:focus,
 textarea:focus,
 button:focus {
-	outline: none !important;
-	outline-width: 0 !important;
+    outline: none !important;
+    outline-width: 0 !important;
 }
 
 [contenteditable="true"]:focus {
-	outline: none;
+    outline: none;
 }
 
 .text-truncate.editable-text-field-value:hover {
-	color: #47a7eb;
+    color: #47a7eb;
 }
 
 .input-group > textarea {
-	min-height: 40px;
+    min-height: 40px;
 }
 
 .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
-	background: #7C8495;
+    background: #7C8495;
 }
 
-input[name="search"]{
-	margin-right: 5px;
+input[name="search"] {
+    margin-right: 5px;
 }
 
 .text-truncate.editable-text-field-value {
-	padding: 5px 10px;
-	background: #f5f6f8;
-	border-radius: 3px;
-	min-height: 34px;
+    padding: 5px 10px;
+    background: #f5f6f8;
+    border-radius: 3px;
+    min-height: 34px;
 }
 
 label.custom-control-label {
-	min-height: 10px;
+    min-height: 10px;
 }
 
 /* Buttons */
 
 .btn.btn-outline-primary {
-	color: #47a7eb;
-	background-color: #fff;
-	border-color: #309ce8;
+    color: #47a7eb;
+    background-color: #fff;
+    border-color: #309ce8;
 }
 
 .btn.btn-outline-primary:hover {
-	color: #fff;
-	background-color: #47a7eb;
-	border-color: #47a7eb;
+    color: #fff;
+    background-color: #47a7eb;
+    border-color: #47a7eb;
 }
 
 .input-group-append .btn {
-	max-height: 40px;
-	height: 40px
+    max-height: 40px;
+    height: 40px
 }
 
 .form-group label {
@@ -149,49 +149,49 @@ label.custom-control-label {
 }
 
 .btn + .btn {
-	margin-left: 10px;
+    margin-left: 10px;
 }
 
 /* Tabs */
 
 .nav.nav-tabs {
-	margin-bottom: 25px;
+    margin-bottom: 25px;
 }
 
 .nav-tabs .nav-link,
 .nav-tabs .nav-link:hover,
 .nav-tabs .nav-link.active {
-	position: relative;
-	top: 1px;
-	border-bottom: none;
+    position: relative;
+    top: 1px;
+    border-bottom: none;
 }
 
 ul.nav-tabs .nav-link:hover {
-	cursor: pointer;
-	color: #47a7eb;
+    cursor: pointer;
+    color: #47a7eb;
 }
 
 .tab-pane.active {
-	padding: 20px;
+    padding: 20px;
 }
 
 /* Tables */
 
 .table-responsive > .table-bordered {
-	font-size: 13px;
-	margin-bottom: 50px;
+    font-size: 13px;
+    margin-bottom: 50px;
 }
 
 .table .btn-outline-primary.btn-sm {
-	margin: 0 10px;
+    margin: 0 10px;
 }
 
 .table .btn.btn-link {
-	padding-left: 0;
+    padding-left: 0;
 }
 
 .table thead th {
-	vertical-align: middle;
+    vertical-align: middle;
 }
 
 
@@ -199,61 +199,61 @@ ul.nav-tabs .nav-link:hover {
 
 
 .template.card {
-	color: #50555F;
-	max-width: 390px;
-	min-width: 390px;
-	margin-top: 10px;
-	margin-bottom: 20px;
+    color: #50555F;
+    max-width: 390px;
+    min-width: 390px;
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
 .template.card:hover {
-	text-decoration: none;
-	transform: scale(1.01);
-	transition: 0.1s ease-in-out;
+    text-decoration: none;
+    transform: scale(1.01);
+    transition: 0.1s ease-in-out;
 }
 
 .template.card .card-header {
-	font-weight: bold;
-	color: #50555F;
+    font-weight: bold;
+    color: #50555F;
 }
 
 .template.card .card-body {
-	padding: 0;
+    padding: 0;
 }
 
 .template.card .card-footer {
 }
 
 .card.border-secondary {
-	border-color: #DEE2E6 !important;
+    border-color: #DEE2E6 !important;
 }
 
 code {
-	padding: 10px;
-	display: inline-block;
-	border-radius: 3px;
-	margin-top: 50px;
-	background: #ef94941a;
+    padding: 10px;
+    display: inline-block;
+    border-radius: 3px;
+    margin-top: 50px;
+    background: #ef94941a;
 }
 
 code h3 {
-	font-size: 16px;
-	font-weight: bold;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 div.refresh-button-right {
-	cursor: pointer;
-	color: #555;
-	text-align: right;
-	float: right;
+    cursor: pointer;
+    color: #555;
+    text-align: right;
+    float: right;
 }
 
 div.refresh-button-right + * {
-	clear: both;
+    clear: both;
 }
 
 div.refresh-button-right:hover {
-	color: #337ab7;
+    color: #337ab7;
 }
 
 /* Droparea */
@@ -305,49 +305,60 @@ div.drop-area span.info {
 
 
 #menuDropZone {
-	border: 1px dashed #888;
-	width: 34px;
-	border-radius: 5px;
-	margin-left: 10px;
+    border: 1px dashed #888;
+    width: 34px;
+    border-radius: 5px;
+    margin-left: 10px;
 }
 
 #menuDropZone.drop-area svg.fa-upload {
-	width: 0.65em;
+    width: 0.65em;
 }
 
 div.drop-area span.info {
-	padding: 5px;
+    padding: 5px;
 }
 
 .main-view div.drop-area span.info {
-	padding: 15px 25px;
+    padding: 15px 25px;
 }
 
 /* Menu */
 
 .collapse.show.navbar-collapse {
-	background: #FFF;
-	padding-bottom: 10px;
-	width: 100%;
-	z-index: 9000;
+    background: #FFF;
+    padding-bottom: 10px;
+    width: 100%;
+    z-index: 9000;
 }
 
 .navbar-toggler {
-	margin-top: -17px;
+    margin-top: -17px;
 }
 
 .welcome-intro {
 }
 
 .welcome-enjoy {
-	padding-top: 20px;
-	font-weight: bold;
-	font-style: italic;
+    padding-top: 20px;
+    font-weight: bold;
+    font-style: italic;
 }
 
 .welcome-documentation-link {
-	padding-top: 20px;
+    padding-top: 20px;
 }
+
+table.inline tbody td {
+    border-top: none;
+    padding-top: 0;
+    padding-left: 0;
+}
+
+td.align-right {
+    text-align: right;
+}
+
 /* @media only screen and (max-width: 1050px) {
 	.navbar.navbar-light a.nav-link {
 		font-size: 0.8rem;
