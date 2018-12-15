@@ -4,6 +4,7 @@ import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.borg.BorgArchive;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
@@ -26,6 +27,7 @@ public class ButlerCache {
     private JCSCache jcsCache;
     private CacheAccess<String, Repository> repoCacheAccess;
     private CacheAccess<String, Repository> repoArchivesCacheAccess;
+    private CacheAccess<String, Archive> archivesCacheAccess;
     private ArchiveFilelistCache archiveFilelistCache;
 
     public static ButlerCache getInstance() {
@@ -89,6 +91,8 @@ public class ButlerCache {
         clearRepoArchicesCacheAccess();
         log.info("Clearing cache with file lists of archives...");
         this.archiveFilelistCache.removeAllCacheFiles();
+        log.info("Clearing archives cache...");
+        this.archivesCacheAccess.clear();
     }
 
     public void clearRepoCacheAccess() {
@@ -121,13 +125,63 @@ public class ButlerCache {
         return repository;
     }
 
+    public Archive getArchive(String repoName, String archiveIdOrName) {
+        return getArchive(repoName, archiveIdOrName, false);
+    }
+
+    /**
+     * @param repoName
+     * @param archiveIdOrName
+     * @param forceReload     If true, any cache value will be ignored. Default is false.
+     * @return
+     */
+    public Archive getArchive(String repoName, String archiveIdOrName, boolean forceReload) {
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repoName);
+        if (repoConfig == null) {
+            log.error("Can't find configured repo '" + repoName + "'.");
+            return null;
+        }
+        return getArchive(repoConfig, archiveIdOrName, forceReload);
+    }
+
+    public Archive getArchive(BorgRepoConfig repoConfig, String archiveIdOrName, boolean forceReload) {
+        Repository masterRepository = getRepositoryArchives(repoConfig.getRepo());
+        if (masterRepository == null) {
+            log.error("Repository '" + repoConfig.getRepo() + "' not found.");
+            return null;
+        }
+        String archiveName = archiveIdOrName;
+        if (CollectionUtils.isEmpty(masterRepository.getArchives())) {
+            log.warn("Repository '" + repoConfig.getRepo() + "' doesn't contain archives.");
+        } else {
+            for (BorgArchive borgArchive : masterRepository.getArchives()) {
+                if (StringUtils.equals(borgArchive.getArchive(), archiveIdOrName)
+                        || StringUtils.equals(borgArchive.getId(), archiveIdOrName)) {
+                    archiveName = borgArchive.getArchive();
+                    break;
+                }
+            }
+        }
+        String archiveFullname = repoConfig.getRepo() + "::" + archiveName;
+        if (!forceReload) {
+            Archive archive = this.archivesCacheAccess.get(archiveFullname);
+            if (archive != null) {
+                return archive;
+            }
+        }
+        Archive archive = BorgCommands.info(repoConfig, archiveName, masterRepository);
+        if (archive != null)
+            this.archivesCacheAccess.put(archiveFullname, archive);
+        return archive;
+    }
+
     public BorgFilesystemItem[] getArchiveContent(BorgRepoConfig repoConfig, BorgArchive archive) {
         if (archive == null || StringUtils.isBlank(archive.getArchive())) {
             return null;
         }
         BorgFilesystemItem[] items = archiveFilelistCache.load(repoConfig, archive);
         if (items == null) {
-            List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive);
+            List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive.getArchive());
             if (CollectionUtils.isNotEmpty(list)) {
                 archiveFilelistCache.save(repoConfig, archive, list);
                 items = list.toArray(new BorgFilesystemItem[0]);
@@ -156,6 +210,7 @@ public class ButlerCache {
         this.jcsCache = JCSCache.getInstance();
         this.repoCacheAccess = jcsCache.getJCSCache("repositories");
         this.repoArchivesCacheAccess = jcsCache.getJCSCache("repositoriesArchives");
+        this.archivesCacheAccess = jcsCache.getJCSCache("archives");
         this.archiveFilelistCache = new ArchiveFilelistCache(getCacheDir(), configuration.getCacheArchiveContentMaxDiscSizeMB());
     }
 }

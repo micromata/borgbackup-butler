@@ -49,6 +49,13 @@ class RepoArchiveListView extends React.Component {
         })
     };
 
+    redirectToArchive = (archive) => {
+        //console.log("Archive: " + archive.id + ", repo: " + this.state.repo.id);
+        console.log("context: " + this.context.history);
+
+        this.context.history.pushState(null, '/archives');
+        //this.router.transitionTo('/archives/dfsafds'); // , {repoId: this.state.repo.id}, {archiveId: archive.id}
+    }
 
     render = () => {
         let content = undefined;
@@ -103,7 +110,7 @@ class RepoArchiveListView extends React.Component {
                             {repo.archives.map((archive) => {
                                 // Return the element. Also pass key
                                 return (
-                                    <tr key={archive.id}>
+                                    <tr key={archive.id} onClick={() => this.redirectToArchive(archive)}>
                                         <td>{archive.archive}</td>
                                         <td>{archive.time}</td>
                                         <td>{archive.id}</td>
@@ -192,6 +199,7 @@ class RepoArchiveListView extends React.Component {
 
         this.fetchRepo = this.fetchRepo.bind(this);
         this.toggleTab = this.toggleTab.bind(this);
+        this.redirectToArchive = this.redirectToArchive.bind(this);
     }
 }
 

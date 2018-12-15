@@ -3,6 +3,7 @@ package de.micromata.borgbutler.cache;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.borg.BorgArchive;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 public class CacheTest {
@@ -41,20 +43,24 @@ public class CacheTest {
             assertEquals(config.getRepoConfigs().size(), ButlerCache.getInstance().getAllRepositories().size());
         }
         List<BorgRepoConfig> repoConfigs = ConfigurationHandler.getConfiguration().getRepoConfigs();
-        BorgArchive archive = null;
+        BorgArchive borgArchive = null;
         BorgRepoConfig repoConfig = null;
         if (CollectionUtils.isNotEmpty(repoConfigs)) {
             repoConfig = repoConfigs.get(0);
             Repository rerepositoryoList = ButlerCache.getInstance().getRepositoryArchives(repoConfig.getRepo());
             if (rerepositoryoList != null && CollectionUtils.isNotEmpty(rerepositoryoList.getArchives())) {
-                archive = rerepositoryoList.getArchives().get(0);
+                borgArchive = rerepositoryoList.getArchives().first();
             }
         }
         {
-            if (archive != null) {
-                BorgFilesystemItem[] content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive);
+            if (borgArchive != null) {
+                Archive archive = ButlerCache.getInstance().getArchive(repoConfig.getRepo(), borgArchive.getName());
+                assertNotNull(archive);
+                archive = ButlerCache.getInstance().getArchive(repoConfig.getRepo(), borgArchive.getId());
+                assertNotNull(archive);
+                BorgFilesystemItem[] content = ButlerCache.getInstance().getArchiveContent(repoConfig, borgArchive);
                 log.info("Number of items (content) of archive: " + content.length);
-                content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive);
+                content = ButlerCache.getInstance().getArchiveContent(repoConfig, borgArchive);
                 log.info("Number of items (content) of archive: " + content.length);
             }
         }

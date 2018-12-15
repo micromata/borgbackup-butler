@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.cache.ButlerCache;
+import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.BorgRepository;
@@ -52,6 +53,24 @@ public class ReposRest {
         }
         Repository repository = ButlerCache.getInstance().getRepositoryArchives(id);
         return JsonUtils.toJson(repository, prettyPrinter);
+    }
+
+    @GET
+    @Path("archive")
+    @Produces(MediaType.APPLICATION_JSON)
+    /**
+     *
+     * @param repo Name of repository ({@link Repository#getName()}.
+     * @param archive Id or name of archive.
+     * @param prettyPrinter If true then the json output will be in pretty format.
+     * @return Repository (including list of archives) as json string.
+     * @see JsonUtils#toJson(Object, boolean)
+     */
+    public String getArchive(@QueryParam("repo") String repoName,
+                             @QueryParam("archive") String archiveIdOrName, @QueryParam("force") boolean force,
+                             @QueryParam("prettyPrinter") boolean prettyPrinter) {
+        Archive archive = ButlerCache.getInstance().getArchive(repoName, archiveIdOrName, force);
+        return JsonUtils.toJson(archive, prettyPrinter);
     }
 
     @GET

@@ -4,10 +4,12 @@ import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.config.Definitions;
+import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.*;
 import de.micromata.borgbutler.utils.DateUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
@@ -60,6 +62,7 @@ public class BorgCommands {
      * The given repository will be cloned and archives will be added.
      * The field {@link Repository#getLastModified()} of masterRepository will be updated.
      *
+     * @param repoConfig       The repo config associated to the masterRepository. Needed for the borg call.
      * @param masterRepository Repository without archives.
      * @return Parsed repo config returned by Borg command including archives.
      */
@@ -89,24 +92,52 @@ public class BorgCommands {
     }
 
     /**
-     * Executes borg info archive
+     * Executes borg info repository::archive.
+     * The given repository will be cloned and assigned to the returned archive.
+     * The field {@link Repository#getLastModified()} of masterRepository will be updated.
      *
-     * @param repoConfig
-     * @param archive
-     * @return
+     * @param repoConfig       The repo config associated to the masterRepository. Needed for the borg call.
+     * @param archiveName      The name of the archive returned by {@link BorgArchive#getArchive()}
+     * @param masterRepository Repository without archives.
+     * @return Parsed repo config returned by Borg command including archives.
      */
-    public static BorgArchiveInfo info(BorgRepoConfig repoConfig, String archive) {
-        String json = execute(repoConfig, "info", repoConfig.getRepo() + "::" + archive, "--json");
+    public static Archive info(BorgRepoConfig repoConfig, String archiveName, Repository masterRepository) {
+        String archiveFullname = repoConfig.getRepo() + "::" + archiveName;
+        String json = execute(repoConfig, "info", archiveFullname, "--json");
         if (json == null) {
             return null;
         }
         BorgArchiveInfo archiveInfo = JsonUtils.fromJson(BorgArchiveInfo.class, json);
-        return archiveInfo;
+        if (archiveInfo == null) {
+            log.error("Archive '" + archiveFullname + "' not found.");
+            return null;
+        }
+        masterRepository.setLastModified(DateUtils.format(archiveInfo.getRepository().getLastModified()))
+                .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
+        Repository repository = ObjectUtils.clone(masterRepository);
+        Archive archive = new Archive()
+                .setCache(archiveInfo.getCache())
+                .setEncryption(archiveInfo.getEncryption())
+                .setRepository(repository);
+        if (CollectionUtils.isEmpty(archiveInfo.getArchives())) {
+            log.error("The returned borg archive contains no archive infos: " + json);
+            return null;
+        }
+        if (archiveInfo.getArchives().size() > 1   ) {
+            log.warn("Archive '" + archiveFullname + "' contains more than one archives!? (Using only first.)");
+        }
+        BorgArchive2 borgArchive2 = archiveInfo.getArchives().get(0);
+        archive.setStart(DateUtils.format(borgArchive2.getStart()))
+                .setChunkerParams(borgArchive2.getChunkerParams())
+                .setCommandLine(borgArchive2.getCommandLine())
+                .setComment(borgArchive2.getComment())
+                .setStats(borgArchive2.getStats());
+        return archive;
     }
 
-    public static List<BorgFilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, BorgArchive archive) {
+    public static List<BorgFilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, String archiveId) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        execute(outputStream, repoConfig, "list", repoConfig.getRepo() + "::" + archive.getArchive(),
+        execute(outputStream, repoConfig, "list", repoConfig.getRepo() + "::" + archiveId,
                 "--json-lines");
         String response = outputStream.toString(Definitions.STD_CHARSET);
         List<BorgFilesystemItem> content = new ArrayList<>();
