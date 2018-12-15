@@ -42,8 +42,10 @@ export const formatDateTime = (millis) => {
 }
 
 export const humanFileSize = (size) => {
-    var i = Math.floor( Math.log(size) / Math.log(1024) );
-    return (size / Math.pow(1024, i) ).toLocaleString(undefined,{maximumFractionDigits: 2}) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+    const i = Math.floor( Math.log(size) / Math.log(1024) );
+    const amount = size / Math.pow(1024, i);
+    const digits = amount < 10 ? 2 : (amount < 100 ? 1 : 0);
+    return amount.toLocaleString(undefined,{maximumFractionDigits: digits}) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
 }
 
 export const revisedRandId = () => Math.random().toString(36).replace(/[^a-z]+/g, '').substr(2, 10);
