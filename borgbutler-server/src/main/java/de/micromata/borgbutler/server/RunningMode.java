@@ -32,7 +32,7 @@ public class RunningMode {
         if (development == null) {
             development = new File(ServerConfiguration.getApplicationHome(), "borgbutler-core").exists();
             if (development) {
-                log.warn("*** Starting Merlin server in development mode. This mode shouldn't be used in production environments. ***");
+                log.warn("*** Starting BorgButler server in development mode. This mode shouldn't be used in production environments. ***");
             }
         }
         return development;
