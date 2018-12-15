@@ -66,12 +66,6 @@ class RepoListView extends React.Component {
         } else if (this.state.repos) {
 
             content = <React.Fragment>
-                <div
-                    className={'btn btn-outline-primary refresh-button-right'}
-                    onClick={this.fetchRepos.bind(this, true)}
-                >
-                    <IconRefresh/>
-                </div>
                 <CardDeck>
                 {this.state.repos.map(repo => {
                     return <RepoCard
@@ -87,6 +81,12 @@ class RepoListView extends React.Component {
         return <React.Fragment>
             <PageHeader>
                 Repositories
+                <div
+                    className={'btn btn-outline-primary refresh-button-right'}
+                    onClick={this.fetchRepos.bind(this, true)}
+                >
+                    <IconRefresh/>
+                </div>
             </PageHeader>
             {content}
         </React.Fragment>;
