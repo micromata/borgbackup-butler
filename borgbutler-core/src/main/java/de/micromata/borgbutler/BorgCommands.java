@@ -83,7 +83,8 @@ public class BorgCommands {
                     .setStart(DateUtils.format(borgArchive.getStart()))
                     .setTime(DateUtils.format(borgArchive.getTime()))
                     .setRepoId(repository.getId())
-                    .setRepoName(repository.getName());
+                    .setRepoName(repository.getName())
+                    .setRepoDisplayName(repoConfig.getDisplayName());
             repository.add(archive);
         }
     }
@@ -119,13 +120,18 @@ public class BorgCommands {
         if (archiveInfo.getArchives().size() > 1) {
             log.warn("Archive '" + archiveFullname + "' contains more than one archives!? (Using only first.)");
         }
-        BorgArchive2 borgArchive2 = archiveInfo.getArchives().get(0);
-        archive.setStart(DateUtils.format(borgArchive2.getStart()))
-                .setChunkerParams(borgArchive2.getChunkerParams())
-                .setCommandLine(borgArchive2.getCommandLine())
-                .setComment(borgArchive2.getComment())
-                .setStats(borgArchive2.getStats())
-                .setUsername(borgArchive2.getUsername());
+        BorgArchive2 borgArchive = archiveInfo.getArchives().get(0);
+        archive.setStart(DateUtils.format(borgArchive.getStart()))
+                .setChunkerParams(borgArchive.getChunkerParams())
+                .setCommandLine(borgArchive.getCommandLine())
+                .setComment(borgArchive.getComment())
+                .setStats(borgArchive.getStats())
+                .setLimits(borgArchive.getLimits())
+                .setHostname(borgArchive.getHostname())
+                .setUsername(borgArchive.getUsername())
+                .setEnd(DateUtils.format(borgArchive.getEnd()))
+                .setDuration(borgArchive.getDuration())
+        ;
     }
 
     public static List<BorgFilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, String archiveId) {

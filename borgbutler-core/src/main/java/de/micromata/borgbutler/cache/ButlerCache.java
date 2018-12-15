@@ -57,7 +57,12 @@ public class ButlerCache {
      * @return Repository.
      */
     private Repository getRepository(BorgRepoConfig repoConfig) {
-        Repository repository = repoCacheAccess.get(repoConfig.getRepo());
+        Repository repository = null;
+        try {
+            repository = repoCacheAccess.get(repoConfig.getRepo());
+        } catch (Exception ex) {
+            log.warn("Error while deserializing repository (maybe data format was changed). Reloading...");
+        }
         if (repository == null || repository.getLocation() == null) {
             repository = BorgCommands.info(repoConfig);
             repoCacheAccess.put(repoConfig.getRepo(), repository);

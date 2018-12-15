@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.data;
 
+import de.micromata.borgbutler.json.borg.BorgArchiveLimits;
 import de.micromata.borgbutler.json.borg.BorgArchiveStats;
 import de.micromata.borgbutler.json.borg.BorgCache;
 import de.micromata.borgbutler.json.borg.BorgEncryption;
@@ -19,6 +20,12 @@ public class Archive implements Serializable, Comparable<Archive> {
     @Getter
     @Setter
     private String repoName;
+    /**
+     * For convenience purposes for the client.
+     */
+    @Getter
+    @Setter
+    private String repoDisplayName;
     /**
      * For convenience purposes for the client.
      */
@@ -55,13 +62,25 @@ public class Archive implements Serializable, Comparable<Archive> {
     private String start;
     @Getter
     @Setter
+    private String end;
+    @Getter
+    @Setter
     private String time;
+    @Getter
+    @Setter
+    private String duration;
     @Getter
     @Setter
     private BorgArchiveStats stats;
     @Getter
     @Setter
+    private BorgArchiveLimits limits;
+    @Getter
+    @Setter
     private String username;
+    @Getter
+    @Setter
+    private String hostname;
 
     /**
      *

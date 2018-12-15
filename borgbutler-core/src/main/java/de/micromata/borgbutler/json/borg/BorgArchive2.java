@@ -25,9 +25,18 @@ public class BorgArchive2 implements Serializable {
     @Getter
     private String start;
     @Getter
+    private String end;
+    @Getter
+    private String duration;
+    @Getter
     private BorgArchiveStats stats;
     @Getter
+    private BorgArchiveLimits limits;
+    @Getter
+    private String hostname;
+    @Getter
     private String username;
+
     public String toString() {
         return JsonUtils.toJson(this, true);
     }

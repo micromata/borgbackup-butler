@@ -2,7 +2,6 @@ package de.micromata.borgbutler.json.borg;
 
 import de.micromata.borgbutler.json.JsonUtils;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.Serializable;
 
@@ -20,11 +19,10 @@ public class BorgArchive implements Serializable {
     @Getter
     private String name;
     @Getter
-    @Setter
     private String start;
     @Getter
-    @Setter
     private String time;
+
 
     public String toString() {
         return JsonUtils.toJson(this, true);

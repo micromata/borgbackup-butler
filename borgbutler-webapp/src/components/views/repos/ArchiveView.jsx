@@ -1,7 +1,7 @@
 import React from 'react'
 import {Table} from 'reactstrap';
 import {PageHeader} from '../../general/BootstrapComponents';
-import {getRestServiceUrl} from '../../../utilities/global';
+import {getRestServiceUrl, humanFileSize, humanSeconds} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
 import {IconRefresh} from "../../general/IconComponents";
 
@@ -46,7 +46,7 @@ class ArchiveView extends React.Component {
 
     render = () => {
         let content = undefined;
-        const archive = this.state.archive;
+        let archive = this.state.archive;
         let pageHeader = '';
 
         if (this.state.isFetching) {
@@ -60,9 +60,9 @@ class ArchiveView extends React.Component {
                     title: 'Try again'
                 }}
             />;
-        } else if (this.state.repo) {
+        } else if (this.state.archive) {
             pageHeader = <React.Fragment>
-                {archive.id}
+                {archive.repoDisplayName}
                 <div
                     className={'btn btn-outline-primary refresh-button-right'}
                     onClick={this.fetchArchive.bind(this, true)}
@@ -74,9 +74,74 @@ class ArchiveView extends React.Component {
                 <Table hover>
                     <tbody>
                     <tr>
-                        <th>Archive</th>
-                        <th>Time</th>
-                        <th>Id</th>
+                        <td>Archive</td>
+                        <td>{archive.name}</td>
+                    </tr>
+                    <tr>
+                        <td>Start - end</td>
+                        <td>{archive.start} - {archive.end} (Duration: {humanSeconds(archive.duration)})</td>
+                    </tr>
+                    <tr>
+                        <td>Id</td>
+                        <td>{archive.id}</td>
+                    </tr>
+                    <tr>
+                        <td>Stats</td>
+                        <td>
+                            <table className="inline">
+                                <tbody>
+                                <tr>
+                                    <td>Compressed size</td>
+                                    <td>{humanFileSize(archive.stats.compressed_size)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Deduplicated size</td>
+                                    <td>{humanFileSize(archive.stats.deduplicated_size)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Original size</td>
+                                    <td>{humanFileSize(archive.stats.original_size)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Nfiles</td>
+                                    <td>{Number(archive.stats.nfiles).toLocaleString()}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Comment</td>
+                        <td>{archive.comment}</td>
+                    </tr>
+                    <tr>
+                        <td>Command line</td>
+                        <td>{archive.commandLine.join(' ')}</td>
+                    </tr>
+                    <tr>
+                        <td>Host name</td>
+                        <td>{archive.hostname}</td>
+                    </tr>
+                    <tr>
+                        <td>User name</td>
+                        <td>{archive.username}</td>
+                    </tr>
+                    <tr>
+                        <td>Chunker params</td>
+                        <td>{archive.chunkerParams.join(', ')}</td>
+                    </tr>
+                    <tr>
+                        <td>Limits</td>
+                        <td>
+                            <table className="inline">
+                                <tbody>
+                                <tr>
+                                    <td>max_archive_size</td>
+                                    <td>{archive.limits.max_archive_size}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
                     </tr>
                     </tbody>
                 </Table>

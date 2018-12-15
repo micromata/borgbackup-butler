@@ -10,6 +10,9 @@ public class DateUtils {
      * @return
      */
     public static String format(String borgDateTime) {
+        if (borgDateTime == null) {
+            return null;
+        }
         LocalDateTime dateTime = LocalDateTime.parse(borgDateTime);
         return format(dateTime);
     }
