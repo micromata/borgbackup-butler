@@ -35,9 +35,18 @@ public class Repository implements Serializable, Cloneable {
     @Getter
     @Setter
     private String id;
+    /**
+     * Date given by Borg server.
+     */
     @Getter
     @Setter
     private String lastModified;
+    /**
+     * Last date of getting this object from Borg server.
+     */
+    @Getter
+    @Setter
+    private String lastCacheRefresh;
     @Getter
     @Setter
     private String location;

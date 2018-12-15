@@ -6,9 +6,8 @@ import {IconRefresh} from "../../general/IconComponents";
 
 class RepoArchiveListView extends React.Component {
 
-
-    path = getRestServiceUrl('repos');
     state = {
+        id: this.props.match.params.id,
         isFetching: false
     };
 
@@ -16,13 +15,16 @@ class RepoArchiveListView extends React.Component {
         this.fetchRepos();
     };
 
+
     fetchRepos = (force) => {
         this.setState({
             isFetching: true,
-            failed: false,
-            repos: undefined
+            failed: false
         });
-        fetch(`${this.path}/list?force=${force}`, {
+        fetch(getRestServiceUrl('repos/repoArchiveList', {
+            id: this.state.id,
+            force: force
+        }), {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -30,18 +32,9 @@ class RepoArchiveListView extends React.Component {
         })
             .then(response => response.json())
             .then(json => {
-                const repos = json.map(repo => {
-                    return {
-                        id: repo.id,
-                        name: repo.name,
-                        location: repo.location,
-                        lastModified: repo.last_modified
-                    };
-                });
-
                 this.setState({
                     isFetching: false,
-                    repos
+                    repo: json
                 })
             })
             .catch(() => this.setState({isFetching: false, failed: true}));
@@ -49,13 +42,12 @@ class RepoArchiveListView extends React.Component {
 
     render = () => {
         let content = undefined;
+        const repo = this.state.repo;
+        let pageHeader = '';
 
         if (this.state.isFetching) {
-
             content = <i>Loading...</i>;
-
         } else if (this.state.failed) {
-
             content = <ErrorAlert
                 title={'Cannot load Repositories'}
                 description={'Something went wrong during contacting the rest api.'}
@@ -64,10 +56,10 @@ class RepoArchiveListView extends React.Component {
                     title: 'Try again'
                 }}
             />;
-
-        } else if (this.state.repos) {
-
+        } else if (this.state.repo) {
+            pageHeader = `${repo.displayName}`;
             content = <React.Fragment>
+                {repo.displayName}
                 <div
                     className={'btn btn-outline-primary refresh-button-right'}
                     onClick={this.fetchRepos.bind(this, true)}
@@ -77,10 +69,9 @@ class RepoArchiveListView extends React.Component {
             </React.Fragment>;
 
         }
-
         return <React.Fragment>
             <PageHeader>
-                Repositories
+                {pageHeader}
             </PageHeader>
             {content}
         </React.Fragment>;

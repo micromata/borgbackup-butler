@@ -12,6 +12,6 @@ public class DateUtilsTest {
 
     @Test
     void parseTest() {
-        assertEquals("2018-11-21T22:31:51",DateUtils.get("2018-11-21T22:31:51.000000"));
+        assertEquals("2018-11-21 22:31:51",DateUtils.format("2018-11-21T22:31:51.000000"));
     }
 }

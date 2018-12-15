@@ -25,6 +25,7 @@ public class ReposRest {
     /**
      *
      * @param id id or name of repo.
+     * @param force If true, a reload of all repositories is forced.
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @return Repository (without list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
@@ -44,7 +45,11 @@ public class ReposRest {
      * @return Repository (including list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
-    public String getRepoArchiveList(@QueryParam("id") String id, @QueryParam("prettyPrinter") boolean prettyPrinter) {
+    public String getRepoArchiveList(@QueryParam("id") String id, @QueryParam("force") boolean force,
+                                     @QueryParam("prettyPrinter") boolean prettyPrinter) {
+        if (force) {
+            ButlerCache.getInstance().clearRepoArchicesCacheAccess();
+        }
         Repository repository = ButlerCache.getInstance().getRepositoryArchives(id);
         return JsonUtils.toJson(repository, prettyPrinter);
     }
@@ -62,6 +67,7 @@ public class ReposRest {
     public String getList(@QueryParam("force") boolean force, @QueryParam("prettyPrinter") boolean prettyPrinter) {
         if (force) {
             ButlerCache.getInstance().clearRepoCacheAccess();
+            ButlerCache.getInstance().clearRepoArchicesCacheAccess();
         }
         List<Repository> repositories = ButlerCache.getInstance().getAllRepositories();
         if (CollectionUtils.isEmpty(repositories)) {

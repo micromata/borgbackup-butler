@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,11 +46,12 @@ public class BorgCommands {
                 .setId(borgRepository.getId())
                 .setName(repoConfig.getRepo())
                 .setDisplayName(repoConfig.getDisplayName())
-                .setLastModified(DateUtils.get(borgRepository.getLastModified()))
+                .setLastModified(DateUtils.format(borgRepository.getLastModified()))
                 .setLocation(borgRepository.getLocation())
                 .setCache(repoInfo.getCache())
                 .setEncryption(repoInfo.getEncryption())
-                .setSecurityDir(repoInfo.getSecurityDir());
+                .setSecurityDir(repoInfo.getSecurityDir())
+                .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
         return repository;
     }
 
@@ -72,7 +74,8 @@ public class BorgCommands {
             log.error("Can't load archives from repo '" + masterRepository.getName() + "'.");
             return null;
         }
-        masterRepository.setLastModified(repoList.getRepository().getLastModified());
+        masterRepository.setLastModified(DateUtils.format(repoList.getRepository().getLastModified()))
+                .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
         Repository repository = ObjectUtils.clone(masterRepository)
                 .setArchives(repoList.getArchives());
         return repository;

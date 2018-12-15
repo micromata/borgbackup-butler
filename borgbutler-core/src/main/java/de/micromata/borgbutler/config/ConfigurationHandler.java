@@ -3,6 +3,7 @@ package de.micromata.borgbutler.config;
 import de.micromata.borgbutler.json.JsonUtils;
 import lombok.Getter;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,11 @@ public class ConfigurationHandler {
         try {
             String json = FileUtils.readFileToString(configFile, Definitions.STD_CHARSET);
             this.configuration = JsonUtils.fromJson(Configuration.class, json);
+            for (BorgRepoConfig repoConfig : this.configuration.getRepoConfigs()) {
+                if (StringUtils.isBlank(repoConfig.getDisplayName())) {
+                    repoConfig.setDisplayName(repoConfig.getRepo());
+                }
+            }
         } catch (IOException ex) {
             log.error("Error while trying to read from config file: " + configFile.getAbsolutePath() + ": " + ex.getMessage(), ex);
             return;
