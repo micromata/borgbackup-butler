@@ -2,7 +2,6 @@ package de.micromata.borgbutler.cache;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.data.Archive;
-import de.micromata.borgbutler.json.borg.BorgArchive;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import de.micromata.borgbutler.utils.ReplaceUtils;
 import lombok.Getter;
@@ -21,10 +20,14 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+/**
+ * Cache for storing complete file lists of archives as gzipped files (using Java standard serialization for
+ * fastest access).
+ */
 class ArchiveFilelistCache {
     private static Logger log = LoggerFactory.getLogger(ArchiveFilelistCache.class);
     private static final String CACHE_ARCHIVE_LISTS_BASENAME = "archive-content-";
-    private static final String CACHE_FILE_GZIP_EXTENSION = "gz";
+    private static final String CACHE_FILE_GZIP_EXTENSION = ".gz";
     private File cacheDir;
     private int cacheArchiveContentMaxDiscSizeMB;
     private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
@@ -107,7 +110,7 @@ class ArchiveFilelistCache {
 
     /**
      * Deletes archive contents older than 7 days and deletes the oldest archive contents if the max cache size is
-     * exceeded. The last modified time of a file is equals to the last usage by {@link #load(BorgRepoConfig, BorgArchive)}.
+     * exceeded. The last modified time of a file is equals to the last usage by {@link #load(BorgRepoConfig, Archive)}.
      */
     public void cleanUp() {
         File[] files = cacheDir.listFiles();
@@ -184,7 +187,8 @@ class ArchiveFilelistCache {
 
     File getFile(BorgRepoConfig repoConfig, Archive archive) {
         return new File(cacheDir, ReplaceUtils.encodeFilename(CACHE_ARCHIVE_LISTS_BASENAME + archive.getTime()
-                + "-" + repoConfig.getRepo() + "-" + archive.getName() + ".gz", true));
+                + "-" + repoConfig.getRepo() + "-" + archive.getName() + CACHE_FILE_GZIP_EXTENSION,
+                true));
     }
 
     ArchiveFilelistCache(File cacheDir, int cacheArchiveContentMaxDiscSizeMB) {
