@@ -67,6 +67,8 @@ public class ButlerCache {
         }
         if (repository == null) {
             log.warn("Repo with name '" + repoConfig.getRepo() + "' not found.");
+        } else {
+            repoConfig.setId(repository.getId());
         }
         return repository;
     }
@@ -130,15 +132,15 @@ public class ButlerCache {
     }
 
     /**
-     * @param repoName
+     * @param repoIdOrName
      * @param archiveIdOrName
      * @param forceReload     If true, any cache value will be ignored. Default is false.
      * @return
      */
-    public Archive getArchive(String repoName, String archiveIdOrName, boolean forceReload) {
-        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repoName);
+    public Archive getArchive(String repoIdOrName, String archiveIdOrName, boolean forceReload) {
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repoIdOrName);
         if (repoConfig == null) {
-            log.error("Can't find configured repo '" + repoName + "'.");
+            log.error("Can't find configured repo '" + repoIdOrName + "'.");
             return null;
         }
         return getArchive(repoConfig, archiveIdOrName, forceReload);

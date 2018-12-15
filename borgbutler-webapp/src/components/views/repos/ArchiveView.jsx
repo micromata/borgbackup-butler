@@ -8,8 +8,8 @@ import {IconRefresh} from "../../general/IconComponents";
 class ArchiveView extends React.Component {
 
     state = {
-        repo: this.props.match.params.repoId,
-        archive: this.props.match.params.archiveId,
+        repoId: this.props.match.params.repoId,
+        archiveId: this.props.match.params.archiveId,
         isFetching: false,
         activeTab: '1',
     };
@@ -25,8 +25,8 @@ class ArchiveView extends React.Component {
             failed: false
         });
         fetch(getRestServiceUrl('repos/archive', {
-            repo: this.state.repo,
-            archive: this.state.archive,
+            repo: this.state.repoId,
+            archive: this.state.archiveId,
             force: force
         }), {
             method: 'GET',

@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,4 +20,7 @@ public class BorgRepoConfig {
     private String passphrase;
     @Getter @Setter
     private String passwordCommand;
+    @Getter @Setter
+    @JsonIgnore
+    private String id;
 }

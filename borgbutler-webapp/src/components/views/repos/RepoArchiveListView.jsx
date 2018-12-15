@@ -1,5 +1,6 @@
 import React from 'react'
 import {Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
+import { Link } from "react-router-dom";
 import classNames from 'classnames';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {getRestServiceUrl, humanFileSize} from '../../../utilities/global';
@@ -110,8 +111,8 @@ class RepoArchiveListView extends React.Component {
                             {repo.archives.map((archive) => {
                                 // Return the element. Also pass key
                                 return (
-                                    <tr key={archive.id} onClick={() => this.redirectToArchive(archive)}>
-                                        <td>{archive.archive}</td>
+                                    <tr key={archive.id}>
+                                        <td><Link to={`/archives/${repo.id}/${archive.id}`}>{archive.archive}</Link></td>
                                         <td>{archive.time}</td>
                                         <td>{archive.id}</td>
                                     </tr>);
