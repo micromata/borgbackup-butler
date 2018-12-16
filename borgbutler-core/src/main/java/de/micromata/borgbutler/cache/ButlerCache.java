@@ -92,6 +92,9 @@ public class ButlerCache {
                         .setDisplayName(repoConfig.getDisplayName())
                         .setName(repoConfig.getRepo())
                         .setId(repoConfig.getId());
+            } else if (repoConfig.getId() == null) {
+                // On initial call, the repo id is not assigned to BorgRepoConfig for cached repositories:
+                repoConfig.setId(repository.getId());
             }
             repositories.add(repository);
         }
