@@ -87,6 +87,7 @@ class ArchiveView extends React.Component {
                         }}
                     />
                     <FileListTable
+                        archiveId={this.props.archiveId}
                         entries={this.state.fileList}
                         search={this.state.filter.search}/>
                 </React.Fragment>;

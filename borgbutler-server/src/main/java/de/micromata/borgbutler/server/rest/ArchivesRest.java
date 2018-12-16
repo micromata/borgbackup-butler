@@ -15,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
 
 @Path("/archives")
@@ -65,5 +66,25 @@ public class ArchivesRest {
             return "[{\"mode\": \"notLoaded\"}]";
         }
         return JsonUtils.toJson(items, prettyPrinter);
+    }
+
+    @GET
+    @Path("/download")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    /**
+     * @param archiveId
+     * @param fileNumber The fileNumber of the file in the archive served by BorgButler's
+     * {@link #getArchiveFileLIst(String, String, String, boolean, boolean)}
+     */
+    public Response downloadFilebyPath(@QueryParam("archiveId") String archiveId, @QueryParam("fileNumber") int fileNumber) {
+        log.info("Downloading file #" + fileNumber + " of archive '" + archiveId + "'.");
+        return null;
+/*        byte[] byteArray = result.getAsByteArrayOutputStream().toByteArray();
+        Response.ResponseBuilder builder = Response.ok(byteArray);
+        builder.header("Content-Disposition", "attachment; filename=" + filename);
+        // Needed to get the Content-Disposition by client:
+        builder.header("Access-Control-Expose-Headers", "Content-Disposition");
+        Response response = builder.build();
+        return response;*/
     }
 }
