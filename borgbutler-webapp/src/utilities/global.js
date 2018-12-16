@@ -41,11 +41,19 @@ export const formatDateTime = (millis) => {
     //return date.toLocaleDateString("de-DE", options);
 }
 
-export const humanFileSize = (size) => {
+export const humanFileSize = (size, hideZero, suppressSeparatorChar) => {
+    if (size == null || isNaN(size)) return '';
+    if (size === 0) {
+        if (hideZero) {
+            return '';
+        }
+        return '0';
+    }
+    const sepChar = suppressSeparatorChar ? '' : ' ';
     const i = Math.floor(Math.log(size) / Math.log(1024));
     const amount = size / Math.pow(1024, i);
     const digits = amount < 10 ? 2 : (amount < 100 ? 1 : 0);
-    return amount.toLocaleString(undefined, {maximumFractionDigits: digits}) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+    return amount.toLocaleString(undefined, {maximumFractionDigits: digits}) + sepChar + ['', 'kB', 'MB', 'GB', 'TB'][i];
 }
 
 export const humanSeconds = (secondsValue) => {
