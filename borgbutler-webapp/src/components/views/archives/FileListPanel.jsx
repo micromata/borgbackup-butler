@@ -7,7 +7,7 @@ class ArchiveView extends React.Component {
 
     state = {
         isFetching: false, activeTab: '1',
-        fileList : undefined
+        fileList: undefined
     };
 
     componentDidMount = () => {
@@ -58,10 +58,16 @@ class ArchiveView extends React.Component {
                 }}
             />;
         } else if (this.state.fileList) {
-            content = <React.Fragment>
-                <FileListTable
-                entries={this.state.fileList}/>
-            </React.Fragment>;
+            if (this.state.fileList.length > 0) {
+                content = <React.Fragment>
+                    <FileListTable
+                        entries={this.state.fileList}/>
+                </React.Fragment>;
+            } else {
+                content = <React.Fragment>
+                    Not yet loaded.
+                </React.Fragment>;
+            }
         }
         return <React.Fragment>
             {content}

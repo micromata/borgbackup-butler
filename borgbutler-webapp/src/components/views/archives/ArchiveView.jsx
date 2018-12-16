@@ -23,7 +23,7 @@ class ArchiveView extends React.Component {
 
     fetchArchive = (force) => {
         let forceReload = false;
-        if (force && window.confirm('Are you sure you want to reload the archive file list? This may take a long time...')) {
+        if (force && window.confirm('Are you sure you want to reload the archive info? This may take some time...')) {
             forceReload = true;
         }
         this.setState({
