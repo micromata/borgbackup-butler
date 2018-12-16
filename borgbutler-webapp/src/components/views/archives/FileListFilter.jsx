@@ -4,11 +4,11 @@ import {FormButton, FormInput, FormLabel, FormSelect, FormOption} from '../../ge
 import {IconRefresh} from '../../general/IconComponents';
 import I18n from '../../general/translation/I18n';
 
-function FileListFilters({loadLog, changeFilter, filters}) {
+function FileListFilter({reload, changeFilter, filter}) {
 
     return (
         <form
-            onSubmit={loadLog}
+            onSubmit={reload}
             className={'form-inline'}
         >
             <FormLabel length={1}>
@@ -16,14 +16,14 @@ function FileListFilters({loadLog, changeFilter, filters}) {
             </FormLabel>
 
             <FormInput
-                value={filters.search}
+                value={filter.search}
                 name={'search'}
                 onChange={changeFilter}
                 fieldLength={5}
             />
 
             <FormSelect
-                value={filters.maxSize}
+                value={filter.maxSize}
                 name={'maxSize'}
                 onChange={changeFilter}
                 hint={<I18n name={'common.limitsResultSize'} />}
@@ -41,13 +41,13 @@ function FileListFilters({loadLog, changeFilter, filters}) {
     );
 }
 
-FileListFilters.propTypes = {
+FileListFilter.propTypes = {
     changeFilter: PropTypes.func.isRequired,
-    filters: PropTypes.shape({
+    filter: PropTypes.shape({
         search: PropTypes.string,
         maxSize: PropTypes.oneOf(['50', '100', '500', '1000', '10000']),
     }).isRequired,
-    loadLog: PropTypes.func.isRequired
+    reload: PropTypes.func.isRequired
 };
 
-export default FileListFilters;
+export default FileListFilter;

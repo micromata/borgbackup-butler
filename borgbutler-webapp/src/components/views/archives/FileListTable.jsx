@@ -10,7 +10,7 @@ function FileListTable({entries, search}) {
             <thead>
             <tr>
                 <th>Mode</th>
-                <th>Date</th>
+                <th>Modified time</th>
                 <th>Size</th>
                 <th>Path</th>
             </tr>

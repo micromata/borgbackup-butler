@@ -5,6 +5,7 @@ import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,10 +50,11 @@ public class ArchivesRest {
      * @see JsonUtils#toJson(Object, boolean)
      */
     public String getArchiveFileLIst(@QueryParam("archiveId") String archiveId,
-                                     @QueryParam("maxResultSize") Integer maxResultSize,
+                                     @QueryParam("search") String search,
+                                     @QueryParam("maxResultSize") String maxResultSize,
                                      @QueryParam("force") boolean force,
                                      @QueryParam("prettyPrinter") boolean prettyPrinter) {
-        int maxSize = maxResultSize != null ? maxResultSize : 50;
+        int maxSize = NumberUtils.toInt(maxResultSize, 50);
         List<BorgFilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, force, maxSize);
         if (items == null) {
             return "[]";
