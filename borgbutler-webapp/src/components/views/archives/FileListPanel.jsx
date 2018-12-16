@@ -1,4 +1,5 @@
 import React from 'react'
+import {Button} from 'reactstrap';
 import {getRestServiceUrl} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
 import FileListTable from "./FileListTable";
@@ -65,7 +66,7 @@ class ArchiveView extends React.Component {
                 </React.Fragment>;
             } else {
                 content = <React.Fragment>
-                    Not yet loaded.
+                    <Button outline color="primary" onClick={() => this.fetchArchiveFileList(true)}>Load file list from borg backup server</Button>
                 </React.Fragment>;
             }
         }
