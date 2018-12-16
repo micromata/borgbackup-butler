@@ -2,6 +2,7 @@ package de.micromata.borgbutler.cache;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.data.Archive;
+import de.micromata.borgbutler.data.FileSystemFilter;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import de.micromata.borgbutler.utils.ReplaceUtils;
 import lombok.Getter;
@@ -54,19 +55,26 @@ class ArchiveFilelistCache {
     /**
      * Will load and touch the archive file if exist. The file will be touched (last modified time will be set to now)
      * for pruning oldest cache files. The last modified time will be the time of the last usage.
+     *
      * @param repoConfig
      * @param archive
+     * @param filter     If given, only file items matching this filter are returned.
      * @return
      */
-    public List<BorgFilesystemItem> load(BorgRepoConfig repoConfig, Archive archive, int maxSize) {
+    public List<BorgFilesystemItem> load(BorgRepoConfig repoConfig, Archive archive, FileSystemFilter filter) {
         File file = getFile(repoConfig, archive);
         if (!file.exists()) {
             return null;
         }
-        return load(file, maxSize);
+        return load(file, filter);
     }
 
-    public List<BorgFilesystemItem> load(File file, int maxSize) {
+    /**
+     * @param file
+     * @param filter If given, only file items matching this filter are returned.
+     * @return
+     */
+    public List<BorgFilesystemItem> load(File file, FileSystemFilter filter) {
         if (file.exists() == false) {
             log.error("File '" + file.getAbsolutePath() + "' doesn't exist. Can't get archive content files.");
             return null;
@@ -86,14 +94,16 @@ class ArchiveFilelistCache {
                 return null;
             }
             int size = (Integer) obj;
-            if (maxSize > 0 && maxSize < size) {
-                size = maxSize;
-            }
+            int maxSize = filter != null ? filter.getMaxResultSize() : -1;
             list = new ArrayList<>();
+            int counter = 0;
             for (int i = 0; i < size; i++) {
                 obj = inputStream.readObject();
                 if (obj instanceof BorgFilesystemItem) {
-                    list.add((BorgFilesystemItem) obj);
+                    if (filter == null || filter.matches(((BorgFilesystemItem) obj))) {
+                        list.add((BorgFilesystemItem) obj);
+                        if (maxSize > 0 && counter++ >= maxSize) break;
+                    }
                 } else {
                     log.error("Can't load archive content. FilesystemItem expected, but received: "
                             + (obj != null ? obj.getClass() : "null")
@@ -187,7 +197,7 @@ class ArchiveFilelistCache {
 
     File getFile(BorgRepoConfig repoConfig, Archive archive) {
         return new File(cacheDir, ReplaceUtils.encodeFilename(CACHE_ARCHIVE_LISTS_BASENAME + archive.getTime()
-                + "-" + repoConfig.getRepo() + "-" + archive.getName() + CACHE_FILE_GZIP_EXTENSION,
+                        + "-" + repoConfig.getRepo() + "-" + archive.getName() + CACHE_FILE_GZIP_EXTENSION,
                 true));
     }
 

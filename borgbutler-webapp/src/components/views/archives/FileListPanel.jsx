@@ -38,7 +38,7 @@ class ArchiveView extends React.Component {
         fetch(getRestServiceUrl('archives/filelist', {
             archiveId: this.props.archiveId,
             force: forceReload,
-            search: this.state.filter.search,
+            searchString: this.state.filter.search,
             maxResultSize: this.state.filter.maxSize
         }), {
             method: 'GET',
