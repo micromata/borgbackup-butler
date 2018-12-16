@@ -48,11 +48,11 @@ export const humanFileSize = (size) => {
     return amount.toLocaleString(undefined, {maximumFractionDigits: digits}) + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
 }
 
-export const humanSeconds = (seconds) => {
-    //var sec_num = parseInt(seconds, 10); // don't forget the second param
-    var hours = Math.floor(seconds / 3600);
-    var minutes = Math.floor((seconds - (hours * 3600)) / 60);
-    var seconds = seconds - (hours * 3600) - (minutes * 60);
+export const humanSeconds = (secondsValue) => {
+    //var sec_num = parseInt(secondsValue, 10); // don't forget the second param
+    var hours = Math.floor(secondsValue / 3600);
+    var minutes = Math.floor((secondsValue - (hours * 3600)) / 60);
+    var seconds = secondsValue - (hours * 3600) - (minutes * 60);
 
     if (hours < 10) {
         hours = "0" + hours;
