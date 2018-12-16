@@ -1,9 +1,10 @@
 import React from 'react'
-import {Table} from 'reactstrap';
+import {Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {getRestServiceUrl, humanFileSize, humanSeconds} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
 import {IconRefresh} from "../../general/IconComponents";
+import classNames from "classnames";
 
 class ArchiveView extends React.Component {
 
@@ -44,6 +45,12 @@ class ArchiveView extends React.Component {
             .catch(() => this.setState({isFetching: false, failed: true}));
     };
 
+    toggleTab = tab => () => {
+        this.setState({
+            activeTab: tab
+        })
+    };
+
     render = () => {
         let content = undefined;
         let archive = this.state.archive;
@@ -71,80 +78,101 @@ class ArchiveView extends React.Component {
                 </div>
             </React.Fragment>;
             content = <React.Fragment>
-                <Table hover>
-                    <tbody>
-                    <tr>
-                        <td>Archive</td>
-                        <td>{archive.name}</td>
-                    </tr>
-                    <tr>
-                        <td>Start - end</td>
-                        <td>{archive.start} - {archive.end} (Duration: {humanSeconds(archive.duration)})</td>
-                    </tr>
-                    <tr>
-                        <td>Id</td>
-                        <td>{archive.id}</td>
-                    </tr>
-                    <tr>
-                        <td>Stats</td>
-                        <td>
-                            <table className="inline">
-                                <tbody>
-                                <tr>
-                                    <td>Compressed size</td>
-                                    <td>{humanFileSize(archive.stats.compressed_size)}</td>
-                                </tr>
-                                <tr>
-                                    <td>Deduplicated size</td>
-                                    <td>{humanFileSize(archive.stats.deduplicated_size)}</td>
-                                </tr>
-                                <tr>
-                                    <td>Original size</td>
-                                    <td>{humanFileSize(archive.stats.original_size)}</td>
-                                </tr>
-                                <tr>
-                                    <td>Nfiles</td>
-                                    <td>{Number(archive.stats.nfiles).toLocaleString()}</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Comment</td>
-                        <td>{archive.comment}</td>
-                    </tr>
-                    <tr>
-                        <td>Command line</td>
-                        <td>{archive.commandLine.join(' ')}</td>
-                    </tr>
-                    <tr>
-                        <td>Host name</td>
-                        <td>{archive.hostname}</td>
-                    </tr>
-                    <tr>
-                        <td>User name</td>
-                        <td>{archive.username}</td>
-                    </tr>
-                    <tr>
-                        <td>Chunker params</td>
-                        <td>{archive.chunkerParams.join(', ')}</td>
-                    </tr>
-                    <tr>
-                        <td>Limits</td>
-                        <td>
-                            <table className="inline">
-                                <tbody>
-                                <tr>
-                                    <td>max_archive_size</td>
-                                    <td>{archive.limits.max_archive_size}</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    </tbody>
-                </Table>
+                <Nav tabs>
+                    <NavLink
+                        className={classNames({active: this.state.activeTab === '1'})}
+                        onClick={this.toggleTab('1')}
+                    >
+                        Information
+                    </NavLink>
+                    <NavLink
+                        className={classNames({active: this.state.activeTab === '2'})}
+                        onClick={this.toggleTab('2')}
+                    >
+                        File list
+                    </NavLink>
+                </Nav>
+                <TabContent activeTab={this.state.activeTab}>
+                    <TabPane tabId={'1'}>
+                        <Table hover>
+                            <tbody>
+                            <tr>
+                                <td>Archive</td>
+                                <td>{archive.name}</td>
+                            </tr>
+                            <tr>
+                                <td>Start - end</td>
+                                <td>{archive.start} - {archive.end} (Duration: {humanSeconds(archive.duration)})</td>
+                            </tr>
+                            <tr>
+                                <td>Id</td>
+                                <td>{archive.id}</td>
+                            </tr>
+                            <tr>
+                                <td>Stats</td>
+                                <td>
+                                    <table className="inline">
+                                        <tbody>
+                                        <tr>
+                                            <td>Compressed size</td>
+                                            <td>{humanFileSize(archive.stats.compressed_size)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Deduplicated size</td>
+                                            <td>{humanFileSize(archive.stats.deduplicated_size)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Original size</td>
+                                            <td>{humanFileSize(archive.stats.original_size)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Nfiles</td>
+                                            <td>{Number(archive.stats.nfiles).toLocaleString()}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Comment</td>
+                                <td>{archive.comment}</td>
+                            </tr>
+                            <tr>
+                                <td>Command line</td>
+                                <td>{archive.commandLine.join(' ')}</td>
+                            </tr>
+                            <tr>
+                                <td>Host name</td>
+                                <td>{archive.hostname}</td>
+                            </tr>
+                            <tr>
+                                <td>User name</td>
+                                <td>{archive.username}</td>
+                            </tr>
+                            <tr>
+                                <td>Chunker params</td>
+                                <td>{archive.chunkerParams.join(', ')}</td>
+                            </tr>
+                            <tr>
+                                <td>Limits</td>
+                                <td>
+                                    <table className="inline">
+                                        <tbody>
+                                        <tr>
+                                            <td>max_archive_size</td>
+                                            <td>{archive.limits.max_archive_size}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </Table>
+                    </TabPane>
+                    <TabPane tabId={'2'}>
+                        Hurzel
+                    </TabPane>
+                </TabContent>
             </React.Fragment>;
 
         }
