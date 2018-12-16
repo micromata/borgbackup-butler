@@ -22,10 +22,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 public class BorgCommands {
     private static Logger log = LoggerFactory.getLogger(BorgCommands.class);
@@ -148,6 +145,7 @@ public class BorgCommands {
                 content.add(item);
             }
         }
+        Collections.sort(content); // Sort by path.
         return content;
     }
 

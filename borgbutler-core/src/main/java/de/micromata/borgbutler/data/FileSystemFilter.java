@@ -7,16 +7,35 @@ import org.apache.commons.lang3.StringUtils;
 
 public class FileSystemFilter {
     @Getter
-    @Setter
     private String searchString;
     @Getter
     @Setter
     private int maxResultSize;
+    private String[] searchKeyWords;
 
     public boolean matches(BorgFilesystemItem item) {
-        if (searchString == null || searchString.length() == 0) {
+        if (searchKeyWords == null) {
             return true;
         }
-        return StringUtils.containsIgnoreCase(item.getPath(), searchString);
+        for (String searchKeyWord : searchKeyWords) {
+            if (!StringUtils.containsIgnoreCase(item.getPath(), searchKeyWord))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     *
+     * @param searchString The search string. If this string contains several key words separated by white chars,
+     *                     all key words must be found.
+     * @return this for chaining.
+     */
+    public FileSystemFilter setSearchString(String searchString) {
+        this.searchString = searchString;
+        searchKeyWords = StringUtils.split(searchString);
+        if (searchKeyWords != null && searchKeyWords.length == 0) {
+            searchKeyWords = null;
+        }
+        return this;
     }
 }

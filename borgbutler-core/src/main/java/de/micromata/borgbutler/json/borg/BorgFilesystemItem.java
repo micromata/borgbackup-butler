@@ -2,10 +2,11 @@ package de.micromata.borgbutler.json.borg;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
 
-public class BorgFilesystemItem implements Serializable {
+public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesystemItem> {
     private static final long serialVersionUID = -5545350851640655468L;
     /**
      * d (directory), - (file)
@@ -40,4 +41,9 @@ public class BorgFilesystemItem implements Serializable {
     private String mtime;
     @Getter
     private long size;
+
+    @Override
+    public int compareTo(BorgFilesystemItem o) {
+        return StringUtils.compare(this.path, o.path);
+    }
 }
