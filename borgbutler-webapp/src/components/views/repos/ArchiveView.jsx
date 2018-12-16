@@ -24,7 +24,7 @@ class ArchiveView extends React.Component {
             isFetching: true,
             failed: false
         });
-        fetch(getRestServiceUrl('repos/archive', {
+        fetch(getRestServiceUrl('archives', {
             repo: this.state.repoId,
             archive: this.state.archiveId,
             force: force
