@@ -21,6 +21,23 @@ public class ReposRest {
     private static Logger log = LoggerFactory.getLogger(ReposRest.class);
 
     @GET
+    @Path("list")
+    @Produces(MediaType.APPLICATION_JSON)
+    /**
+     *
+     * @param prettyPrinter If true then the json output will be in pretty format.
+     * @return A list of repositories of type {@link BorgRepository}.
+     * @see JsonUtils#toJson(Object, boolean)
+     */
+    public String getList(@QueryParam("prettyPrinter") boolean prettyPrinter) {
+        List<Repository> repositories = ButlerCache.getInstance().getAllRepositories();
+        if (CollectionUtils.isEmpty(repositories)) {
+            return "";
+        }
+        return JsonUtils.toJson(repositories, prettyPrinter);
+    }
+
+    @GET
     @Path("repo")
     @Produces(MediaType.APPLICATION_JSON)
     /**
@@ -71,26 +88,5 @@ public class ReposRest {
                              @QueryParam("prettyPrinter") boolean prettyPrinter) {
         Archive archive = ButlerCache.getInstance().getArchive(repoName, archiveIdOrName, force);
         return JsonUtils.toJson(archive, prettyPrinter);
-    }
-
-    @GET
-    @Path("list")
-    @Produces(MediaType.APPLICATION_JSON)
-    /**
-     *
-     * @param force If true, a reload of all repositories is forced.
-     * @param prettyPrinter If true then the json output will be in pretty format.
-     * @return A list of repositories of type {@link BorgRepository}.
-     * @see JsonUtils#toJson(Object, boolean)
-     */
-    public String getList(@QueryParam("force") boolean force, @QueryParam("prettyPrinter") boolean prettyPrinter) {
-        if (force) {
-            ButlerCache.getInstance().clearRepoCacheAccess();
-        }
-        List<Repository> repositories = ButlerCache.getInstance().getAllRepositories();
-        if (CollectionUtils.isEmpty(repositories)) {
-            return "";
-        }
-        return JsonUtils.toJson(repositories, prettyPrinter);
     }
 }

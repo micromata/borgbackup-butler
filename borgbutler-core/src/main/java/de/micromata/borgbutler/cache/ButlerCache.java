@@ -26,6 +26,7 @@ public class ButlerCache {
     private JCSCache jcsCache;
     private CacheAccess<String, Repository> repoCacheAccess;
     private ArchiveFilelistCache archiveFilelistCache;
+    private int notYetLoadedIdCounter = 1;
 
     public static ButlerCache getInstance() {
         return instance;
@@ -81,9 +82,16 @@ public class ButlerCache {
     public List<Repository> getAllRepositories() {
         List<Repository> repositories = new ArrayList<>();
         for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getRepoConfigs()) {
-            Repository repository = getRepository(repoConfig);
+            Repository repository = repoCacheAccess.get(repoConfig.getRepo());
             if (repository == null) {
-                continue;
+                if (repoConfig.getId() == null) {
+                    // Temporary id:
+                    repoConfig.setId("not_yet_loaded_" + notYetLoadedIdCounter++);
+                }
+                repository = new Repository()
+                        .setDisplayName(repoConfig.getDisplayName())
+                        .setName(repoConfig.getRepo())
+                        .setId(repoConfig.getId());
             }
             repositories.add(repository);
         }
