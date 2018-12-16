@@ -20,6 +20,8 @@ function FileListFilter({reload, changeFilter, filter}) {
                 name={'search'}
                 onChange={changeFilter}
                 fieldLength={5}
+                autoFocus
+                hint={'You may enter several key words separated by white spaces. Hit simply return to proceed. Example: \'borg xls !film\' searches for Excel files containing \'borg\', but not \'film\'.'}
             />
 
             <FormSelect
