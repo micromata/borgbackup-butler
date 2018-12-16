@@ -9,6 +9,7 @@ import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.*;
 import de.micromata.borgbutler.utils.DateUtils;
+import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -19,8 +20,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -34,7 +38,8 @@ public class BorgCommands {
      * @return Parsed repo config returned by Borg command (without archives).
      */
     public static Repository info(BorgRepoConfig repoConfig) {
-        String json = execute(repoConfig, "info", repoConfig.getRepo(), "--json");
+        Context context = new Context().setRepoConfig(repoConfig).setCommand("info").setParams("--json");
+        String json = execute(context);
         if (json == null) {
             return null;
         }
@@ -61,7 +66,8 @@ public class BorgCommands {
      * @param repository Repository without archives, archives will be loaded.
      */
     public static void list(BorgRepoConfig repoConfig, Repository repository) {
-        String json = execute(repoConfig, "list", repository.getName(), "--json");
+        Context context = new Context().setRepoConfig(repoConfig).setCommand("list").setParams("--json");
+        String json = execute(context);
         if (json == null) {
             log.error("Can't load archives from repo '" + repository.getName() + "'.");
             return;
@@ -96,14 +102,15 @@ public class BorgCommands {
      * @param repository Repository without archives.
      */
     public static void info(BorgRepoConfig repoConfig, Archive archive, Repository repository) {
-        String archiveFullname = repoConfig.getRepo() + "::" + archive.getName();
-        String json = execute(repoConfig, "info", archiveFullname, "--json");
+        Context context = new Context().setRepoConfig(repoConfig).setCommand("info").setArchive(archive.getName())
+                .setParams("--json");
+        String json = execute(context);
         if (json == null) {
             return;
         }
         BorgArchiveInfo archiveInfo = JsonUtils.fromJson(BorgArchiveInfo.class, json);
         if (archiveInfo == null) {
-            log.error("Archive '" + archiveFullname + "' not found.");
+            log.error("Archive '" + context.getRepoArchive() + "' not found.");
             return;
         }
         repository.setLastModified(DateUtils.format(archiveInfo.getRepository().getLastModified()))
@@ -115,7 +122,7 @@ public class BorgCommands {
             return;
         }
         if (archiveInfo.getArchives().size() > 1) {
-            log.warn("Archive '" + archiveFullname + "' contains more than one archives!? (Using only first.)");
+            log.warn("Archive '" + context.getRepoArchive() + "' contains more than one archives!? (Using only first.)");
         }
         BorgArchive2 borgArchive = archiveInfo.getArchives().get(0);
         archive.setStart(DateUtils.format(borgArchive.getStart()))
@@ -132,9 +139,10 @@ public class BorgCommands {
     }
 
     public static List<BorgFilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, String archiveId) {
+        Context context = new Context().setRepoConfig(repoConfig).setCommand("list").setArchive(archiveId)
+                .setParams("--json-lines");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        execute(outputStream, repoConfig, "list", repoConfig.getRepo() + "::" + archiveId,
-                "--json-lines");
+        execute(outputStream, context);
         String response = outputStream.toString(Definitions.STD_CHARSET);
         List<BorgFilesystemItem> content = new ArrayList<>();
         try (Scanner scanner = new Scanner(response)) {
@@ -149,22 +157,41 @@ public class BorgCommands {
         return content;
     }
 
-    private static String execute(BorgRepoConfig repoConfig, String command, String repoOrArchive, String... args) {
+    public static Path extractFiles(BorgRepoConfig repoConfig, String archiveId, String path) throws IOException {
+        Path tempDirWithPrefix = Files.createTempDirectory("borbutler");
+        Context context = new Context().setWorkingDir(tempDirWithPrefix.toFile()).setRepoConfig(repoConfig)
+                .setCommand("extract").setArchive(archiveId).setArgs(path);
+        execute(context);
+        return tempDirWithPrefix;
+    }
+
+    private static String execute(Context context) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        execute(outputStream, repoConfig, command, repoOrArchive, args);
+        execute(outputStream, context);
         String json = outputStream.toString(Definitions.STD_CHARSET);
         return json;
     }
 
-    private static void execute(OutputStream outputStream, BorgRepoConfig repoConfig, String command, String repoOrArchive, String... args) {
+    private static void execute(OutputStream outputStream, Context context) {
         CommandLine cmdLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
-        cmdLine.addArgument(command);
-        for (String arg : args) {
-            if (arg != null)
-                cmdLine.addArgument(arg);
+        cmdLine.addArgument(context.command);
+        if (context.params != null) {
+            for (String param : context.params) {
+                if (param != null)
+                    cmdLine.addArgument(param);
+            }
         }
-        cmdLine.addArgument(repoOrArchive);
+        cmdLine.addArgument(context.getRepoArchive());
+        if (context.args != null) {
+            for (String arg : context.args) {
+                if (arg != null)
+                    cmdLine.addArgument(arg);
+            }
+        }
         DefaultExecutor executor = new DefaultExecutor();
+        if (context.workingDir != null) {
+            executor.setWorkingDirectory(context.workingDir);
+        }
         //executor.setExitValue(2);
         //ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
         //executor.setWatchdog(watchdog);
@@ -174,7 +201,7 @@ public class BorgCommands {
         String borgCall = cmdLine.getExecutable() + " " + StringUtils.join(cmdLine.getArguments(), " ");
         log.info("Executing '" + borgCall + "'...");
         try {
-            executor.execute(cmdLine, getEnvironment(repoConfig));
+            executor.execute(cmdLine, getEnvironment(context.repoConfig));
         } catch (Exception ex) {
             log.error("Error while creating environment for borg call '" + borgCall + "': " + ex.getMessage(), ex);
             log.error("Response: " + StringUtils.abbreviate(outputStream.toString(), 10000));
@@ -201,6 +228,36 @@ public class BorgCommands {
     private static void addEnvironmentVariable(Map<String, String> env, String name, String value) {
         if (StringUtils.isNotBlank(value)) {
             EnvironmentUtils.addVariableToEnvironment(env, name + "=" + value);
+        }
+    }
+
+    private static class Context {
+        @Setter
+        File workingDir;
+        String[] args;
+        String[] params;
+        @Setter
+        BorgRepoConfig repoConfig;
+        @Setter
+        String command;
+        @Setter
+        String archive;
+
+        Context setArgs(String... args) {
+            this.args = args;
+            return this;
+        }
+
+        Context setParams(String... params) {
+            this.params = params;
+            return this;
+        }
+
+        String getRepoArchive() {
+            if (archive == null) {
+                return repoConfig.getRepo();
+            }
+            return repoConfig.getRepo() + "::" + archive;
         }
     }
 }
