@@ -71,7 +71,12 @@ class ArchiveView extends React.Component {
                 }}
             />;
         } else if (this.state.fileList) {
-            if (this.state.fileList.length > 0) {
+            if (this.state.fileList.length === 1 && this.state.fileList[0].mode === 'notLoaded') {
+                content = <React.Fragment>
+                    <Button outline color="primary" onClick={() => this.fetchArchiveFileList(true)}>Load file list from
+                        borg backup server</Button>
+                </React.Fragment>;
+            } else {
                 content = <React.Fragment>
                     <FileListFilter
                         filter={this.state.filter}
@@ -83,11 +88,6 @@ class ArchiveView extends React.Component {
                     />
                     <FileListTable
                         entries={this.state.fileList}/>
-                </React.Fragment>;
-            } else {
-                content = <React.Fragment>
-                    <Button outline color="primary" onClick={() => this.fetchArchiveFileList(true)}>Load file list from
-                        borg backup server</Button>
                 </React.Fragment>;
             }
         }

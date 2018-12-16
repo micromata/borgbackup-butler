@@ -62,7 +62,7 @@ public class ArchivesRest {
         List<BorgFilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, force,
                 filter);
         if (items == null) {
-            return "[{patch: 'notLoaded'}]";
+            return "[{\"mode\": \"notLoaded\"}]";
         }
         return JsonUtils.toJson(items, prettyPrinter);
     }
