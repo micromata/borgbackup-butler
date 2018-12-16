@@ -18,15 +18,22 @@ public class FileSystemFilter {
     private String[] blackListSearchKeyWords;
 
     public boolean matches(BorgFilesystemItem item) {
+        if (searchKeyWords == null && blackListSearchKeyWords == null) {
+            return true;
+        }
+        if (item.getPath() == null) {
+            return false;
+        }
+        String path = item.getPath().toLowerCase();
         if (searchKeyWords != null) {
             for (String searchKeyWord : searchKeyWords) {
-                if (!StringUtils.containsIgnoreCase(item.getPath(), searchKeyWord))
+                if (!path.contains(searchKeyWord))
                     return false;
             }
         }
         if (blackListSearchKeyWords != null) {
             for (String blackListSearchKeyWord : blackListSearchKeyWords) {
-                if (StringUtils.containsIgnoreCase(item.getPath(), blackListSearchKeyWord))
+                if (path.contains(blackListSearchKeyWord))
                     return false;
             }
         }
@@ -51,9 +58,9 @@ public class FileSystemFilter {
                     continue;
                 }
                 if (keyWord.startsWith("!") && keyWord.length() > 1) {
-                    blackList.add(keyWord.substring(1));
+                    blackList.add(keyWord.substring(1).toLowerCase());
                 } else {
-                    whiteList.add(keyWord);
+                    whiteList.add(keyWord.toLowerCase());
                 }
             }
             if (whiteList.size() > 0) {
