@@ -7,7 +7,6 @@ import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
-import de.micromata.borgbutler.utils.DateUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.jcs.JCS;
 import org.apache.commons.jcs.access.CacheAccess;
@@ -181,10 +180,16 @@ public class ButlerCache {
     }
 
     public List<BorgFilesystemItem> getArchiveContent(String archiveId) {
-        return getArchiveContent(archiveId, -1);
+        return getArchiveContent(archiveId, true, -1);
     }
 
-    public List<BorgFilesystemItem> getArchiveContent(String archiveId, int maxSize) {
+    /**
+     * @param archiveId
+     * @param forceLoad If false, the file list will only get if not yet loaded.
+     * @param maxSize
+     * @return
+     */
+    public List<BorgFilesystemItem> getArchiveContent(String archiveId, boolean forceLoad, int maxSize) {
         Archive archive = null;
         outerLoop:
         for (Repository repository : getAllRepositories()) {
@@ -202,32 +207,30 @@ public class ButlerCache {
             return null;
         }
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(archive.getRepoId());
-        return getArchiveContent(repoConfig, archive, maxSize);
+        return getArchiveContent(repoConfig, archive, forceLoad, maxSize);
     }
 
     /**
-     *
      * @param repoConfig
      * @param archive
      * @return
      */
     public List<BorgFilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
-        return getArchiveContent(repoConfig, archive, -1);
+        return getArchiveContent(repoConfig, archive, true, -1);
     }
 
     /**
-     *
      * @param repoConfig
      * @param archive
-     * @param maxSize Max result size (default is -1 meaning all).
+     * @param maxSize    Max result size (default is -1 meaning all).
      * @return
      */
-    public List<BorgFilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive, int maxSize) {
+    public List<BorgFilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive, boolean forceLoad, int maxSize) {
         if (archive == null || StringUtils.isBlank(archive.getName())) {
             return null;
         }
         List<BorgFilesystemItem> items = archiveFilelistCache.load(repoConfig, archive, maxSize);
-        if (items == null) {
+        if (items == null && forceLoad) {
             List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive.getName());
             if (CollectionUtils.isNotEmpty(list)) {
                 archiveFilelistCache.save(repoConfig, archive, list);
@@ -239,7 +242,7 @@ public class ButlerCache {
                 }
             }
         }
-        if (items == null) {
+        if (items == null && forceLoad) {
             log.warn("Repo::archiv with name '" + archive.getBorgIdentifier() + "' not found.");
         }
         return items;

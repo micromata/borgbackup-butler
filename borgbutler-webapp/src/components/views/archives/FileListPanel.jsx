@@ -11,7 +11,7 @@ class ArchiveView extends React.Component {
     };
 
     componentDidMount = () => {
-        this.fetchArchiveFileList();
+        this.fetchArchiveFileList(false);
     };
 
 

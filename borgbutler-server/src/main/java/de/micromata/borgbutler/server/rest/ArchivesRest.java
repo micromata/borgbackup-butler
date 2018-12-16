@@ -42,6 +42,7 @@ public class ArchivesRest {
     /**
      *
      * @param archiveId Id or name of archive.
+     * @param forceLoad If false (default), non cached file lists will not be loaded by borg.
      * @param maxResultSize maximum number of file items to return (default is 50).
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @return Repository (including list of archives) as json string.
@@ -52,7 +53,7 @@ public class ArchivesRest {
                                      @QueryParam("force") boolean force,
                                      @QueryParam("prettyPrinter") boolean prettyPrinter) {
         int maxSize = maxResultSize != null ? maxResultSize : 50;
-        List<BorgFilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, maxSize);
+        List<BorgFilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, force, maxSize);
         if (items == null) {
             return "";
         }
