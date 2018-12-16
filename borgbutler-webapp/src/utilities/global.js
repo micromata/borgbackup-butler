@@ -4,7 +4,7 @@ export const isDevelopmentMode = () => {
     return process.env.NODE_ENV === 'development';
 }
 
-global.testserver = 'http://localhost:8042';
+global.testserver = 'http://localhost:9042';
 global.restBaseUrl = (isDevelopmentMode() ? global.testserver : '') + '/rest';
 
 // Remove registered server workers from Merlin version <= V0.5 and get rid of caching hell:

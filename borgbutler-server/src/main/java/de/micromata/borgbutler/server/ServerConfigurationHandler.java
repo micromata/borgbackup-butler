@@ -13,7 +13,7 @@ public class ServerConfigurationHandler {
     private Logger log = LoggerFactory.getLogger(ServerConfigurationHandler.class);
     private static final ServerConfigurationHandler instance = new ServerConfigurationHandler();
     private static final String WEBSERVER_PORT_PREF = "webserver-port";
-    public static final int WEBSERVER_PORT_DEFAULT = 8042;
+    public static final int WEBSERVER_PORT_DEFAULT = 9042;
     private static final String LANGUAGE_PREF = "language";
     private static final String LANGUAGE_DEFAULT = null;
     private static final String SHOW_TEST_DATA_PREF = "show-test-data";
