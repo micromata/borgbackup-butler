@@ -5,6 +5,7 @@ import {getRestServiceUrl, humanFileSize, humanSeconds} from '../../../utilities
 import ErrorAlert from '../../general/ErrorAlert';
 import {IconRefresh} from "../../general/IconComponents";
 import classNames from "classnames";
+import FileListTable from "./FileListTable";
 
 class ArchiveView extends React.Component {
 
@@ -21,6 +22,10 @@ class ArchiveView extends React.Component {
 
 
     fetchArchive = (force) => {
+        let forceReload = false;
+        if (force && window.confirm('Are you sure you want to reload the archive file list? This may take a long time...')) {
+            forceReload = true;
+        }
         this.setState({
             isFetching: true,
             failed: false
@@ -28,7 +33,7 @@ class ArchiveView extends React.Component {
         fetch(getRestServiceUrl('archives', {
             repo: this.state.repoId,
             archive: this.state.archiveId,
-            force: force
+            force: forceReload
         }), {
             method: 'GET',
             headers: {
@@ -170,7 +175,9 @@ class ArchiveView extends React.Component {
                         </Table>
                     </TabPane>
                     <TabPane tabId={'2'}>
-                        Hurzel
+                        <FileListTable
+                            entries={this.props.entries}
+                        />
                     </TabPane>
                 </TabContent>
             </React.Fragment>;
