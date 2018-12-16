@@ -4,7 +4,7 @@ import {Table} from 'reactstrap';
 import FileListEntry from './FileListEntry';
 
 function FileListTable({entries, search}) {
-    const lowercaseSearch = search.toLowerCase();
+    const lowercaseSearch = search.split(' ')[0].toLowerCase();
     return (
         <Table striped bordered hover size={'sm'} responsive>
             <thead>
@@ -13,13 +13,11 @@ function FileListTable({entries, search}) {
                 <th>Modified time</th>
                 <th>Size</th>
                 <th>Path</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
             {entries
-                .filter(entry => [entry.message]
-                    .join('|#|').toLowerCase()
-                    .indexOf(lowercaseSearch) !== -1)
                 .map((entry, index) => <FileListEntry
                     entry={entry}
                     search={lowercaseSearch}

@@ -22,7 +22,7 @@ class ArchiveView extends React.Component {
 
     handleInputChange = (event) => {
         event.preventDefault();
-        this.setState({filter : {...this.state.filter, [event.target.name]: event.target.value}});
+        this.setState({filter: {...this.state.filter, [event.target.name]: event.target.value}});
     };
 
 
@@ -87,7 +87,8 @@ class ArchiveView extends React.Component {
                         }}
                     />
                     <FileListTable
-                        entries={this.state.fileList}/>
+                        entries={this.state.fileList}
+                        search={this.state.filter.search}/>
                 </React.Fragment>;
             }
         }
