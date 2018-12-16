@@ -5,7 +5,7 @@ import {getRestServiceUrl, humanFileSize, humanSeconds} from '../../../utilities
 import ErrorAlert from '../../general/ErrorAlert';
 import {IconRefresh} from "../../general/IconComponents";
 import classNames from "classnames";
-import FileListTable from "./FileListTable";
+import FileListPanel from "./FileListPanel";
 
 class ArchiveView extends React.Component {
 
@@ -175,8 +175,8 @@ class ArchiveView extends React.Component {
                         </Table>
                     </TabPane>
                     <TabPane tabId={'2'}>
-                        <FileListTable
-                            entries={this.props.entries}
+                        <FileListPanel
+                            archiveId={archive.id}
                         />
                     </TabPane>
                 </TabContent>

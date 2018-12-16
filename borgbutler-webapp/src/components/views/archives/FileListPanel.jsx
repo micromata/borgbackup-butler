@@ -1,7 +1,6 @@
 import React from 'react'
 import {getRestServiceUrl, humanFileSize} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
-import {IconRefresh} from "../../general/IconComponents";
 
 class ArchiveView extends React.Component {
 
@@ -16,16 +15,15 @@ class ArchiveView extends React.Component {
 
     fetchArchiveFileList = (force) => {
         let forceReload = false;
-        if (force && confirm('Are you sure you want to reload the archive file list? This may take a long time...')) {
+        if (force && window.confirm('Are you sure you want to reload the archive file list? This may take a long time...')) {
             forceReload = true;
         }
         this.setState({
             isFetching: true,
             failed: false
         });
-        fetch(getRestServiceUrl('repos/archive', {
-            repo: this.state.repoId,
-            archive: this.state.archiveId,
+        fetch(getRestServiceUrl('archives/filelist', {
+            archive: this.props.archiveId,
             force: forceReload
         }), {
             method: 'GET',
@@ -46,13 +44,12 @@ class ArchiveView extends React.Component {
     render = () => {
         let content = undefined;
         let archive = this.state.archive;
-        let pageHeader = '';
 
         if (this.state.isFetching) {
             content = <i>Loading...</i>;
         } else if (this.state.failed) {
             content = <ErrorAlert
-                title={'Cannot load Repositories'}
+                title={'Cannot load Archive file list'}
                 description={'Something went wrong during contacting the rest api.'}
                 action={{
                     handleClick: this.fetchArchive,
@@ -60,23 +57,11 @@ class ArchiveView extends React.Component {
                 }}
             />;
         } else if (this.state.archive) {
-            pageHeader = <React.Fragment>
-                {archive.repoDisplayName}
-                <div
-                    className={'btn btn-outline-primary refresh-button-right'}
-                    onClick={this.fetchArchive.bind(this, true)}
-                >
-                    <IconRefresh/>
-                </div>
-            </React.Fragment>;
             content = <React.Fragment>
+                Hurzel;
             </React.Fragment>;
-
         }
         return <React.Fragment>
-            <PageHeader>
-                {pageHeader}
-            </PageHeader>
             {content}
         </React.Fragment>;
     };
@@ -84,7 +69,7 @@ class ArchiveView extends React.Component {
     constructor(props) {
         super(props);
 
-        this.fetchArchive = this.fetchArchive.bind(this);
+        this.fetchArchiveFileList = this.fetchArchiveFileList.bind(this);
     }
 }
 
