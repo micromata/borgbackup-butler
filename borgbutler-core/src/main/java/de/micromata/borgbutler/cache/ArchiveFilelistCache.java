@@ -97,11 +97,14 @@ class ArchiveFilelistCache {
             int maxSize = filter != null ? filter.getMaxResultSize() : -1;
             list = new ArrayList<>();
             int counter = 0;
+            int fileNumber = -1;
             for (int i = 0; i < size; i++) {
+                ++fileNumber;
                 obj = inputStream.readObject();
                 if (obj instanceof BorgFilesystemItem) {
-                    if (filter == null || filter.matches(((BorgFilesystemItem) obj))) {
-                        list.add((BorgFilesystemItem) obj);
+                    BorgFilesystemItem item = (BorgFilesystemItem) obj;
+                    if (filter == null || filter.matches(item)) {
+                        list.add(item.setFileNumber(fileNumber));
                         if (maxSize > 0 && counter++ >= maxSize) break;
                     }
                 } else {

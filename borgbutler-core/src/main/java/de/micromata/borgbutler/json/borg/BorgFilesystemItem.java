@@ -41,6 +41,12 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
     private String mtime;
     @Getter
     private long size;
+    /**
+     * Represents the number of the file in the archive (for downloading). This field is created and only known by BorgButler.
+     */
+    @Getter
+    @Setter
+    private int fileNumber;
 
     @Override
     public int compareTo(BorgFilesystemItem o) {

@@ -238,11 +238,13 @@ public class ButlerCache {
                 archiveFilelistCache.save(repoConfig, archive, list);
                 items = new ArrayList<>();
                 int counter = 0;
+                int fileNumber = -1;
                 boolean search = filter != null && StringUtils.isNotBlank(filter.getSearchString());
                 int maxSize = filter != null ? filter.getMaxResultSize() : -1;
                 for (BorgFilesystemItem item : list) {
+                    ++fileNumber;
                     if (filter == null || filter.matches(item)) {
-                        items.add(item);
+                        items.add(item.setFileNumber(fileNumber));
                         if (maxSize > 0 && counter++ >= maxSize) break;
                     }
                 }
