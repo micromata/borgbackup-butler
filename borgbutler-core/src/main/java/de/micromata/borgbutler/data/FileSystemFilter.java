@@ -13,12 +13,38 @@ public class FileSystemFilter {
     private String searchString;
     @Getter
     @Setter
-    private int maxResultSize;
+    private int maxResultSize = -1;
+    /**
+     * If given, only the file assigned to this number is searched and returned.
+     */
+    @Getter
+    @Setter
+    private Integer fileNumber;
     private String[] searchKeyWords;
     private String[] blackListSearchKeyWords;
+    private int counter = 0;
+    @Getter
+    private boolean finished;
 
+    /**
+     * Please ensure that you call matches exactly ones for every file item. If matches returns true, the internal
+     * item counter is incremented (for maxResultSize functionality).
+     * <br>
+     * If the number of positive matches is greater than {@link #maxResultSize}, the finished flag is set to true.
+     *
+     * @param item
+     * @return true if the given item matches this filter.
+     */
     public boolean matches(BorgFilesystemItem item) {
+        if (fileNumber != null) {
+            if (item.getFileNumber() == fileNumber) {
+                finished = true; // Force finishing.
+                return true;
+            }
+            return false;
+        }
         if (searchKeyWords == null && blackListSearchKeyWords == null) {
+            processFinishedFlag();
             return true;
         }
         if (item.getPath() == null) {
@@ -37,6 +63,7 @@ public class FileSystemFilter {
                     return false;
             }
         }
+        processFinishedFlag();
         return true;
     }
 
@@ -73,5 +100,11 @@ public class FileSystemFilter {
             }
         }
         return this;
+    }
+
+    private void processFinishedFlag() {
+        if (maxResultSize > 0 && ++counter >= maxResultSize) {
+            this.finished = true;
+        }
     }
 }

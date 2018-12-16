@@ -94,9 +94,7 @@ class ArchiveFilelistCache {
                 return null;
             }
             int size = (Integer) obj;
-            int maxSize = filter != null ? filter.getMaxResultSize() : -1;
             list = new ArrayList<>();
-            int counter = 0;
             int fileNumber = -1;
             for (int i = 0; i < size; i++) {
                 ++fileNumber;
@@ -105,7 +103,7 @@ class ArchiveFilelistCache {
                     BorgFilesystemItem item = (BorgFilesystemItem) obj;
                     if (filter == null || filter.matches(item)) {
                         list.add(item.setFileNumber(fileNumber));
-                        if (maxSize > 0 && counter++ >= maxSize) break;
+                        if (filter != null && filter.isFinished()) break;
                     }
                 } else {
                     log.error("Can't load archive content. FilesystemItem expected, but received: "
@@ -123,7 +121,8 @@ class ArchiveFilelistCache {
 
     /**
      * Deletes archive contents older than 7 days and deletes the oldest archive contents if the max cache size is
-     * exceeded. The last modified time of a file is equals to the last usage by {@link #load(BorgRepoConfig, Archive)}.
+     * exceeded. The last modified time of a file is equals to the last usage by
+     * {@link #load(BorgRepoConfig, Archive, FileSystemFilter)}.
      */
     public void cleanUp() {
         File[] files = cacheDir.listFiles();
