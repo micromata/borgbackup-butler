@@ -34,11 +34,11 @@ public class ArchiveFilelistCacheTest {
         cache.save(repoConfig, archive, list);
         log.info("Saving done.");
         log.info("Loading items from out dir.");
-        BorgFilesystemItem[] filesystemItems = cache.load(repoConfig, archive);
-        log.info("Loading " + filesystemItems.length + " items done.");
-        assertEquals(list.size(), filesystemItems.length);
-        for (int i = 0; i < filesystemItems.length; i++) {
-            assertEquals(list.get(i).getPath(), filesystemItems[i].getPath());
+        List<BorgFilesystemItem> filesystemItems = cache.load(repoConfig, archive);
+        log.info("Loading " + filesystemItems.size() + " items done.");
+        assertEquals(list.size(), filesystemItems.size());
+        for (int i = 0; i < filesystemItems.size(); i++) {
+            assertEquals(list.get(i).getPath(), filesystemItems.get(i).getPath());
         }
         cache.removeAllCacheFiles();
     }
@@ -53,7 +53,7 @@ public class ArchiveFilelistCacheTest {
         Archive archive = createArchive("2018-12-09");
         assertNull(cache.load(repoConfig, archive));
         cache.save(repoConfig, archive, list);
-        BorgFilesystemItem[] filesystemItems = cache.load(repoConfig, archive);
+        List<BorgFilesystemItem> filesystemItems = cache.load(repoConfig, archive);
         assertNull(cache.load(repoConfig, archive));
         cache.removeAllCacheFiles();
     }
@@ -148,7 +148,7 @@ public class ArchiveFilelistCacheTest {
 
     private Archive createArchive(String time) throws Exception {
         Archive archive = new Archive();
-        set(archive, "archive", "archive-" + time);
+        set(archive, "name", "archive-" + time);
         set(archive, "time", time);
         return archive;
     }

@@ -179,16 +179,37 @@ public class ButlerCache {
         return archive;
     }
 
-    public BorgFilesystemItem[] getArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
+    public List<BorgFilesystemItem> getArchiveContent(String archiveId) {
+        Archive archive = null;
+        outerLoop:
+        for (Repository repository : getAllRepositories()) {
+            if (repository.getArchives() != null) {
+                for (Archive arch : repository.getArchives()) {
+                    if (StringUtils.equals(archiveId, arch.getId())) {
+                        archive = arch;
+                        break outerLoop;
+                    }
+                }
+            }
+        }
+        if (archive == null) {
+            log.error("Can't find archive with id '" + archiveId + "'. May-be it doesn't exist or the archives of the target repository aren't yet loaded.");
+            return null;
+        }
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(archive.getRepoId());
+        return getArchiveContent(repoConfig, archive);
+    }
+
+    public List<BorgFilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
         if (archive == null || StringUtils.isBlank(archive.getName())) {
             return null;
         }
-        BorgFilesystemItem[] items = archiveFilelistCache.load(repoConfig, archive);
+        List<BorgFilesystemItem> items = archiveFilelistCache.load(repoConfig, archive);
         if (items == null) {
             List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive.getName());
             if (CollectionUtils.isNotEmpty(list)) {
                 archiveFilelistCache.save(repoConfig, archive, list);
-                items = list.toArray(new BorgFilesystemItem[0]);
+                items = new ArrayList<>();
             }
         }
         if (items == null) {
@@ -197,7 +218,7 @@ public class ButlerCache {
         return items;
     }
 
-    public BorgFilesystemItem[] getArchiveContent(File file) {
+    public List<BorgFilesystemItem> getArchiveContent(File file) {
         return archiveFilelistCache.load(file);
     }
 

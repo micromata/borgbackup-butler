@@ -57,10 +57,10 @@ public class CacheTest {
                 assertNotNull(archive2);
                 archive = ButlerCache.getInstance().getArchive(repoConfig.getRepo(), archive.getId());
                 assertNotNull(archive2);
-                BorgFilesystemItem[] content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive2);
-                log.info("Number of items (content) of archive: " + content.length);
+                List<BorgFilesystemItem> content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive2);
+                log.info("Number of items (content) of archive: " + content.size());
                 content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive2);
-                log.info("Number of items (content) of archive: " + content.length);
+                log.info("Number of items (content) of archive: " + content.size());
             }
         }
         ButlerCache.getInstance().shutdown();

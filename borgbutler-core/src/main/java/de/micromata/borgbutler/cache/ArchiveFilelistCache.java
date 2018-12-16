@@ -15,10 +15,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Cache for storing complete file lists of archives as gzipped files (using Java standard serialization for
@@ -61,7 +58,7 @@ class ArchiveFilelistCache {
      * @param archive
      * @return
      */
-    public BorgFilesystemItem[] load(BorgRepoConfig repoConfig, Archive archive) {
+    public List<BorgFilesystemItem> load(BorgRepoConfig repoConfig, Archive archive) {
         File file = getFile(repoConfig, archive);
         if (!file.exists()) {
             return null;
@@ -69,13 +66,13 @@ class ArchiveFilelistCache {
         return load(file);
     }
 
-    public BorgFilesystemItem[] load(File file) {
+    public List<BorgFilesystemItem> load(File file) {
         if (file.exists() == false) {
             log.error("File '" + file.getAbsolutePath() + "' doesn't exist. Can't get archive content files.");
             return null;
         }
         log.info("Loading archive content as file list from: " + file.getAbsolutePath());
-        BorgFilesystemItem[] list = null;
+        List<BorgFilesystemItem> list = null;
         try {
             // Set last modified time of file:
             Files.setAttribute(file.toPath(), "lastModifiedTime", FileTime.fromMillis(System.currentTimeMillis()));
@@ -89,11 +86,11 @@ class ArchiveFilelistCache {
                 return null;
             }
             int size = (Integer) obj;
-            list = new BorgFilesystemItem[size];
+            list = new ArrayList<>();
             for (int i = 0; i < size; i++) {
                 obj = inputStream.readObject();
                 if (obj instanceof BorgFilesystemItem) {
-                    list[i] = (BorgFilesystemItem) obj;
+                    list.add((BorgFilesystemItem) obj);
                 } else {
                     log.error("Can't load archive content. FilesystemItem expected, but received: "
                             + (obj != null ? obj.getClass() : "null")
