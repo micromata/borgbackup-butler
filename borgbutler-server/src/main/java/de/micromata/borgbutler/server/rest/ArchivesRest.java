@@ -110,35 +110,43 @@ public class ArchivesRest {
         }
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(archive.getRepoId());
         java.nio.file.Path path = null;
+        java.nio.file.Path tempDir = null;
         try {
-            java.nio.file.Path directory = BorgCommands.extractFiles(repoConfig, archive.getName(), item.getPath());
-            List<java.nio.file.Path> files = DirUtils.listFiles(directory);
+            tempDir = BorgCommands.extractFiles(repoConfig, archive.getName(), item.getPath());
+            List<java.nio.file.Path> files = DirUtils.listFiles(tempDir);
             if (CollectionUtils.isEmpty(files)) {
                 log.error("No file extracted.");
                 Response.ResponseBuilder builder = Response.status(404);
                 return builder.build();
             }
             path = files.get(0);
+            File file = path.toFile();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                FileUtils.copyFile(file, baos);
+            } catch (IOException ex) {
+                log.error(ex.getMessage(), ex);
+            }
+            file = new File(item.getPath());
+            byte[] byteArray = baos.toByteArray();//result.getAsByteArrayOutputStream().toByteArray();
+            Response.ResponseBuilder builder = Response.ok(byteArray);
+            builder.header("Content-Disposition", "attachment; filename=" + file.getName());
+            // Needed to get the Content-Disposition by client:
+            builder.header("Access-Control-Expose-Headers", "Content-Disposition");
+            Response response = builder.build();
+            return response;
         } catch (IOException ex) {
             log.error("No file extracted: " + ex.getMessage(), ex);
             Response.ResponseBuilder builder = Response.status(404);
             return builder.build();
+        } finally {
+            if (tempDir != null) {
+                try {
+                    FileUtils.deleteDirectory(tempDir.toFile());
+                } catch (IOException ex) {
+                    log.error("Error while trying to delete temporary directory '" + tempDir.toString() + "': " + ex.getMessage(), ex);
+                }
+            }
         }
-        // ButlerCache.getInstance().getArchiveContent()
-        File file = path.toFile();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            FileUtils.copyFile(file, baos);
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-        }
-        file = new File(item.getPath());
-        byte[] byteArray = baos.toByteArray();//result.getAsByteArrayOutputStream().toByteArray();
-        Response.ResponseBuilder builder = Response.ok(byteArray);
-        builder.header("Content-Disposition", "attachment; filename=" + file.getName());
-        // Needed to get the Content-Disposition by client:
-        builder.header("Access-Control-Expose-Headers", "Content-Disposition");
-        Response response = builder.build();
-        return response;
     }
 }
