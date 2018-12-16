@@ -20,9 +20,6 @@ function download(archiveId, fileNumber) {
             return response.blob();
         })
         .then(blob => {
-            this.setState({
-                running: false
-            });
             fileDownload(blob, filename)
         })
         .catch(error => {
