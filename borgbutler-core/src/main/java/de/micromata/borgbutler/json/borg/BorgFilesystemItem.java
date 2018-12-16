@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.json.borg;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
@@ -35,6 +36,7 @@ public class BorgFilesystemItem implements Serializable {
     @Getter
     private String flags;
     @Getter
+    @Setter
     private String mtime;
     @Getter
     private long size;

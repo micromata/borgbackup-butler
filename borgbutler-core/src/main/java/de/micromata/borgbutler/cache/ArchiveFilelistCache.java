@@ -58,15 +58,15 @@ class ArchiveFilelistCache {
      * @param archive
      * @return
      */
-    public List<BorgFilesystemItem> load(BorgRepoConfig repoConfig, Archive archive) {
+    public List<BorgFilesystemItem> load(BorgRepoConfig repoConfig, Archive archive, int maxSize) {
         File file = getFile(repoConfig, archive);
         if (!file.exists()) {
             return null;
         }
-        return load(file);
+        return load(file, maxSize);
     }
 
-    public List<BorgFilesystemItem> load(File file) {
+    public List<BorgFilesystemItem> load(File file, int maxSize) {
         if (file.exists() == false) {
             log.error("File '" + file.getAbsolutePath() + "' doesn't exist. Can't get archive content files.");
             return null;
@@ -86,6 +86,9 @@ class ArchiveFilelistCache {
                 return null;
             }
             int size = (Integer) obj;
+            if (maxSize > 0 && maxSize < size) {
+                size = maxSize;
+            }
             list = new ArrayList<>();
             for (int i = 0; i < size; i++) {
                 obj = inputStream.readObject();

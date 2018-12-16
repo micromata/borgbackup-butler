@@ -131,7 +131,7 @@ class ArchiveView extends React.Component {
                                             <td>{humanFileSize(archive.stats.original_size)}</td>
                                         </tr>
                                         <tr>
-                                            <td>Nfiles</td>
+                                            <td>Number of files</td>
                                             <td>{Number(archive.stats.nfiles).toLocaleString()}</td>
                                         </tr>
                                         </tbody>

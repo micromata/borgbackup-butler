@@ -1,11 +1,13 @@
 import React from 'react'
-import {getRestServiceUrl, humanFileSize} from '../../../utilities/global';
+import {getRestServiceUrl} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
+import FileListTable from "./FileListTable";
 
 class ArchiveView extends React.Component {
 
     state = {
         isFetching: false, activeTab: '1',
+        fileList : undefined
     };
 
     componentDidMount = () => {
@@ -23,7 +25,7 @@ class ArchiveView extends React.Component {
             failed: false
         });
         fetch(getRestServiceUrl('archives/filelist', {
-            archive: this.props.archiveId,
+            archiveId: this.props.archiveId,
             force: forceReload
         }), {
             method: 'GET',
@@ -35,7 +37,7 @@ class ArchiveView extends React.Component {
             .then(json => {
                 this.setState({
                     isFetching: false,
-                    archive: json
+                    fileList: json
                 })
             })
             .catch(() => this.setState({isFetching: false, failed: true}));
@@ -43,7 +45,6 @@ class ArchiveView extends React.Component {
 
     render = () => {
         let content = undefined;
-        let archive = this.state.archive;
 
         if (this.state.isFetching) {
             content = <i>Loading...</i>;
@@ -56,9 +57,10 @@ class ArchiveView extends React.Component {
                     title: 'Try again'
                 }}
             />;
-        } else if (this.state.archive) {
+        } else if (this.state.fileList) {
             content = <React.Fragment>
-                Hurzel;
+                <FileListTable
+                entries={this.state.fileList}/>
             </React.Fragment>;
         }
         return <React.Fragment>

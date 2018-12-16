@@ -10,9 +10,8 @@ function FileListTable({entries, search}) {
             <thead>
             <tr>
                 <th>Mode</th>
-                <th style={{whiteSpace: 'nowrap'}}>
-                    Date
-                </th>
+                <th>Date</th>
+                <th>Size</th>
                 <th>Path</th>
             </tr>
             </thead>

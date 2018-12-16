@@ -17,6 +17,7 @@ import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 public class Main {
@@ -132,9 +133,9 @@ public class Main {
 
     private static void printArchiveContent(String fileName) {
         File file = new File(fileName);
-        BorgFilesystemItem[] fileList = ButlerCache.getInstance().getArchiveContent(file);
+        List<BorgFilesystemItem> fileList = ButlerCache.getInstance().getArchiveContent(file);
         boolean parseFormatExceptionPrinted = false;
-        if (fileList != null && fileList.length > 0) {
+        if (fileList != null && fileList.size() > 0) {
             TimeZone tz = TimeZone.getTimeZone("UTC");
             DateFormat iso = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
             iso.setTimeZone(tz);

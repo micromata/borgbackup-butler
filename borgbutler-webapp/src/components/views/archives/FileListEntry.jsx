@@ -6,6 +6,8 @@ function FileListEntry({entry, search}) {
     return (
         <tr>
             <td className={'tt'}>{entry.mode}</td>
+            <td className={'tt'}>{entry.mtime}</td>
+            <td className={'tt'}>{entry.size}</td>
             <td className={'tt'}><Highlight search={search}>{entry.path}</Highlight></td>
         </tr>
     );
