@@ -55,7 +55,7 @@ public class ArchivesRest {
         int maxSize = maxResultSize != null ? maxResultSize : 50;
         List<BorgFilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, force, maxSize);
         if (items == null) {
-            return "";
+            return "[]";
         }
         return JsonUtils.toJson(items, prettyPrinter);
     }
