@@ -138,8 +138,8 @@ public class BorgCommands {
         ;
     }
 
-    public static List<BorgFilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, String archiveId) {
-        Context context = new Context().setRepoConfig(repoConfig).setCommand("list").setArchive(archiveId)
+    public static List<BorgFilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, String archive) {
+        Context context = new Context().setRepoConfig(repoConfig).setCommand("list").setArchive(archive)
                 .setParams("--json-lines");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         execute(outputStream, context);
@@ -157,10 +157,10 @@ public class BorgCommands {
         return content;
     }
 
-    public static Path extractFiles(BorgRepoConfig repoConfig, String archiveId, String path) throws IOException {
+    public static Path extractFiles(BorgRepoConfig repoConfig, String archive, String path) throws IOException {
         Path tempDirWithPrefix = Files.createTempDirectory("borbutler");
         Context context = new Context().setWorkingDir(tempDirWithPrefix.toFile()).setRepoConfig(repoConfig)
-                .setCommand("extract").setArchive(archiveId).setArgs(path);
+                .setCommand("extract").setArchive(archive).setArgs(path);
         execute(context);
         return tempDirWithPrefix;
     }

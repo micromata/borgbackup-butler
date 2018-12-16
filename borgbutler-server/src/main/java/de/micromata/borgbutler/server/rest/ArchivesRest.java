@@ -1,11 +1,18 @@
 package de.micromata.borgbutler.server.rest;
 
+import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.cache.ButlerCache;
+import de.micromata.borgbutler.config.BorgRepoConfig;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.FileSystemFilter;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
+import de.micromata.borgbutler.utils.DirUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +23,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @Path("/archives")
@@ -77,14 +86,59 @@ public class ArchivesRest {
      * {@link #getArchiveFileLIst(String, String, String, boolean, boolean)}
      */
     public Response downloadFilebyPath(@QueryParam("archiveId") String archiveId, @QueryParam("fileNumber") int fileNumber) {
-        log.info("Downloading file #" + fileNumber + " of archive '" + archiveId + "'.");
-        return null;
-/*        byte[] byteArray = result.getAsByteArrayOutputStream().toByteArray();
+        log.info("Requesting file #" + fileNumber + " of archive '" + archiveId + "'.");
+        FileSystemFilter filter = new FileSystemFilter().setFileNumber(fileNumber);
+        List<BorgFilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, false,
+                filter);
+        if (CollectionUtils.isEmpty(items)) {
+            log.error("Requested file #" + fileNumber + " not found in archive '" + archiveId
+                    + ". (May-be the archive content isn't yet loaded to the cache.");
+            Response.ResponseBuilder builder = Response.status(404);
+            return builder.build();
+        }
+        if (items.size() != 1) {
+            log.error("Requested file #" + fileNumber + " found multiple times (" + items.size() + ") in archive '" + archiveId
+                    + "! Please remove the archive files (may-be corrupted).");
+            Response.ResponseBuilder builder = Response.status(404);
+            return builder.build();
+        }
+        BorgFilesystemItem item = items.get(0);
+        Archive archive = ButlerCache.getInstance().getArchive(archiveId);
+        if (archive == null) {
+            Response.ResponseBuilder builder = Response.status(404);
+            return builder.build();
+        }
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(archive.getRepoId());
+        java.nio.file.Path path = null;
+        try {
+            java.nio.file.Path directory = BorgCommands.extractFiles(repoConfig, archive.getName(), item.getPath());
+            List<java.nio.file.Path> files = DirUtils.listFiles(directory);
+            if (CollectionUtils.isEmpty(files)) {
+                log.error("No file extracted.");
+                Response.ResponseBuilder builder = Response.status(404);
+                return builder.build();
+            }
+            path = files.get(0);
+        } catch (IOException ex) {
+            log.error("No file extracted: " + ex.getMessage(), ex);
+            Response.ResponseBuilder builder = Response.status(404);
+            return builder.build();
+        }
+        // ButlerCache.getInstance().getArchiveContent()
+        File file = path.toFile();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            FileUtils.copyFile(file, baos);
+        } catch (IOException ex) {
+            log.error(ex.getMessage(), ex);
+        }
+        file = new File(item.getPath());
+        byte[] byteArray = baos.toByteArray();//result.getAsByteArrayOutputStream().toByteArray();
         Response.ResponseBuilder builder = Response.ok(byteArray);
-        builder.header("Content-Disposition", "attachment; filename=" + filename);
+        builder.header("Content-Disposition", "attachment; filename=" + file.getName());
         // Needed to get the Content-Disposition by client:
         builder.header("Access-Control-Expose-Headers", "Content-Disposition");
         Response response = builder.build();
-        return response;*/
+        return response;
     }
 }
