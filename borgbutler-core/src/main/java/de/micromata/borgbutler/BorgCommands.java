@@ -144,6 +144,7 @@ public class BorgCommands {
             while (scanner.hasNextLine()) {
                 String json = scanner.nextLine();
                 BorgFilesystemItem item = JsonUtils.fromJson(BorgFilesystemItem.class, json);
+                item.setMtime(DateUtils.format(item.getMtime()));
                 content.add(item);
             }
         }
