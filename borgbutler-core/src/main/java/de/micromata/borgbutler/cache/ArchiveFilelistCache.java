@@ -101,8 +101,9 @@ class ArchiveFilelistCache {
                 obj = inputStream.readObject();
                 if (obj instanceof BorgFilesystemItem) {
                     BorgFilesystemItem item = (BorgFilesystemItem) obj;
+                    item.setFileNumber(fileNumber);
                     if (filter == null || filter.matches(item)) {
-                        list.add(item.setFileNumber(fileNumber));
+                        list.add(item);
                         if (filter != null && filter.isFinished()) break;
                     }
                 } else {

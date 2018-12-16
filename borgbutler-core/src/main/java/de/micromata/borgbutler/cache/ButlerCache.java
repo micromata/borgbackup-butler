@@ -184,25 +184,28 @@ public class ButlerCache {
         return getArchiveContent(archiveId, true, null);
     }
 
-    /**
-     * @param archiveId
-     * @param forceLoad If false, the file list will only get if not yet loaded.
-     * @param filter If not null, the result will be filtered.
-     * @return
-     */
-    public List<BorgFilesystemItem> getArchiveContent(String archiveId, boolean forceLoad, FileSystemFilter filter) {
-        Archive archive = null;
-        outerLoop:
+    public Archive getArchive(String archiveId) {
         for (Repository repository : getAllRepositories()) {
             if (repository.getArchives() != null) {
-                for (Archive arch : repository.getArchives()) {
-                    if (StringUtils.equals(archiveId, arch.getId())) {
-                        archive = arch;
-                        break outerLoop;
+                for (Archive archive : repository.getArchives()) {
+                    if (StringUtils.equals(archiveId, archive.getId())) {
+                        return archive;
                     }
                 }
             }
         }
+        log.error("Archive with id '" + archiveId + "' not found. May-be not yet loaded into the cache.");
+        return null;
+    }
+
+    /**
+     * @param archiveId
+     * @param forceLoad If false, the file list will only get if not yet loaded.
+     * @param filter    If not null, the result will be filtered.
+     * @return
+     */
+    public List<BorgFilesystemItem> getArchiveContent(String archiveId, boolean forceLoad, FileSystemFilter filter) {
+        Archive archive = getArchive(archiveId);
         if (archive == null) {
             log.error("Can't find archive with id '" + archiveId + "'. May-be it doesn't exist or the archives of the target repository aren't yet loaded.");
             return null;
@@ -223,7 +226,7 @@ public class ButlerCache {
     /**
      * @param repoConfig
      * @param archive
-     * @param filter    If given, only the items matching this filter are returned..
+     * @param filter     If given, only the items matching this filter are returned..
      * @return
      */
     public List<BorgFilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive, boolean forceLoad,
@@ -240,8 +243,9 @@ public class ButlerCache {
                 int fileNumber = -1;
                 for (BorgFilesystemItem item : list) {
                     ++fileNumber;
+                    item.setFileNumber(fileNumber);
                     if (filter == null || filter.matches(item)) {
-                        items.add(item.setFileNumber(fileNumber));
+                        items.add(item);
                         if (filter != null && filter.isFinished()) break;
                     }
                 }
