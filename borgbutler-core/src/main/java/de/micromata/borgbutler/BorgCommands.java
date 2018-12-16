@@ -158,7 +158,7 @@ public class BorgCommands {
     }
 
     public static Path extractFiles(BorgRepoConfig repoConfig, String archive, String path) throws IOException {
-        Path tempDirWithPrefix = Files.createTempDirectory("borbutler");
+        Path tempDirWithPrefix = Files.createTempDirectory("borgbutler-extract-");
         Context context = new Context().setWorkingDir(tempDirWithPrefix.toFile()).setRepoConfig(repoConfig)
                 .setCommand("extract").setArchive(archive).setArgs(path);
         execute(context);
