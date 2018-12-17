@@ -13,12 +13,13 @@ import java.io.IOException;
 public class ConfigurationHandler {
     private static Logger log = LoggerFactory.getLogger(ConfigurationHandler.class);
     private static ConfigurationHandler instance = new ConfigurationHandler();
-    private static final String APP_WORKING_DIR = ".borgbutler";
-    private static final String CONFIG_FILENAME = ".borgbutler.json";
-    private static final String CONFIG_BACKUP_FILENAME = ".borgbutler-bak.json";
+    private static final String BUTLER_HOME_DIR = ".borgbutler";
+    private static final String CONFIG_FILENAME = "borgrepos.json";
+    private static final String CONFIG_BACKUP_FILENAME = "borgrepos-bak.json";
     @Getter
     private File configFile;
-    private File backupConfigFile;
+    private File configBackupFile;
+    @Getter
     private File workingDir;
     private Configuration configuration = new Configuration();
 
@@ -51,8 +52,8 @@ public class ConfigurationHandler {
         try {
             if (configFile.exists()) {
                 // Create backup-file first:
-                log.info("Creating backup file first: '" + backupConfigFile.getAbsolutePath() + "'");
-                FileUtils.copyFile(configFile, backupConfigFile);
+                log.info("Creating backup file first: '" + configBackupFile.getAbsolutePath() + "'");
+                FileUtils.copyFile(configFile, configBackupFile);
             }
             log.info("Writing config file '" + configFile.getAbsolutePath() + "'");
             FileUtils.write(configFile, json, Definitions.STD_CHARSET);
@@ -61,19 +62,15 @@ public class ConfigurationHandler {
         }
     }
 
-    public File getWorkingDir() {
+    private ConfigurationHandler() {
+        File userHome = new File(System.getProperty("user.home"));
+        workingDir = new File(userHome, BUTLER_HOME_DIR);
         if (!workingDir.exists()) {
             log.info("Creating borg-butlers working directory: " + workingDir.getAbsolutePath());
             workingDir.mkdirs();
         }
-        return workingDir;
-    }
-
-    private ConfigurationHandler() {
-        File userHome = new File(System.getProperty("user.home"));
-        configFile = new File(userHome, CONFIG_FILENAME);
-        backupConfigFile = new File(userHome, CONFIG_BACKUP_FILENAME);
-        workingDir = new File(userHome, APP_WORKING_DIR);
+        configFile = new File(workingDir, CONFIG_FILENAME);
+        configBackupFile = new File(workingDir, CONFIG_BACKUP_FILENAME);
         read();
     }
 }
