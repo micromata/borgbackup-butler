@@ -254,7 +254,7 @@ public class ButlerCache {
         if (items == null && forceLoad) {
             log.warn("Repo::archiv with name '" + archive.getBorgIdentifier() + "' not found.");
         }
-        return items;
+        return filter.reduce(items);
     }
 
     public List<BorgFilesystemItem> getArchiveContent(File file) {

@@ -9,8 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FileSystemFilter {
+    public enum Mode {FLAT, TREE}
+
     @Getter
     private String searchString;
+    @Getter
+    private Mode mode;
+    @Getter
+    @Setter
+    private String currentDirectory;
     @Getter
     @Setter
     private int maxResultSize = -1;
@@ -68,6 +75,53 @@ public class FileSystemFilter {
     }
 
     /**
+     * After processing a list by using {@link #matches(BorgFilesystemItem)} you should call finally this method with
+     * your result list to reduce the files and directories for mode {@link Mode#TREE}. For the mode {@link Mode#FLAT}
+     * nothing is done.
+     * @param list
+     * @return The original list for mode {@link Mode#FLAT} or the reduced list for the tree view.
+     */
+    public List reduce(List<BorgFilesystemItem> list) {
+        if (mode == FileSystemFilter.Mode.TREE) {
+            List<BorgFilesystemItem> list2 = list;
+            list = new ArrayList<>();
+            for (BorgFilesystemItem item : list2) {
+                if (matchesDirectoryView(item)) {
+                    list.add(item);
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * After processing all files with {@link #matches(BorgFilesystemItem)} you should process the file list again
+     * through this filter (for tree view) for displaying only the sub items of the current directory (not recursive).
+     *
+     * @return
+     */
+    private boolean matchesDirectoryView(BorgFilesystemItem item) {
+        if (mode != Mode.TREE) {
+            return true;
+        }
+        String path = item.getPath();
+        if (StringUtils.isEmpty(currentDirectory)) {
+            // root dir
+            return path.indexOf('/') == -1; // Show only top level items.
+        }
+        if (!path.startsWith(currentDirectory)) {
+            // item is not a child of currentDirectory.
+            return false;
+        }
+        if (path.length() <= currentDirectory.length() + 1) {
+            // Don't show the current directory itself.
+            return false;
+        }
+        String subPath = path.substring(currentDirectory.length());
+        return subPath.indexOf('/') < 0;
+    }
+
+    /**
      * @param searchString The search string. If this string contains several key words separated by white chars,
      *                     all key words must be found.
      * @return this for chaining.
@@ -98,6 +152,19 @@ public class FileSystemFilter {
                 this.blackListSearchKeyWords = new String[blackList.size()];
                 this.blackListSearchKeyWords = blackList.toArray(this.blackListSearchKeyWords);
             }
+        }
+        return this;
+    }
+
+    /**
+     * @param mode
+     * @return this for chaining.
+     */
+    public FileSystemFilter setMode(String mode) {
+        if (mode != null && mode.toLowerCase().equals("tree")) {
+            this.mode = Mode.TREE;
+        } else {
+            this.mode = Mode.FLAT;
         }
         return this;
     }

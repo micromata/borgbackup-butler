@@ -56,21 +56,28 @@ public class ArchivesRest {
     /**
      *
      * @param archiveId Id or name of archive.
-     * @param forceLoad If false (default), non cached file lists will not be loaded by borg.
+     * @param searchString The string to search for (key words separated by white chars, trailing ! char represents exclude).
+     * @param mode Flat (default) or tree.
+     * @param currentDirectory The current displayed directory (only files and directories contained will be returned).
      * @param maxResultSize maximum number of file items to return (default is 50).
+     * @param force If false (default), non cached file lists will not be loaded by borg.
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @return Repository (including list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
     public String getArchiveFileLIst(@QueryParam("archiveId") String archiveId,
                                      @QueryParam("searchString") String searchString,
+                                     @QueryParam("mode") String mode,
+                                     @QueryParam("currentDirectory") String currentDirectory,
                                      @QueryParam("maxResultSize") String maxResultSize,
                                      @QueryParam("force") boolean force,
                                      @QueryParam("prettyPrinter") boolean prettyPrinter) {
         int maxSize = NumberUtils.toInt(maxResultSize, 50);
         FileSystemFilter filter = new FileSystemFilter()
                 .setSearchString(searchString)
-                .setMaxResultSize(maxSize);
+                .setMaxResultSize(maxSize)
+                .setMode(mode)
+                .setCurrentDirectory(currentDirectory);
         List<BorgFilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, force,
                 filter);
         if (items == null) {
