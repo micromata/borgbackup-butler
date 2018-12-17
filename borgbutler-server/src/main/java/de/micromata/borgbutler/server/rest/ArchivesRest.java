@@ -23,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -113,6 +114,7 @@ public class ArchivesRest {
         java.nio.file.Path tempDir = null;
         try {
             tempDir = BorgCommands.extractFiles(repoConfig, archive.getName(), item.getPath());
+            openFileBrowser(tempDir);
             List<java.nio.file.Path> files = DirUtils.listFiles(tempDir);
             if (CollectionUtils.isEmpty(files)) {
                 log.error("No file extracted.");
@@ -140,13 +142,19 @@ public class ArchivesRest {
             Response.ResponseBuilder builder = Response.status(404);
             return builder.build();
         } finally {
-            if (tempDir != null) {
+/*            if (tempDir != null) {
                 try {
                     FileUtils.deleteDirectory(tempDir.toFile());
                 } catch (IOException ex) {
                     log.error("Error while trying to delete temporary directory '" + tempDir.toString() + "': " + ex.getMessage(), ex);
                 }
-            }
+            }*/
+        }
+    }
+
+    public static void openFileBrowser(java.nio.file.Path path) {
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE_FILE_DIR)) {
+            Desktop.getDesktop().browseFileDirectory(path.toFile());
         }
     }
 }
