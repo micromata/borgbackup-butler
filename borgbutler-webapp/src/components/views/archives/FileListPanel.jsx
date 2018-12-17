@@ -12,6 +12,8 @@ class ArchiveView extends React.Component {
         fileList: undefined,
         filter: {
             search: '',
+            mode: undefined,
+            currentDirectory: '',
             maxSize: '50'
         }
     };
@@ -39,6 +41,8 @@ class ArchiveView extends React.Component {
             archiveId: this.props.archiveId,
             force: forceReload,
             searchString: this.state.filter.search,
+            mode: this.state.filter.mode,
+            currentDirectory: this.state.filter.currentDirectory,
             maxResultSize: this.state.filter.maxSize
         }), {
             method: 'GET',

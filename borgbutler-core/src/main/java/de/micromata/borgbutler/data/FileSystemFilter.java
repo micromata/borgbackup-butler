@@ -101,9 +101,6 @@ public class FileSystemFilter {
      * @return
      */
     private boolean matchesDirectoryView(BorgFilesystemItem item) {
-        if (mode != Mode.TREE) {
-            return true;
-        }
         String path = item.getPath();
         if (StringUtils.isEmpty(currentDirectory)) {
             // root dir
@@ -170,6 +167,9 @@ public class FileSystemFilter {
     }
 
     private void processFinishedFlag() {
+        if (mode == Mode.TREE) {
+            return;
+        }
         if (maxResultSize > 0 && ++counter >= maxResultSize) {
             this.finished = true;
         }

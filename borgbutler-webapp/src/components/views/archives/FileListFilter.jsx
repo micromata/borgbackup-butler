@@ -25,6 +25,14 @@ function FileListFilter({reload, changeFilter, filter}) {
             />
 
             <FormSelect
+                value={filter.mode}
+                name={'mode'}
+                onChange={changeFilter}
+            >
+                <FormOption value={'flat'} />
+                <FormOption value={'tree'} />
+            </FormSelect>
+            <FormSelect
                 value={filter.maxSize}
                 name={'maxSize'}
                 onChange={changeFilter}
