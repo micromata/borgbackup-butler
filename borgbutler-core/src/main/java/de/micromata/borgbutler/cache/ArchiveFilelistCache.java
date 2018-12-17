@@ -53,6 +53,18 @@ class ArchiveFilelistCache {
     }
 
     /**
+     * Calls {@link #load(BorgRepoConfig, Archive, FileSystemFilter)} with filter null.
+     *
+     * @param repoConfig
+     * @param archive
+     * @return
+     */
+    public List<BorgFilesystemItem> load(BorgRepoConfig repoConfig, Archive archive) {
+        return load(repoConfig, archive, null);
+    }
+
+
+    /**
      * Will load and touch the archive file if exist. The file will be touched (last modified time will be set to now)
      * for pruning oldest cache files. The last modified time will be the time of the last usage.
      *
