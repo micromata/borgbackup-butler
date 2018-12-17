@@ -69,7 +69,7 @@ https://projectlombok.org/[Lombok home page^] +
 === Start borgbutler-server
 1. `cd borgbutler-webapp`
 2. `npm install`
-3. `gradle gradle npmBuild` (builds the web archive)
+3. `gradle npmBuild` (builds the web archive)
 4. Start `de.micromata.borgbutler.server.Main`
 
 === Start borgbutler-server for web development
