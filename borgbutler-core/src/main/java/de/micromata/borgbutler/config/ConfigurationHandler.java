@@ -14,8 +14,8 @@ public class ConfigurationHandler {
     private static Logger log = LoggerFactory.getLogger(ConfigurationHandler.class);
     private static ConfigurationHandler instance = new ConfigurationHandler();
     private static final String BUTLER_HOME_DIR = ".borgbutler";
-    private static final String CONFIG_FILENAME = "borgrepos.json";
-    private static final String CONFIG_BACKUP_FILENAME = "borgrepos-bak.json";
+    private static final String CONFIG_FILENAME = "borgbutler-config.json";
+    private static final String CONFIG_BACKUP_FILENAME = "borgbutler-config-bak.json";
     @Getter
     private File configFile;
     private File configBackupFile;
