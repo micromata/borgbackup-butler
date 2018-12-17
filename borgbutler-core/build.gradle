@@ -30,3 +30,9 @@ lombok {
     version = '1.18.4'
     sha256 = "" // skip verifyLombok task
 }
+
+test {
+    // set heap size for the test JVM(s)
+    minHeapSize = "128m"
+    maxHeapSize = "1500m"
+}
