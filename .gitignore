@@ -37,6 +37,7 @@ hs_err_pid*
 *.iws
 borgbutler-core/build
 borgbutler-core/out
+borgbutler-server/build
 borgbutler-server/out
-borgbutler-webapp/node_modules
 borgbutler-webapp/build
+borgbutler-webapp/node_modules
