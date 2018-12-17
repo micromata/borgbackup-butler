@@ -7,20 +7,25 @@ import fileDownload from 'js-file-download';
 
 function download(archiveId, fileNumber) {
     let filename;
-    fetch(getRestServiceUrl('archives/download', {
+    fetch(getRestServiceUrl('archives/restore', {
         archiveId: archiveId,
         fileNumber: fileNumber
     }))
         .then(response => {
+            if (response.status === 202) { // ACCEPTED
+                // No download wanted (file or path was only restored on server).
+               return undefined;
+            }
             if (!response.ok) {
                 throw new Error(response.statusText);
             }
-
             filename = getResponseHeaderFilename(response.headers.get('Content-Disposition'));
             return response.blob();
         })
         .then(blob => {
-            fileDownload(blob, filename)
+            if (filename) {
+                fileDownload(blob, filename);
+            }
         })
         .catch(error => {
             console.log(error.toString());

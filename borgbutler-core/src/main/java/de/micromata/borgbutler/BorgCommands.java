@@ -9,6 +9,7 @@ import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.*;
 import de.micromata.borgbutler.utils.DateUtils;
+import de.micromata.borgbutler.utils.ReplaceUtils;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.exec.CommandLine;
@@ -20,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.naming.Context;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -157,12 +159,24 @@ public class BorgCommands {
         return content;
     }
 
-    public static Path extractFiles(BorgRepoConfig repoConfig, String archive, String path) throws IOException {
-        Path tempDirWithPrefix = Files.createTempDirectory("borgbutler-extract-");
-        Context context = new Context().setWorkingDir(tempDirWithPrefix.toFile()).setRepoConfig(repoConfig)
+    /**
+     * Stores the file in a subdirectory named with the repos display name.
+     * @param restoreHomeDir
+     * @param repoConfig
+     * @param archive
+     * @param path
+     * @return Used sub directory with the restored content.
+     * @throws IOException
+     */
+    public static File extractFiles(File restoreHomeDir, BorgRepoConfig repoConfig, String archive, String path) throws IOException {
+        File restoreDir = new File(restoreHomeDir, ReplaceUtils.encodeFilename(repoConfig.getDisplayName(), true));
+        if (!restoreDir.exists()) {
+            restoreDir.mkdirs();
+        }
+        Context context = new Context().setWorkingDir(restoreDir).setRepoConfig(repoConfig)
                 .setCommand("extract").setArchive(archive).setArgs(path);
         execute(context);
-        return tempDirWithPrefix;
+        return restoreDir;
     }
 
     private static String execute(Context context) {

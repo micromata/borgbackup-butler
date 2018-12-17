@@ -1,13 +1,23 @@
 package de.micromata.borgbutler.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.micromata.borgbutler.BorgCommands;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Configuration {
+    private Logger log = LoggerFactory.getLogger(Configuration.class);
+    /**
+     * Default dir name for restoring archives.
+     */
+    private static final String RESTORE_DIRNAME = "restore";
     @Getter
     private String borgCommand = "borg";
     /**
@@ -16,6 +26,15 @@ public class Configuration {
     @Getter
     @JsonProperty("cache_archive_content_max_disc_size_mb")
     private int cacheArchiveContentMaxDiscSizeMB = 100;
+
+    /**
+     * Default is restore inside BorgButler's home dir (~/.borgbutler/restore).
+     */
+    @Getter
+    @JsonProperty("restore_dir")
+    private String restoreDirPath;
+    @JsonIgnore
+    private File restoreHomeDir;
 
     @Getter
     @JsonProperty("repo-configs")
@@ -35,5 +54,19 @@ public class Configuration {
             }
         }
         return null;
+    }
+
+    public File getRestoreHomeDir() {
+        if (restoreHomeDir == null) {
+            if (StringUtils.isNotBlank(restoreDirPath)) {
+                restoreHomeDir = new File(restoreDirPath);
+            } else {
+                restoreHomeDir = new File(ConfigurationHandler.getInstance().getWorkingDir(), RESTORE_DIRNAME);
+            }
+            if (!restoreHomeDir.exists()) {
+                log.info("Creating dir '" + restoreHomeDir.getAbsolutePath() + "' for restoring backup files and directories.");
+            }
+        }
+        return restoreHomeDir;
     }
 }

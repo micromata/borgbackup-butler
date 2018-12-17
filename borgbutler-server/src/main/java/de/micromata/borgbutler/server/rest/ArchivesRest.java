@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 @Path("/archives")
@@ -79,14 +80,14 @@ public class ArchivesRest {
     }
 
     @GET
-    @Path("/download")
+    @Path("/restore")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     /**
      * @param archiveId
-     * @param fileNumber The fileNumber of the file in the archive served by BorgButler's
+     * @param fileNumber The fileNumber of the file or directory in the archive served by BorgButler's
      * {@link #getArchiveFileLIst(String, String, String, boolean, boolean)}
      */
-    public Response downloadFilebyPath(@QueryParam("archiveId") String archiveId, @QueryParam("fileNumber") int fileNumber) {
+    public Response restore(@QueryParam("archiveId") String archiveId, @QueryParam("fileNumber") int fileNumber) {
         log.info("Requesting file #" + fileNumber + " of archive '" + archiveId + "'.");
         FileSystemFilter filter = new FileSystemFilter().setFileNumber(fileNumber);
         List<BorgFilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, false,
@@ -94,7 +95,7 @@ public class ArchivesRest {
         if (CollectionUtils.isEmpty(items)) {
             log.error("Requested file #" + fileNumber + " not found in archive '" + archiveId
                     + ". (May-be the archive content isn't yet loaded to the cache.");
-            Response.ResponseBuilder builder = Response.status(404);
+            Response.ResponseBuilder builder = Response.status(Response.Status.NOT_FOUND);
             return builder.build();
         }
         if (items.size() != 1) {
@@ -103,18 +104,63 @@ public class ArchivesRest {
             Response.ResponseBuilder builder = Response.status(404);
             return builder.build();
         }
-        BorgFilesystemItem item = items.get(0);
         Archive archive = ButlerCache.getInstance().getArchive(archiveId);
         if (archive == null) {
-            Response.ResponseBuilder builder = Response.status(404);
+            Response.ResponseBuilder builder = Response.status(Response.Status.NOT_FOUND);
             return builder.build();
         }
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(archive.getRepoId());
-        java.nio.file.Path path = null;
-        java.nio.file.Path tempDir = null;
         try {
-            tempDir = BorgCommands.extractFiles(repoConfig, archive.getName(), item.getPath());
-            openFileBrowser(tempDir);
+            BorgFilesystemItem item = items.get(0);
+            File restoreHomeDir = ConfigurationHandler.getConfiguration().getRestoreHomeDir();
+            File restoreDir = BorgCommands.extractFiles(restoreHomeDir, repoConfig, archive.getName(), item.getPath());
+            List<java.nio.file.Path> files = DirUtils.listFiles(restoreDir.toPath());
+            if (CollectionUtils.isEmpty(files)) {
+                log.error("No files extracted.");
+                Response.ResponseBuilder builder = Response.status(Response.Status.NOT_FOUND);
+                return builder.build();
+            }
+            openFileBrowser(new File(restoreDir, item.getPath()));
+            Response.ResponseBuilder builder = Response.status(Response.Status.ACCEPTED);
+            return builder.build();
+        } catch (IOException ex) {
+            log.error("No file extracted: " + ex.getMessage(), ex);
+            Response.ResponseBuilder builder = Response.status(Response.Status.NOT_FOUND);
+            return builder.build();
+        }
+    }
+
+    public void openFileBrowser(File directory) {
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE_FILE_DIR)) {
+            Desktop.getDesktop().browseFileDirectory(directory);
+        }
+    }
+
+    private Response handleRestoredFiles(BorgRepoConfig repoConfig, Archive archive) {
+        // Todo: Handle download from single files as well as download of zip archive (if BorgButler runs remote).
+        return null;
+       /* File file = path.toFile();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            FileUtils.copyFile(file, baos);
+        } catch (IOException ex) {
+            log.error(ex.getMessage(), ex);
+        }
+        BorgFilesystemItem item = items.get(0);
+        file = new File(item.getPath());
+        byte[] byteArray = baos.toByteArray();//result.getAsByteArrayOutputStream().toByteArray();
+        Response.ResponseBuilder builder = Response.ok(byteArray);
+        builder.header("Content-Disposition", "attachment; filename=" + file.getName());
+        // Needed to get the Content-Disposition by client:
+        builder.header("Access-Control-Expose-Headers", "Content-Disposition");
+        Response response = builder.build();
+        return response;
+
+        try {
+            //java.nio.file.Path tempDirWithPrefix = Files.createTempDirectory("borgbutler-extract-");
+            File restoreHomeDir = ConfigurationHandler.getConfiguration().getRestoreHomeDir();
+            File restoreDir = BorgCommands.extractFiles(restoreHomeDir, repoConfig, archive.getName(), item.getPath());
+            openFileBrowser(restoreDir);
             List<java.nio.file.Path> files = DirUtils.listFiles(tempDir);
             if (CollectionUtils.isEmpty(files)) {
                 log.error("No file extracted.");
@@ -122,39 +168,18 @@ public class ArchivesRest {
                 return builder.build();
             }
             path = files.get(0);
-            File file = path.toFile();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {
-                FileUtils.copyFile(file, baos);
-            } catch (IOException ex) {
-                log.error(ex.getMessage(), ex);
-            }
-            file = new File(item.getPath());
-            byte[] byteArray = baos.toByteArray();//result.getAsByteArrayOutputStream().toByteArray();
-            Response.ResponseBuilder builder = Response.ok(byteArray);
-            builder.header("Content-Disposition", "attachment; filename=" + file.getName());
-            // Needed to get the Content-Disposition by client:
-            builder.header("Access-Control-Expose-Headers", "Content-Disposition");
-            Response response = builder.build();
-            return response;
         } catch (IOException ex) {
             log.error("No file extracted: " + ex.getMessage(), ex);
             Response.ResponseBuilder builder = Response.status(404);
             return builder.build();
         } finally {
-/*            if (tempDir != null) {
+           if (tempDir != null) {
                 try {
                     FileUtils.deleteDirectory(tempDir.toFile());
                 } catch (IOException ex) {
                     log.error("Error while trying to delete temporary directory '" + tempDir.toString() + "': " + ex.getMessage(), ex);
                 }
-            }*/
-        }
-    }
-
-    public static void openFileBrowser(java.nio.file.Path path) {
-        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE_FILE_DIR)) {
-            Desktop.getDesktop().browseFileDirectory(path.toFile());
-        }
+            }
+        }*/
     }
 }
