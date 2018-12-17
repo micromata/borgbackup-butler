@@ -33,10 +33,22 @@ information, archive information and also file list of archive content).
 * `repo-configs`: You may add a list of all your repos with the borg variables. The name is only used for displaying
 purposes.
 
-== For developers
+== Build and start from command line
+
+=== Build distribution and start with Gradle
+1. `cd borgbackup-butler`
+2. `npm install`
+3. `cd ..`
+4. `gradle distZip`
+5. `unzip borgbutler-server/build/distributions/borgbutler-server-0.1-SNAPSHOT.zip`
+6. Start BorgButler: `borgbutler-server-0.1-SNAPSHOT/bin/borgbutler-server`
+
+Now the default webbrowser is started on default port `9042`. Enjoy it!
+
+
+== Build and start inside your IDE
 
 === Lombok required
-==== Installing Lombok in IntelliJ
 [.text-center]
 https://github.com/mplushnikov/lombok-intellij-plugin[Lombok Intellij plugin description^] +
 [.text-left]
@@ -45,24 +57,33 @@ Or go to
 https://projectlombok.org/[Lombok home page^] +
 [.text-left]
 
-=== Work with borgbutler-server
-==== npm without hot code replacement
+* Using IDE built-in plugin system on Windows: +
+  File > Settings > Plugins > Browse repositories... > Search for "lombok" > Install Plugin
+* Using IDE built-in plugin system on MacOs: +
+  Preferences > Settings > Plugins > Browse repositories... > Search for "lombok" > Install Plugin
+* Manually: +
+  Download the latest release and install it manually using Preferences > Plugins > Install plugin from disk..
+* In your project: Click Preferences -> Build, Execution, Deployment -> Compiler, Annotation Processors. Click Enable Annotation Processing
+
+
+=== Start borgbutler-server
 1. `cd borgbutler-webapp`
 2. `npm install`
-3. `npm start`
-4. `gradle gradle npmBuild`
-5. Start `de.micromata.borgbutler.server.Main`
+3. `gradle gradle npmBuild` (builds the web archive)
+4. Start `de.micromata.borgbutler.server.Main`
 
-==== npm with hot code replacement
+=== Start borgbutler-server for web development
+For using hot code replacement of your web files, you should use `npm start` or `yarn start`:
 
 1. `cd borgbutler-webapp`
 2. `npm install`
-3. `npm start`
-5. Start `de.micromata.borgbutler.server.Main`
+3. `npm start` (opens the web browser on port 3000)
+4. Start `de.micromata.borgbutler.server.Main` (ignore the opened browser window for port 9042)
 
-=== Ideas
-==== 2 factor authentication
+== Ideas
+=== 2 factor authentication
 https://github.com/j256/two-factor-auth
 
-=== Install server
-==== Debian
+== Install server
+=== Debian
+tbd.
