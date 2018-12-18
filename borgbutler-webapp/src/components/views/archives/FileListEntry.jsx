@@ -34,7 +34,7 @@ function download(archiveId, fileNumber) {
 
 function FileListEntry({archiveId, entry, search, mode, changeCurrentDirectory}) {
     let path;
-    if (mode === 'tree') {
+    if (mode === 'tree' && entry.type === 'd') {
         path = <a href={'#'} onClick={() => changeCurrentDirectory(entry.path)}><Highlight search={search}>{entry.path}</Highlight></a>;
     } else {
         path = <Highlight search={search}>{entry.path} tree</Highlight>;
