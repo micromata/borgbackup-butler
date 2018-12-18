@@ -12,7 +12,7 @@ class ArchiveView extends React.Component {
         fileList: undefined,
         filter: {
             search: '',
-            mode: undefined,
+            mode: 'tree',
             currentDirectory: '',
             maxSize: '50'
         }

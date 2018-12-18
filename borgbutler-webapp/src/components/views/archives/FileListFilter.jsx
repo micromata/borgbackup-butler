@@ -29,8 +29,8 @@ function FileListFilter({reload, changeFilter, filter}) {
                 name={'mode'}
                 onChange={changeFilter}
             >
-                <FormOption value={'flat'} />
                 <FormOption value={'tree'} />
+                <FormOption value={'flat'} />
             </FormSelect>
             <FormSelect
                 value={filter.maxSize}
