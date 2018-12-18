@@ -88,17 +88,22 @@ class ArchiveView extends React.Component {
                         className={classNames({active: this.state.activeTab === '1'})}
                         onClick={this.toggleTab('1')}
                     >
-                        Information
+                        File list
                     </NavLink>
                     <NavLink
                         className={classNames({active: this.state.activeTab === '2'})}
                         onClick={this.toggleTab('2')}
                     >
-                        File list
+                        Information
                     </NavLink>
                 </Nav>
+                <TabPane tabId={'1'}>
+                    <FileListPanel
+                        archiveId={archive.id}
+                    />
+                </TabPane>
                 <TabContent activeTab={this.state.activeTab}>
-                    <TabPane tabId={'1'}>
+                    <TabPane tabId={'2'}>
                         <Table hover>
                             <tbody>
                             <tr>
@@ -173,11 +178,6 @@ class ArchiveView extends React.Component {
                             </tr>
                             </tbody>
                         </Table>
-                    </TabPane>
-                    <TabPane tabId={'2'}>
-                        <FileListPanel
-                            archiveId={archive.id}
-                        />
                     </TabPane>
                 </TabContent>
             </React.Fragment>;
