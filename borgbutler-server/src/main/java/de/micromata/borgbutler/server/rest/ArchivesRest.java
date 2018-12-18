@@ -65,7 +65,7 @@ public class ArchivesRest {
      * @return Repository (including list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
-    public String getArchiveFileLIst(@QueryParam("archiveId") String archiveId,
+    public String getArchiveFileList(@QueryParam("archiveId") String archiveId,
                                      @QueryParam("searchString") String searchString,
                                      @QueryParam("mode") String mode,
                                      @QueryParam("currentDirectory") String currentDirectory,
