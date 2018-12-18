@@ -80,7 +80,6 @@ public class BorgCommands {
         }
         repository.setLastModified(DateUtils.format(repoList.getRepository().getLastModified()))
                 .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
-        List<ArchiveShortInfo> archiveInfoList = new ArrayList<>();
         for (BorgArchive borgArchive : repoList.getArchives()) {
             Archive archive = new Archive()
                     .setName(borgArchive.getArchive())
@@ -91,15 +90,6 @@ public class BorgCommands {
                     .setRepoName(repository.getName())
                     .setRepoDisplayName(repoConfig.getDisplayName());
             repository.add(archive);
-            archiveInfoList.add(new ArchiveShortInfo()
-                    .setId(archive.getId())
-                    .setName(archive.getName())
-                    .setRepoId(archive.getRepoId())
-                    .setTime(archive.getTime()));
-        }
-        for (Archive archive : repository.getArchives()) {
-            // ArchiveInfoList for comparing current archives with one of all other archives.
-            archive.setArchiveShortInfoList(archiveInfoList);
         }
     }
 
