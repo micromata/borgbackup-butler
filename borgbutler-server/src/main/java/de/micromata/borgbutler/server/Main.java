@@ -145,13 +145,15 @@ public class Main {
             try (PrintWriter writer = new PrintWriter(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(out))))) {
                 for (BorgFilesystemItem item : fileList) {
                     String time = item.getMtime();
-                    try {
-                        Date date = df.parse(item.getMtime());
-                        time = iso.format(date);
-                    } catch (java.text.ParseException ex) {
-                        if (!parseFormatExceptionPrinted) {
-                            parseFormatExceptionPrinted = true;
-                            log.error("Can't parse date: " + item.getMtime());
+                    if (time.indexOf('T') > 0) {
+                        try {
+                            Date date = df.parse(item.getMtime());
+                            time = iso.format(date);
+                        } catch (java.text.ParseException ex) {
+                            if (!parseFormatExceptionPrinted) {
+                                parseFormatExceptionPrinted = true;
+                                log.error("Can't parse date: " + item.getMtime());
+                            }
                         }
                     }
                     writer.write(item.getMode() + " " + item.getUser() + " "
