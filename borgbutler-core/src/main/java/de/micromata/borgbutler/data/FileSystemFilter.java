@@ -94,6 +94,8 @@ public class FileSystemFilter {
      * After processing a list by using {@link #matches(BorgFilesystemItem)} you should call finally this method with
      * your result list to reduce the files and directories for mode {@link Mode#TREE}. For the mode {@link Mode#FLAT}
      * nothing is done.
+     * <br>
+     * Reorders the list (.files will be displayed after normal files).
      *
      * @param list
      * @return The original list for mode {@link Mode#FLAT} or the reduced list for the tree view.
@@ -113,6 +115,21 @@ public class FileSystemFilter {
                     BorgFilesystemItem topItem = subDirectories.get(topLevel);
                     topItem.setDisplayPath(StringUtils.removeStart(topItem.getPath(), currentDirectory));
                     list.add(topItem);
+                }
+            }
+            list2 = list;
+            // Re-ordering (show dot files at last)
+            list = new ArrayList<>();
+            // First add normal files:
+            for (BorgFilesystemItem item : list2) {
+                if (!item.getDisplayPath().startsWith(".")) {
+                    list.add(item);
+                }
+            }
+            // Now add dot files:
+            for (BorgFilesystemItem item : list2) {
+                if (item.getDisplayPath().startsWith(".")) {
+                    list.add(item);
                 }
             }
         }

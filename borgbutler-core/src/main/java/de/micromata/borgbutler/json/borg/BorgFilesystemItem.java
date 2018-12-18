@@ -56,6 +56,15 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
 
     @Override
     public int compareTo(BorgFilesystemItem o) {
-        return StringUtils.compare(this.path, o.path);
+        if (path == o.path) {
+            return 0;
+        }
+        if (path == null) {
+            return -1;
+        }
+        if (o.path == null) {
+            return  1;
+        }
+        return path.compareToIgnoreCase(o.path);
     }
 }
