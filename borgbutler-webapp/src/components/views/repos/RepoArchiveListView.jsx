@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {getRestServiceUrl, humanFileSize} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
-import {IconRefresh} from "../../general/IconComponents";
+import {IconCheck, IconRefresh} from "../../general/IconComponents";
 
 class RepoArchiveListView extends React.Component {
 
@@ -106,14 +106,20 @@ class RepoArchiveListView extends React.Component {
                             <tr>
                                 <th>Archive</th>
                                 <th>Time</th>
+                                <th></th>
                                 <th>Id</th>
                             </tr>
                             {repo.archives.map((archive) => {
                                 // Return the element. Also pass key
+                                let loaded = '';
+                                if (archive.fileListAlreadyCached) {
+                                    loaded = <IconCheck />;
+                                }
                                 return (
                                     <tr key={archive.id}>
                                         <td><Link to={`/archives/${repo.id}/${archive.id}`}>{archive.name}</Link></td>
                                         <td>{archive.time}</td>
+                                        <td>{loaded}</td>
                                         <td>{archive.id}</td>
                                     </tr>);
                             })}
