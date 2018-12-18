@@ -95,19 +95,21 @@ class ArchiveView extends React.Component {
                 </React.Fragment>;
             } else {
                 if (this.state.filter.mode === 'tree' && this.state.filter.currentDirectory.length > 0) {
-                    const dirs = this.state.filter.currentDirectory.split('/');
-                    let paths = [];
-                    for (let i = 0; i < dirs.length; i++) {
+                    let dirs = this.state.filter.currentDirectory.split('/');
+                    let breadcrumbs = [];
+                    for (let i = 0; i < dirs.length - 1; i++) {
                         let path = '';
                         for (let j = 0; j <= i; j++) {
                             path += dirs[j] + '/';
                         }
-                        paths.push(path);
+                        breadcrumbs.push(<BreadcrumbItem key={i}><a onClick={() => this.changeCurrentDirectory(path)}
+                                                                  href="#">{dirs[i]}</a></BreadcrumbItem>);
                     }
                     breadcrumb = <Breadcrumb>
-                        {dirs.map((dir, index) =>
-                            <BreadcrumbItem key={index}><a onClick={() => this.changeCurrentDirectory(paths[index])}
-                                                           href="#">{dir}</a></BreadcrumbItem>)}
+                        <BreadcrumbItem><a onClick={() => this.changeCurrentDirectory('')}
+                                                       href="#">Top</a></BreadcrumbItem>
+                        {breadcrumbs}
+                        <BreadcrumbItem active>{dirs[dirs.length - 1]}lkdjfls</BreadcrumbItem>
                     </Breadcrumb>;
                 } else {
                     breadcrumb = '';
