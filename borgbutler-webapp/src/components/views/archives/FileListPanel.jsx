@@ -94,11 +94,20 @@ class ArchiveView extends React.Component {
                         borg backup server</Button>
                 </React.Fragment>;
             } else {
-                if (this.state.filter.mode === 'tree') {
+                if (this.state.filter.mode === 'tree' && this.state.filter.currentDirectory.length > 0) {
+                    const dirs = this.state.filter.currentDirectory.split('/');
+                    let paths = [];
+                    for (let i = 0; i < dirs.length; i++) {
+                        let path = '';
+                        for (let j = 0; j <= i; j++) {
+                            path += dirs[j] + '/';
+                        }
+                        paths.push(path);
+                    }
                     breadcrumb = <Breadcrumb>
-                        <BreadcrumbItem><a href="#">Home</a></BreadcrumbItem>
-                        <BreadcrumbItem><a href="#">Library</a></BreadcrumbItem>
-                        <BreadcrumbItem active>Data</BreadcrumbItem>
+                        {dirs.map((dir, index) =>
+                            <BreadcrumbItem key={index}><a onClick={() => this.changeCurrentDirectory(paths[index])}
+                                                           href="#">{dir}</a></BreadcrumbItem>)}
                     </Breadcrumb>;
                 } else {
                     breadcrumb = '';
