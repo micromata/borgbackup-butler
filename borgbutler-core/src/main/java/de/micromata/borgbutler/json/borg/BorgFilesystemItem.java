@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.json.borg;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -12,6 +13,7 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
      * d (directory), - (file)
      */
     @Getter
+    @Setter
     private String type;
     /**
      * Unix mode, e. g. <tt>drwxr-xr-x</tt>
@@ -27,7 +29,11 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
     @Getter
     private long gid;
     @Getter
+    @Setter
     private String path;
+    @Setter
+    @Getter
+    private String displayPath;
     @Getter
     private boolean healthy;
     @Getter

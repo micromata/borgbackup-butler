@@ -19,7 +19,6 @@ public class FileSystemFilter {
     @Getter
     private Mode mode;
     @Getter
-    @Setter
     private String currentDirectory;
     // For storing sub directories of the currentDirectory
     private Map<String, BorgFilesystemItem> subDirectories;
@@ -48,6 +47,7 @@ public class FileSystemFilter {
      * @return true if the given item matches this filter.
      */
     public boolean matches(BorgFilesystemItem item) {
+        item.setDisplayPath(item.getPath());
         if (fileNumber != null) {
             if (item.getFileNumber() == fileNumber) {
                 finished = true; // Force finishing.
@@ -105,9 +105,14 @@ public class FileSystemFilter {
             list = new ArrayList<>();
             for (BorgFilesystemItem item : list2) {
                 String topLevel = getTopLevel(item.getPath());
+                if (topLevel == null) {
+                    continue;
+                }
                 if (set.contains(topLevel) == false) {
                     set.add(topLevel);
-                    list.add(subDirectories.get(topLevel));
+                    BorgFilesystemItem topItem = subDirectories.get(topLevel);
+                    topItem.setDisplayPath(StringUtils.removeStart(topItem.getPath(), currentDirectory));
+                    list.add(topItem);
                 }
             }
         }
@@ -119,7 +124,7 @@ public class FileSystemFilter {
      * @return null if the item is not a child of the current directory otherwise the top level sub directory name of
      * the current directory.
      */
-    private String getTopLevel(String path) {
+    String getTopLevel(String path) {
         if (StringUtils.isEmpty(currentDirectory)) {
             int pos = path.indexOf('/');
             if (pos < 0) {
@@ -135,7 +140,12 @@ public class FileSystemFilter {
             // Don't show the current directory itself.
             return null;
         }
-        return path.substring(currentDirectory.length());
+        path = StringUtils.removeStart(path, currentDirectory);
+        int pos = path.indexOf('/');
+        if (pos < 0) {
+            return path;
+        }
+        return path.substring(0, pos);
     }
 
     /**
@@ -179,10 +189,19 @@ public class FileSystemFilter {
      */
     public FileSystemFilter setMode(String mode) {
         if (mode != null && mode.toLowerCase().equals("tree")) {
-            this.mode = Mode.TREE;
+            return setMode(Mode.TREE);
+        }
+        return setMode(Mode.FLAT);
+    }
+
+    /**
+     * @param mode
+     * @return this for chaining.
+     */
+    public FileSystemFilter setMode(Mode mode) {
+        this.mode = mode;
+        if (mode == Mode.TREE) {
             this.subDirectories = new HashMap<>(); // needed only for tree view.
-        } else {
-            this.mode = Mode.FLAT;
         }
         return this;
     }
@@ -194,5 +213,14 @@ public class FileSystemFilter {
         if (maxResultSize > 0 && ++counter >= maxResultSize) {
             this.finished = true;
         }
+    }
+
+    public FileSystemFilter setCurrentDirectory(String currentDirectory) {
+        if (currentDirectory != null && currentDirectory.length() > 0) {
+            this.currentDirectory = currentDirectory + "/";
+        } else {
+            this.currentDirectory = currentDirectory;
+        }
+        return this;
     }
 }

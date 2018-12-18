@@ -109,7 +109,7 @@ class ArchiveView extends React.Component {
                         <BreadcrumbItem><a onClick={() => this.changeCurrentDirectory('')}
                                                        href="#">Top</a></BreadcrumbItem>
                         {breadcrumbs}
-                        <BreadcrumbItem active>{dirs[dirs.length - 1]}lkdjfls</BreadcrumbItem>
+                        <BreadcrumbItem active>{dirs[dirs.length - 1]}</BreadcrumbItem>
                     </Breadcrumb>;
                 } else {
                     breadcrumb = '';
