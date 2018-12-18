@@ -1,5 +1,5 @@
 import React from 'react'
-import {Button} from 'reactstrap';
+import {Button, Breadcrumb, BreadcrumbItem} from 'reactstrap';
 import {getRestServiceUrl} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
 import FileListTable from "./FileListTable";
@@ -24,9 +24,21 @@ class ArchiveView extends React.Component {
 
     handleInputChange = (event) => {
         event.preventDefault();
-        this.setState({filter: {...this.state.filter, [event.target.name]: event.target.value}});
+        let target = event.target.name;
+        this.setState({filter: {...this.state.filter, [event.target.name]: event.target.value}},
+            () => {
+                if (target === 'mode') {
+                    this.fetchArchiveFileList();
+                }
+            });
     };
 
+    changeCurrentDirectory = (currentDirectory) => {
+        this.setState({filter: {...this.state.filter, currentDirectory: currentDirectory}},
+            () => {
+                this.fetchArchiveFileList();
+            });
+    };
 
     fetchArchiveFileList = (force) => {
         let forceReload = false;
@@ -62,6 +74,7 @@ class ArchiveView extends React.Component {
 
     render = () => {
         let content = undefined;
+        let breadcrumb = undefined;
 
         if (this.state.isFetching) {
             content = <i>Loading...</i>;
@@ -81,6 +94,15 @@ class ArchiveView extends React.Component {
                         borg backup server</Button>
                 </React.Fragment>;
             } else {
+                if (this.state.filter.mode === 'tree') {
+                    breadcrumb = <Breadcrumb>
+                        <BreadcrumbItem><a href="#">Home</a></BreadcrumbItem>
+                        <BreadcrumbItem><a href="#">Library</a></BreadcrumbItem>
+                        <BreadcrumbItem active>Data</BreadcrumbItem>
+                    </Breadcrumb>;
+                } else {
+                    breadcrumb = '';
+                }
                 content = <React.Fragment>
                     <FileListFilter
                         filter={this.state.filter}
@@ -90,10 +112,13 @@ class ArchiveView extends React.Component {
                             this.fetchArchiveFileList();
                         }}
                     />
+                    {breadcrumb}
                     <FileListTable
                         archiveId={this.props.archiveId}
                         entries={this.state.fileList}
-                        search={this.state.filter.search}/>
+                        search={this.state.filter.search}
+                        mode={this.state.filter.mode}
+                        changeCurrentDirectory={this.changeCurrentDirectory}/>
                 </React.Fragment>;
             }
         }

@@ -32,7 +32,13 @@ function download(archiveId, fileNumber) {
         });
 }
 
-function FileListEntry({archiveId, entry, search}) {
+function FileListEntry({archiveId, entry, search, mode, changeCurrentDirectory}) {
+    let path;
+    if (mode === 'tree') {
+        path = <a href={'#'} onClick={() => changeCurrentDirectory(entry.path)}><Highlight search={search}>{entry.path}</Highlight></a>;
+    } else {
+        path = <Highlight search={search}>{entry.path} tree</Highlight>;
+    }
     return (
         <tr>
             <td className={'tt'}>{entry.mode}</td>
@@ -42,7 +48,7 @@ function FileListEntry({archiveId, entry, search}) {
                 <div className={'btn'} onClick={() => download(archiveId, entry.fileNumber)}>
                     <IconDownload/></div>
             </td>
-            <td className={'tt'}><Highlight search={search}>{entry.path}</Highlight></td>
+            <td className={'tt'}>{path}</td>
         </tr>
     );
 }
@@ -50,6 +56,8 @@ function FileListEntry({archiveId, entry, search}) {
 FileListEntry.propTypes = {
     entry: PropTypes.shape({}).isRequired,
     search: PropTypes.string,
+    mode: PropTypes.string,
+    changeCurrentDirectory: PropTypes.func.isRequired
 };
 
 export default FileListEntry;
