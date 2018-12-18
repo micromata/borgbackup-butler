@@ -30,9 +30,6 @@ class ArchiveFilelistCache {
     private int cacheArchiveContentMaxDiscSizeMB;
     private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
 
-    @Getter
-    private Archive archive;
-
     public void save(BorgRepoConfig repoConfig, Archive archive, List<BorgFilesystemItem> filesystemItems) {
         File file = getFile(repoConfig, archive);
         if (CollectionUtils.isEmpty(filesystemItems)) {
@@ -49,6 +46,16 @@ class ArchiveFilelistCache {
             log.error("Error while writing file list '" + file.getAbsolutePath() + "': " + ex.getMessage(), ex);
         }
         log.info("Saving done.");
+    }
+
+    /**
+     * @param repoConfig
+     * @param archive
+     * @return true, if the content of the archive is already cached, otherwise false.
+     */
+    public boolean contains(BorgRepoConfig repoConfig, Archive archive) {
+        File file = getFile(repoConfig, archive);
+        return file.exists();
     }
 
     /**
@@ -86,7 +93,7 @@ class ArchiveFilelistCache {
      * @return
      */
     public List<BorgFilesystemItem> load(File file, FileSystemFilter filter) {
-        if (file.exists() == false) {
+        if (!file.exists()) {
             log.error("File '" + file.getAbsolutePath() + "' doesn't exist. Can't get archive content files.");
             return null;
         }
