@@ -4,6 +4,7 @@ import Highlight from 'react-highlighter';
 import {IconDownload} from '../../general/IconComponents';
 import {getResponseHeaderFilename, getRestServiceUrl, humanFileSize} from '../../../utilities/global';
 import fileDownload from 'js-file-download';
+import {Button} from 'reactstrap';
 
 function download(archiveId, fileNumber) {
     let filename;
@@ -35,7 +36,7 @@ function download(archiveId, fileNumber) {
 function FileListEntry({archiveId, entry, search, mode, changeCurrentDirectory}) {
     let path;
     if (mode === 'tree' && entry.type === 'd') {
-        path = <a href={'#'} onClick={() => changeCurrentDirectory(entry.path)}><Highlight search={search}>{entry.displayPath}</Highlight></a>;
+        path = <Button color={'link'} onClick={() => changeCurrentDirectory(entry.path)}><Highlight search={search}>{entry.displayPath}</Highlight></Button>;
     } else {
         path = <Highlight search={search}>{entry.displayPath}</Highlight>;
     }
