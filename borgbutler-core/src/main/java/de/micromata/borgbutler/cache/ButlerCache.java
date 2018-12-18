@@ -249,12 +249,15 @@ public class ButlerCache {
                         if (filter != null && filter.isFinished()) break;
                     }
                 }
+                if (filter != null) {
+                    items = filter.reduce(items);
+                }
             }
         }
         if (items == null && forceLoad) {
             log.warn("Repo::archiv with name '" + archive.getBorgIdentifier() + "' not found.");
         }
-        return filter.reduce(items);
+        return items;
     }
 
     public List<BorgFilesystemItem> getArchiveContent(File file) {

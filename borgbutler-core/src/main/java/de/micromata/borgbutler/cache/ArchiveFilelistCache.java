@@ -129,7 +129,10 @@ class ArchiveFilelistCache {
             log.error("Error while reading file list '" + file.getAbsolutePath() + "': " + ex.getMessage(), ex);
         }
         log.info("Loading done.");
-        return filter.reduce(list);
+        if (filter != null) {
+            return filter.reduce(list);
+        }
+        return list;
     }
 
     /**
