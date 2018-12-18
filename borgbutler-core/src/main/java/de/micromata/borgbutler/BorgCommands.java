@@ -10,6 +10,7 @@ import de.micromata.borgbutler.utils.DateUtils;
 import de.micromata.borgbutler.utils.ReplaceUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,10 +174,14 @@ public class BorgCommands {
     }
 
     private static String execute(BorgCommand command) {
-        return BorgExecutorQueue.getInstance().execute(command);
+        Validate.notNull(command);
+        Validate.notNull(command.repoConfig);
+        return BorgExecutorQueue.getQueue(command.repoConfig).execute(command);
     }
 
     private static void execute(OutputStream outputStream, BorgCommand command) {
-        BorgExecutorQueue.getInstance().execute(outputStream, command);
+        Validate.notNull(command);
+        Validate.notNull(command.repoConfig);
+        BorgExecutorQueue.getQueue(command.repoConfig).execute(outputStream, command);
     }
 }

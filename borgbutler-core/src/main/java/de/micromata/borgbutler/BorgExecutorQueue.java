@@ -13,23 +13,41 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.naming.Context;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * A queue is important because Borg doesn't support parallel calls for one repository.
+ * For each repository one single queue is allocated.
+ */
 public class BorgExecutorQueue {
     private Logger log = LoggerFactory.getLogger(BorgExecutorQueue.class);
-    private static BorgExecutorQueue instance = new BorgExecutorQueue();
+    // key is the repo name.
+    private static Map<String, BorgExecutorQueue> queueMap = new HashMap<>();
 
-    public static BorgExecutorQueue getInstance() {
-        return instance;
+    public static BorgExecutorQueue getQueue(BorgRepoConfig config) {
+        synchronized (queueMap) {
+            BorgExecutorQueue queue = queueMap.get(config.getRepo());
+            if (queue == null) {
+                queue = new BorgExecutorQueue();
+                queueMap.put(config.getRepo(), queue);
+            }
+            return queue;
+        }
     }
 
     private ConcurrentLinkedQueue<BorgCommand> commandQueue = new ConcurrentLinkedQueue<>();
 
     public String execute(BorgCommand command) {
+        synchronized (this) {
+            return _exceute(command);
+        }
+    }
+
+    private String _exceute(BorgCommand command) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         execute(outputStream, command);
         String json = outputStream.toString(Definitions.STD_CHARSET);
@@ -37,6 +55,12 @@ public class BorgExecutorQueue {
     }
 
     public void execute(OutputStream outputStream, BorgCommand command) {
+        synchronized (this) {
+            _execute(outputStream, command);
+        }
+    }
+
+    private void _execute(OutputStream outputStream, BorgCommand command) {
         CommandLine cmdLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
         cmdLine.addArgument(command.command);
         if (command.params != null) {
