@@ -1,6 +1,5 @@
 package de.micromata.borgbutler.data;
 
-import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,13 +7,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class FileSystemFilter {
-    private  Logger log = LoggerFactory.getLogger(FileSystemFilter.class);
+    private Logger log = LoggerFactory.getLogger(FileSystemFilter.class);
+
     public enum Mode {FLAT, TREE}
 
     @Getter
@@ -24,6 +21,8 @@ public class FileSystemFilter {
     @Getter
     @Setter
     private String currentDirectory;
+    // For storing sub directories of the currentDirectory
+    private Map<String, BorgFilesystemItem> subDirectories;
     @Getter
     @Setter
     private int maxResultSize = -1;
@@ -55,6 +54,17 @@ public class FileSystemFilter {
                 return true;
             }
             return false;
+        }
+        if (mode == Mode.TREE) {
+            // In this run only register all direct childs of currentDirectory.
+            String topLevelDir = getTopLevel(item.getPath());
+            if (topLevelDir == null) {
+                // item is not inside the current directory.
+                return false;
+            }
+            if (!subDirectories.containsKey(topLevelDir)) {
+                subDirectories.put(topLevelDir, item);
+            }
         }
         if (searchKeyWords == null && blackListSearchKeyWords == null) {
             processFinishedFlag();
@@ -94,8 +104,10 @@ public class FileSystemFilter {
             List<BorgFilesystemItem> list2 = list;
             list = new ArrayList<>();
             for (BorgFilesystemItem item : list2) {
-                if (matchesDirectoryView(set, item)) {
-                    list.add(item);
+                String topLevel = getTopLevel(item.getPath());
+                if (set.contains(topLevel) == false) {
+                    set.add(topLevel);
+                    list.add(subDirectories.get(topLevel));
                 }
             }
         }
@@ -103,63 +115,27 @@ public class FileSystemFilter {
     }
 
     /**
-     * After processing all files with {@link #matches(BorgFilesystemItem)} you should process the file list again
-     * through this filter (for tree view) for displaying only the sub items of the current directory (not recursive).
-     *
-     * @return
+     * @param path The path of the current item.
+     * @return null if the item is not a child of the current directory otherwise the top level sub directory name of
+     * the current directory.
      */
-    private boolean matchesDirectoryView(Set<String> set, BorgFilesystemItem item) {
-        String path = item.getPath();
+    private String getTopLevel(String path) {
         if (StringUtils.isEmpty(currentDirectory)) {
-            // root dir
-            return checkNotYetAbsent(set, path);
+            int pos = path.indexOf('/');
+            if (pos < 0) {
+                return path;
+            }
+            return path.substring(0, pos);
         }
         if (!path.startsWith(currentDirectory)) {
             // item is not a child of currentDirectory.
-            return false;
+            return null;
         }
         if (path.length() <= currentDirectory.length() + 1) {
             // Don't show the current directory itself.
-            return false;
+            return null;
         }
-        String subPath = path.substring(currentDirectory.length());
-        return checkNotYetAbsent(set, subPath);
-    }
-
-    /**
-     * It's possible, that borg does return something like this:
-     * <ol>
-     * <li>home/user/documents</li>
-     * <li>home/user/fotos/2018</li>
-     * <li>home/user/fotos/2019</li>
-     * <li>home/user/movies</li>
-     * <li>home/user/movies...</li>
-     * </ol>
-     * The entry <tt>home/user/fotos</tt> itself is missed (perhaps while the permissions are not given for the backup script.
-     * This method ensures, that such directories as fotos will be added.
-     * <br>
-     * This method only functioned for ordered lists (by path in ascending order).
-     *
-     * @param set  Already added items.
-     * @param path The path of the current item.
-     * @return true if the path was absent and was added.
-     */
-    private boolean checkNotYetAbsent(Set<String> set, String path) {
-        int pos = path.indexOf('/');
-        if (pos < 0) {
-            if (set.contains(path)) {
-                log.warn("Shouldn't occur! (Reason: unordered list or bug.)");
-                return false;
-            }
-            set.add(path);
-            return true;
-        }
-        String parent = path.substring(0, pos);
-        if (set.contains(parent)) {
-            return false;
-        }
-        set.add(parent);
-        return true;
+        return path.substring(currentDirectory.length());
     }
 
     /**
@@ -204,6 +180,7 @@ public class FileSystemFilter {
     public FileSystemFilter setMode(String mode) {
         if (mode != null && mode.toLowerCase().equals("tree")) {
             this.mode = Mode.TREE;
+            this.subDirectories = new HashMap<>(); // needed only for tree view.
         } else {
             this.mode = Mode.FLAT;
         }
