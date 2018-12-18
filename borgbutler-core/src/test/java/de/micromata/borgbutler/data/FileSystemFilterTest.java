@@ -38,7 +38,9 @@ public class FileSystemFilterTest {
             }
         }
         list = filter.reduce(list);
-        assertEquals(2, list.size());
+        assertEquals(4, list.size());
+        assertEquals(".bashrc", list.get(0).getDisplayPath());
+        assertEquals(".borgbutler", list.get(1).getDisplayPath());
 
     }
 
@@ -55,6 +57,8 @@ public class FileSystemFilterTest {
     private List<BorgFilesystemItem> createList() {
         List<BorgFilesystemItem> list = new ArrayList<>();
         list.add(create("home", true));
+        list.add(create("home/.bashrc", false));
+        list.add(create("home/.borgbutler", true));
         list.add(create("home/admin", false));
         list.add(create("home/kai", true));
         list.add(create("home/kai/borg/cache", false));

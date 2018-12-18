@@ -32,7 +32,6 @@ class ArchiveFilelistCache {
 
     @Getter
     private Archive archive;
-    private List<BorgFilesystemItem> content;
 
     public void save(BorgRepoConfig repoConfig, Archive archive, List<BorgFilesystemItem> filesystemItems) {
         File file = getFile(repoConfig, archive);
@@ -128,6 +127,7 @@ class ArchiveFilelistCache {
         } catch (IOException | ClassNotFoundException ex) {
             log.error("Error while reading file list '" + file.getAbsolutePath() + "': " + ex.getMessage(), ex);
         }
+        Collections.sort(list); // Sort by path (if archive list order wasn't correct).
         log.info("Loading done.");
         if (filter != null) {
             return filter.reduce(list);
