@@ -216,7 +216,7 @@ public class FileSystemFilter {
     }
 
     public FileSystemFilter setCurrentDirectory(String currentDirectory) {
-        if (currentDirectory != null && currentDirectory.length() > 0) {
+        if (currentDirectory != null && currentDirectory.length() > 0 && !currentDirectory.endsWith("/")) {
             this.currentDirectory = currentDirectory + "/";
         } else {
             this.currentDirectory = currentDirectory;
