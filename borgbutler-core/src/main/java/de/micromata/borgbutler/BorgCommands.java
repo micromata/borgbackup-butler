@@ -5,6 +5,7 @@ import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.config.Definitions;
 import de.micromata.borgbutler.data.Archive;
+import de.micromata.borgbutler.data.ArchiveShortInfo;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.*;
@@ -25,8 +26,6 @@ import javax.naming.Context;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -81,6 +80,7 @@ public class BorgCommands {
         }
         repository.setLastModified(DateUtils.format(repoList.getRepository().getLastModified()))
                 .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
+        List<ArchiveShortInfo> archiveInfoList = new ArrayList<>();
         for (BorgArchive borgArchive : repoList.getArchives()) {
             Archive archive = new Archive()
                     .setName(borgArchive.getArchive())
@@ -91,6 +91,15 @@ public class BorgCommands {
                     .setRepoName(repository.getName())
                     .setRepoDisplayName(repoConfig.getDisplayName());
             repository.add(archive);
+            archiveInfoList.add(new ArchiveShortInfo()
+                    .setId(archive.getId())
+                    .setName(archive.getName())
+                    .setRepoId(archive.getRepoId())
+                    .setTime(archive.getTime()));
+        }
+        for (Archive archive : repository.getArchives()) {
+            // ArchiveInfoList for comparing current archives with one of all other archives.
+            archive.setArchiveShortInfoList(archiveInfoList);
         }
     }
 
@@ -161,6 +170,7 @@ public class BorgCommands {
 
     /**
      * Stores the file in a subdirectory named with the repos display name.
+     *
      * @param restoreHomeDir
      * @param repoConfig
      * @param archive

@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -81,6 +82,18 @@ public class Archive implements Serializable, Comparable<Archive> {
     @Getter
     @Setter
     private String hostname;
+    /**
+     * For comparing functionality.
+     */
+    @Getter
+    @Setter
+    private List<ArchiveShortInfo> archiveShortInfoList;
+    /**
+     * Is the file list of this archive loaded and available in Butler's cache.
+     */
+    @Getter
+    @Setter
+    private boolean fileListAlreadyCached;
 
     /**
      *
