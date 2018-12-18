@@ -9,11 +9,11 @@ function FileListTable({archiveId, entries, search, mode, changeCurrentDirectory
         <Table striped bordered hover size={'sm'} responsive>
             <thead>
             <tr>
+                <th>Path</th>
+                <th></th>
+                <th>Size</th>
                 <th>Mode</th>
                 <th>Modified time</th>
-                <th>Size</th>
-                <th></th>
-                <th>Path</th>
             </tr>
             </thead>
             <tbody>

@@ -42,14 +42,14 @@ function FileListEntry({archiveId, entry, search, mode, changeCurrentDirectory})
     }
     return (
         <tr>
-            <td className={'tt'}>{entry.mode}</td>
-            <td className={'tt'}>{entry.mtime}</td>
-            <td className={'tt'}>{humanFileSize(entry.size, true, true)}</td>
+            <td className={'tt'}>{path}</td>
             <td className={'tt'}>
                 <div className={'btn'} onClick={() => download(archiveId, entry.fileNumber)}>
                     <IconDownload/></div>
             </td>
-            <td className={'tt'}>{path}</td>
+            <td className={'tt'}>{humanFileSize(entry.size, true, true)}</td>
+            <td className={'tt'}>{entry.mode}</td>
+            <td className={'tt'}>{entry.mtime}</td>
         </tr>
     );
 }
