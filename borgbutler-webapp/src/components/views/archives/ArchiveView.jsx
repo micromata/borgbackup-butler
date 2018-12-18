@@ -97,12 +97,12 @@ class ArchiveView extends React.Component {
                         Information
                     </NavLink>
                 </Nav>
-                <TabPane tabId={'1'}>
-                    <FileListPanel
-                        archiveId={archive.id}
-                    />
-                </TabPane>
                 <TabContent activeTab={this.state.activeTab}>
+                    <TabPane tabId={'1'}>
+                        <FileListPanel
+                            archiveId={archive.id}
+                        />
+                    </TabPane>
                     <TabPane tabId={'2'}>
                         <Table hover>
                             <tbody>
