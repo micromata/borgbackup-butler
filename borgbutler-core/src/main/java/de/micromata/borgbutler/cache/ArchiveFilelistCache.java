@@ -3,6 +3,7 @@ package de.micromata.borgbutler.cache;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.FileSystemFilter;
+import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import de.micromata.borgbutler.utils.ReplaceUtils;
 import lombok.Getter;
@@ -31,10 +32,10 @@ class ArchiveFilelistCache {
     private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
 
     public void save(BorgRepoConfig repoConfig, Archive archive, List<BorgFilesystemItem> filesystemItems) {
-        File file = getFile(repoConfig, archive);
         if (CollectionUtils.isEmpty(filesystemItems)) {
             return;
         }
+        File file = getFile(repoConfig, archive);
         log.info("Saving archive content as file list: " + file.getAbsolutePath());
         try (ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(file))))) {
             outputStream.writeObject(filesystemItems.size());
@@ -49,12 +50,12 @@ class ArchiveFilelistCache {
     }
 
     /**
-     * @param repoConfig
+     * @param repository
      * @param archive
      * @return true, if the content of the archive is already cached, otherwise false.
      */
-    public boolean contains(BorgRepoConfig repoConfig, Archive archive) {
-        File file = getFile(repoConfig, archive);
+    public boolean contains(Repository repository, Archive archive) {
+        File file = getFile(repository, archive);
         return file.exists();
     }
 
@@ -220,9 +221,17 @@ class ArchiveFilelistCache {
         }
     }
 
+    File getFile(Repository repository, Archive archive) {
+        return getFile(repository.getName(), archive);
+    }
+
     File getFile(BorgRepoConfig repoConfig, Archive archive) {
+        return getFile(repoConfig.getRepo(), archive);
+    }
+
+   private File getFile(String repo, Archive archive) {
         return new File(cacheDir, ReplaceUtils.encodeFilename(CACHE_ARCHIVE_LISTS_BASENAME + archive.getTime()
-                        + "-" + repoConfig.getRepo() + "-" + archive.getName() + CACHE_FILE_GZIP_EXTENSION,
+                        + "-" + repo + "-" + archive.getName() + CACHE_FILE_GZIP_EXTENSION,
                 true));
     }
 

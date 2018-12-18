@@ -5,6 +5,7 @@ import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Archive;
+import de.micromata.borgbutler.data.ArchiveShortInfo;
 import de.micromata.borgbutler.data.FileSystemFilter;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
@@ -20,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ButlerCache {
-    private static Logger log = LoggerFactory.getLogger(ButlerCache.class);
+    private Logger log = LoggerFactory.getLogger(ButlerCache.class);
     public static final String CACHE_DIR_NAME = "cache";
     private static ButlerCache instance = new ButlerCache();
 
@@ -123,10 +124,12 @@ public class ButlerCache {
             return null;
         }
         if (repository.isArchivesLoaded()) {
+            updateArchivesCacheStatusAndShortInfos(repository);
             return repository;
         }
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repository.getName());
         BorgCommands.list(repoConfig, repository);
+        updateArchivesCacheStatusAndShortInfos(repository);
         return repository;
     }
 
@@ -174,9 +177,11 @@ public class ButlerCache {
         }
         if (!forceReload && archive.hasInfoData()) {
             // borg info archive was already called.
+            updateArchivesCacheStatusAndShortInfos(repository);
             return archive;
         }
         BorgCommands.info(repoConfig, archive, repository);
+        updateArchivesCacheStatusAndShortInfos(repository);
         return archive;
     }
 
@@ -196,6 +201,27 @@ public class ButlerCache {
         }
         log.error("Archive with id '" + archiveId + "' not found. May-be not yet loaded into the cache.");
         return null;
+    }
+
+    /**
+     * Updates for all archives of the given repository the cache status ({@link Archive#isFileListAlreadyCached()} and
+     * updates also the list of {@link ArchiveShortInfo} for all archives of the given repository.
+     *
+     * @param repository
+     */
+    private void updateArchivesCacheStatusAndShortInfos(Repository repository) {
+        if (repository == null || repository.getArchives() == null) {
+            return;
+        }
+        List<ArchiveShortInfo> archiveInfoList = new ArrayList<>();
+        for (Archive archive : repository.getArchives()) {
+            archive.setFileListAlreadyCached(archiveFilelistCache.contains(repository, archive));
+            archiveInfoList.add(new ArchiveShortInfo(archive));
+        }
+        for (Archive archive : repository.getArchives()) {
+            // ArchiveInfoList for comparing current archives with one of all other archives.
+            archive.setArchiveShortInfoList(archiveInfoList);
+        }
     }
 
     /**

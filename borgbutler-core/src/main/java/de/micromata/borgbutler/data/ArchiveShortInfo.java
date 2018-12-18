@@ -1,9 +1,5 @@
 package de.micromata.borgbutler.data;
 
-import de.micromata.borgbutler.json.borg.BorgArchiveLimits;
-import de.micromata.borgbutler.json.borg.BorgArchiveStats;
-import de.micromata.borgbutler.json.borg.BorgCache;
-import de.micromata.borgbutler.json.borg.BorgEncryption;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -39,12 +35,16 @@ public class ArchiveShortInfo implements Serializable, Comparable<ArchiveShortIn
     @Setter
     private boolean fileListAlreadyCached;
 
-    /**
-     *
-     * @return repoName::archiveName
-     */
-    public String getBorgIdentifier() {
-        return repoName + "::" + name;
+    public ArchiveShortInfo() {
+
+    }
+
+    public ArchiveShortInfo(Archive archive) {
+        this.id = archive.getId();
+        this.name = archive.getName();
+        this.repoId = archive.getRepoId();
+        this.time = archive.getTime();
+        this.fileListAlreadyCached = archive.isFileListAlreadyCached();
     }
 
     /**
