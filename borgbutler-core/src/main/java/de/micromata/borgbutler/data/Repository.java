@@ -6,6 +6,9 @@ import de.micromata.borgbutler.json.borg.BorgEncryption;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.SortedSet;
@@ -15,6 +18,7 @@ import java.util.TreeSet;
  * Part of Borg json objects to refer objects to repositories.
  */
 public class Repository implements Serializable {
+    private static Logger log = LoggerFactory.getLogger(Repository.class);
     private static final long serialVersionUID = 1278802519434516280L;
     /**
      * The repo configured for borg.
@@ -77,8 +81,23 @@ public class Repository implements Serializable {
         return this;
     }
 
+    public Archive getArchive(String idOrName) {
+        if (archives == null) {
+            log.warn("Can't get archive '" + idOrName + "' from repository '" + name + "'. Archives not yet loaded or don't exist.");
+            return null;
+        }
+        for (Archive archive : archives) {
+            if (StringUtils.equals(idOrName, archive.getId()) || StringUtils.equals(idOrName, archive.getName())) {
+                return archive;
+            }
+        }
+        log.warn("Archive '" + idOrName + "' not found in repository '" + name + "'.");
+        return null;
+    }
+
     /**
      * Is <tt>borg list repo</tt> already called?
+     *
      * @return
      */
     public boolean isArchivesLoaded() {
