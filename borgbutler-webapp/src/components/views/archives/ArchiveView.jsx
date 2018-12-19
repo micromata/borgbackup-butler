@@ -32,7 +32,7 @@ class ArchiveView extends React.Component {
         });
         fetch(getRestServiceUrl('archives', {
             repo: this.state.repoId,
-            archive: this.state.archiveId,
+            archiveId: this.state.archiveId,
             force: forceReload
         }), {
             method: 'GET',

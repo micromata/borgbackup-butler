@@ -36,15 +36,15 @@ public class ArchivesRest {
     /**
      *
      * @param repo Name of repository ({@link Repository#getName()}.
-     * @param archive Id or name of archive.
+     * @param archiveId Id or name of archive.
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @return Repository (including list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
     public String getArchive(@QueryParam("repo") String repoName,
-                             @QueryParam("archive") String archiveIdOrName, @QueryParam("force") boolean force,
+                             @QueryParam("archiveId") String archiveId, @QueryParam("force") boolean force,
                              @QueryParam("prettyPrinter") boolean prettyPrinter) {
-        Archive archive = ButlerCache.getInstance().getArchive(repoName, archiveIdOrName, force);
+        Archive archive = ButlerCache.getInstance().getArchive(repoName, archiveId, force);
         return JsonUtils.toJson(archive, prettyPrinter);
     }
 

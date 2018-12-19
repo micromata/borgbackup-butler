@@ -15,7 +15,7 @@ class FileListPanel extends React.Component {
             mode: 'tree',
             currentDirectory: '',
             maxSize: '50',
-            diffArchive: ''
+            diffArchiveId: ''
         }
     };
 
@@ -52,6 +52,7 @@ class FileListPanel extends React.Component {
         });
         fetch(getRestServiceUrl('archives/filelist', {
             archiveId: this.props.archiveId,
+            diffArchiveId: this.state.filter.diffArchiveId,
             force: forceReload,
             searchString: this.state.filter.search,
             mode: this.state.filter.mode,

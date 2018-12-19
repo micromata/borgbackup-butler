@@ -15,7 +15,7 @@ function FileListFilter({reload, changeFilter, filter, currentArchiveId, archive
                 }
                 let disabled = undefined;
                 if (archive.id === currentArchiveId) {
-                    disabled = 'true';
+                    disabled = true;
                 }
                 return <FormOption
                     value={archive.id}
@@ -63,8 +63,8 @@ function FileListFilter({reload, changeFilter, filter, currentArchiveId, archive
                 <FormOption value={'10000'}/>
             </FormSelect>
             <FormSelect
-                value={filter.diffArchive}
-                name={'diffArchive'}
+                value={filter.diffArchiveId}
+                name={'diffArchiveId'}
                 onChange={changeFilter}
                 hint={'Show differences between current archive and this selected archive.'}
             >
