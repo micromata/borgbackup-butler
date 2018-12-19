@@ -50,9 +50,11 @@ const FormOption = (props) => {
     } else {
         label = props.label || props.value;
     }
+    const {value, ...other} = props;
     return (
         <React.Fragment>
             <option value={props.value}
+                    {...other}
             >
                 {label}
             </option>
@@ -63,7 +65,8 @@ const FormOption = (props) => {
 FormSelect.propTypes = {
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
     i18nKey: PropTypes.string,
-    label: PropTypes.string
+    label: PropTypes.string,
+    disabled: PropTypes.bool
 };
 
 export {
