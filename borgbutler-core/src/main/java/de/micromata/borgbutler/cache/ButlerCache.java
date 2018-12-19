@@ -68,7 +68,9 @@ public class ButlerCache {
         }
         if (repository == null || repository.getLocation() == null) {
             repository = BorgCommands.info(repoConfig);
-            repoCacheAccess.put(repoConfig.getRepo(), repository);
+            if (repository != null) {
+                repoCacheAccess.put(repoConfig.getRepo(), repository);
+            }
         }
         if (repository == null) {
             log.warn("Repo with name '" + repoConfig.getRepo() + "' not found.");
@@ -262,7 +264,7 @@ public class ButlerCache {
         }
         List<BorgFilesystemItem> items = archiveFilelistCache.load(repoConfig, archive, filter);
         if (items == null && forceLoad) {
-            List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive.getName());
+            List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive);
             if (CollectionUtils.isNotEmpty(list)) {
                 archiveFilelistCache.save(repoConfig, archive, list);
                 items = new ArrayList<>();

@@ -83,9 +83,13 @@ public class BorgExecutorQueue {
         PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
         executor.setStreamHandler(streamHandler);
         String borgCall = cmdLine.getExecutable() + " " + StringUtils.join(cmdLine.getArguments(), " ");
+        if (StringUtils.isNotBlank(command.getDescription())) {
+            log.info(command.getDescription());
+        }
         log.info("Executing '" + borgCall + "'...");
         try {
             executor.execute(cmdLine, getEnvironment(command.getRepoConfig()));
+            command.setResultStatus(BorgCommand.ResultStatus.OK);
         } catch (Exception ex) {
             log.error("Error while creating environment for borg call '" + borgCall + "': " + ex.getMessage(), ex);
             command.setResultStatus(BorgCommand.ResultStatus.ERROR);

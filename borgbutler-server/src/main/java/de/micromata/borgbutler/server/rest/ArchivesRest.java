@@ -120,7 +120,7 @@ public class ArchivesRest {
         try {
             BorgFilesystemItem item = items.get(0);
             File restoreHomeDir = ConfigurationHandler.getConfiguration().getRestoreHomeDir();
-            File restoreDir = BorgCommands.extractFiles(restoreHomeDir, repoConfig, archive.getName(), item.getPath());
+            File restoreDir = BorgCommands.extractFiles(restoreHomeDir, repoConfig, archive, item.getPath());
             List<java.nio.file.Path> files = DirUtils.listFiles(restoreDir.toPath());
             if (CollectionUtils.isEmpty(files)) {
                 log.error("No files extracted.");

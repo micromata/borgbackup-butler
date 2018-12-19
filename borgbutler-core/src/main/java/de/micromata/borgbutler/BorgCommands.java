@@ -1,7 +1,6 @@
 package de.micromata.borgbutler;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.config.Definitions;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
@@ -21,6 +20,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * Creates and executes  borg commands by calling system's borg application (Borg must be installed).
+ */
 public class BorgCommands {
     private static Logger log = LoggerFactory.getLogger(BorgCommands.class);
 
@@ -31,7 +33,11 @@ public class BorgCommands {
      * @return Parsed repo config returned by Borg command (without archives).
      */
     public static Repository info(BorgRepoConfig repoConfig) {
-        BorgCommand command = new BorgCommand().setRepoConfig(repoConfig).setCommand("info").setParams("--json");
+        BorgCommand command = new BorgCommand()
+                .setRepoConfig(repoConfig)
+                .setCommand("info")
+                .setParams("--json")
+                .setDescription("Loading info of repo '" + repoConfig.getDisplayName() + "'.");
         execute(command);
         if (command.getResultStatus() != BorgCommand.ResultStatus.OK) {
             return null;
@@ -59,7 +65,11 @@ public class BorgCommands {
      * @param repository Repository without archives, archives will be loaded.
      */
     public static void list(BorgRepoConfig repoConfig, Repository repository) {
-        BorgCommand command = new BorgCommand().setRepoConfig(repoConfig).setCommand("list").setParams("--json");
+        BorgCommand command = new BorgCommand()
+                .setRepoConfig(repoConfig)
+                .setCommand("list")
+                .setParams("--json")
+                .setDescription("Loading list of archives of repo '" + repoConfig.getDisplayName() + "'.");
         execute(command);
         if (command.getResultStatus() != BorgCommand.ResultStatus.OK) {
             log.error("Can't load archives from repo '" + repository.getName() + "'.");
@@ -95,8 +105,12 @@ public class BorgCommands {
      * @param repository Repository without archives.
      */
     public static void info(BorgRepoConfig repoConfig, Archive archive, Repository repository) {
-        BorgCommand command = new BorgCommand().setRepoConfig(repoConfig).setCommand("info").setArchive(archive.getName())
-                .setParams("--json");
+        BorgCommand command = new BorgCommand()
+                .setRepoConfig(repoConfig)
+                .setCommand("info")
+                .setArchive(archive.getName())
+                .setParams("--json")
+                .setDescription("Loading info of archive '" + archive.getName() + "' of repo '" + repoConfig.getDisplayName() + "'.");
         execute(command);
         if (command.getResultStatus() != BorgCommand.ResultStatus.OK) {
             return;
@@ -131,9 +145,13 @@ public class BorgCommands {
         ;
     }
 
-    public static List<BorgFilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, String archive) {
-        BorgCommand command = new BorgCommand().setRepoConfig(repoConfig).setCommand("list").setArchive(archive)
-                .setParams("--json-lines");
+    public static List<BorgFilesystemItem> listArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
+        BorgCommand command = new BorgCommand()
+                .setRepoConfig(repoConfig)
+                .setCommand("list")
+                .setArchive(archive.getName())
+                .setParams("--json-lines")
+                .setDescription("Loading list of files of archive '" + archive.getName() + "' of repo '" + repoConfig.getDisplayName() + "'.");
         execute(command);
         List<BorgFilesystemItem> content = new ArrayList<>();
         if (command.getResultStatus() != BorgCommand.ResultStatus.OK) {
@@ -161,13 +179,20 @@ public class BorgCommands {
      * @return Used sub directory with the restored content.
      * @throws IOException
      */
-    public static File extractFiles(File restoreHomeDir, BorgRepoConfig repoConfig, String archive, String path) throws IOException {
+    public static File extractFiles(File restoreHomeDir, BorgRepoConfig repoConfig, Archive archive, String path) throws IOException {
         File restoreDir = new File(restoreHomeDir, ReplaceUtils.encodeFilename(repoConfig.getDisplayName(), true));
         if (!restoreDir.exists()) {
             restoreDir.mkdirs();
         }
-        BorgCommand command = new BorgCommand().setWorkingDir(restoreDir).setRepoConfig(repoConfig)
-                .setCommand("extract").setArchive(archive).setArgs(path);
+        BorgCommand command = new BorgCommand()
+                .setWorkingDir(restoreDir)
+                .setRepoConfig(repoConfig)
+                .setCommand("extract")
+                .setArchive(archive.getName())
+                .setArgs(path)
+                .setDescription("Extract content of archive '" + archive.getName()
+                                + "' of repo '" + repoConfig.getDisplayName() + "': "
+                        + path);
         execute(command);
         return restoreDir;
     }
