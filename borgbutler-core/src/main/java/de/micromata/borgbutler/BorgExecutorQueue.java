@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -41,44 +40,41 @@ public class BorgExecutorQueue {
 
     private ConcurrentLinkedQueue<BorgCommand> commandQueue = new ConcurrentLinkedQueue<>();
 
-    public String execute(BorgCommand command) {
+    public void execute(BorgCommand command) {
         synchronized (this) {
-            return _exceute(command);
+            commandQueue.add(command);
+            _execute(command);
         }
+        /*
+        while (true) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                log.warn("Command '" + command.);
+            }
+        }*/
     }
 
-    private String _exceute(BorgCommand command) {
+    private void _execute(BorgCommand command) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        execute(outputStream, command);
-        String json = outputStream.toString(Definitions.STD_CHARSET);
-        return json;
-    }
-
-    public void execute(OutputStream outputStream, BorgCommand command) {
-        synchronized (this) {
-            _execute(outputStream, command);
-        }
-    }
-
-    private void _execute(OutputStream outputStream, BorgCommand command) {
         CommandLine cmdLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
-        cmdLine.addArgument(command.command);
-        if (command.params != null) {
-            for (String param : command.params) {
+        cmdLine.addArgument(command.getCommand());
+        if (command.getParams() != null) {
+            for (String param : command.getParams()) {
                 if (param != null)
                     cmdLine.addArgument(param);
             }
         }
         cmdLine.addArgument(command.getRepoArchive());
-        if (command.args != null) {
-            for (String arg : command.args) {
+        if (command.getArgs() != null) {
+            for (String arg : command.getArgs()) {
                 if (arg != null)
                     cmdLine.addArgument(arg);
             }
         }
         DefaultExecutor executor = new DefaultExecutor();
-        if (command.workingDir != null) {
-            executor.setWorkingDirectory(command.workingDir);
+        if (command.getWorkingDir() != null) {
+            executor.setWorkingDirectory(command.getWorkingDir());
         }
         //executor.setExitValue(2);
         //ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
@@ -89,12 +85,16 @@ public class BorgExecutorQueue {
         String borgCall = cmdLine.getExecutable() + " " + StringUtils.join(cmdLine.getArguments(), " ");
         log.info("Executing '" + borgCall + "'...");
         try {
-            executor.execute(cmdLine, getEnvironment(command.repoConfig));
+            executor.execute(cmdLine, getEnvironment(command.getRepoConfig()));
         } catch (Exception ex) {
             log.error("Error while creating environment for borg call '" + borgCall + "': " + ex.getMessage(), ex);
-            log.error("Response: " + StringUtils.abbreviate(outputStream.toString(), 10000));
-            return;
+            command.setResultStatus(BorgCommand.ResultStatus.ERROR);
         }
+        command.setResponse(outputStream.toString(Definitions.STD_CHARSET));
+        if (command.getResultStatus() == BorgCommand.ResultStatus.ERROR) {
+            log.error("Response: " + command.getAbbreviatedResponse());
+        }
+
     }
 
 
