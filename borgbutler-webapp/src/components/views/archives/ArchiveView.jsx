@@ -101,6 +101,7 @@ class ArchiveView extends React.Component {
                     <TabPane tabId={'1'}>
                         <FileListPanel
                             archiveId={archive.id}
+                            archiveShortInfoList={archive.archiveShortInfoList}
                         />
                     </TabPane>
                     <TabPane tabId={'2'}>

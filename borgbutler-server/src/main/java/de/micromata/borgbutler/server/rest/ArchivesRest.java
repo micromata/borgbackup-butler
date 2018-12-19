@@ -11,8 +11,7 @@ import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import de.micromata.borgbutler.utils.DirUtils;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +25,6 @@ import javax.ws.rs.core.Response;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
 @Path("/archives")
@@ -60,6 +58,7 @@ public class ArchivesRest {
      * @param mode Flat (default) or tree.
      * @param currentDirectory The current displayed directory (only files and directories contained will be returned).
      * @param maxResultSize maximum number of file items to return (default is 50).
+     * @param diffArchiveId If given, the differences between archiveId and diffArchiveId will be returned.
      * @param force If false (default), non cached file lists will not be loaded by borg.
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @return Repository (including list of archives) as json string.
@@ -70,6 +69,7 @@ public class ArchivesRest {
                                      @QueryParam("mode") String mode,
                                      @QueryParam("currentDirectory") String currentDirectory,
                                      @QueryParam("maxResultSize") String maxResultSize,
+                                     @QueryParam("diffArchiveId") String diffArchiveId,
                                      @QueryParam("force") boolean force,
                                      @QueryParam("prettyPrinter") boolean prettyPrinter) {
         int maxSize = NumberUtils.toInt(maxResultSize, 50);
@@ -83,6 +83,9 @@ public class ArchivesRest {
         if (items == null) {
             return "[{\"mode\": \"notLoaded\"}]";
         }
+        if (StringUtils.isNotBlank(diffArchiveId)) {
+            log.info("Diff between archives not yet supported.");
+        }
         return JsonUtils.toJson(items, prettyPrinter);
     }
 
@@ -92,7 +95,6 @@ public class ArchivesRest {
     /**
      * @param archiveId
      * @param fileNumber The fileNumber of the file or directory in the archive served by BorgButler's
-     * {@link #getArchiveFileLIst(String, String, String, boolean, boolean)}
      */
     public Response restore(@QueryParam("archiveId") String archiveId, @QueryParam("fileNumber") int fileNumber) {
         log.info("Requesting file #" + fileNumber + " of archive '" + archiveId + "'.");
@@ -137,14 +139,14 @@ public class ArchivesRest {
         }
     }
 
-    public void openFileBrowser(File directory) {
+    private void openFileBrowser(File directory) {
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE_FILE_DIR)) {
             Desktop.getDesktop().browseFileDirectory(directory);
         }
     }
 
     private Response handleRestoredFiles(BorgRepoConfig repoConfig, Archive archive) {
-        // Todo: Handle download from single files as well as download of zip archive (if BorgButler runs remote).
+        // Todo: Handle download of single files as well as download of zip archive (if BorgButler runs remote).
         return null;
        /* File file = path.toFile();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

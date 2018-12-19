@@ -5,7 +5,7 @@ import ErrorAlert from '../../general/ErrorAlert';
 import FileListTable from "./FileListTable";
 import FileListFilter from "./FileListFilter";
 
-class ArchiveView extends React.Component {
+class FileListPanel extends React.Component {
 
     state = {
         isFetching: false, activeTab: '1',
@@ -14,7 +14,8 @@ class ArchiveView extends React.Component {
             search: '',
             mode: 'tree',
             currentDirectory: '',
-            maxSize: '50'
+            maxSize: '50',
+            diffArchive: ''
         }
     };
 
@@ -55,7 +56,8 @@ class ArchiveView extends React.Component {
             searchString: this.state.filter.search,
             mode: this.state.filter.mode,
             currentDirectory: this.state.filter.currentDirectory,
-            maxResultSize: this.state.filter.maxSize
+            maxResultSize: this.state.filter.maxSize,
+            diffArchive: this.state.filter.diffArchive
         }), {
             method: 'GET',
             headers: {
@@ -126,6 +128,8 @@ class ArchiveView extends React.Component {
                             event.preventDefault();
                             this.fetchArchiveFileList();
                         }}
+                        currentArchiveId={this.props.archiveId}
+                        archiveShortInfoList={this.props.archiveShortInfoList}
                     />
                     {breadcrumb}
                     <FileListTable
@@ -149,4 +153,4 @@ class ArchiveView extends React.Component {
     }
 }
 
-export default ArchiveView;
+export default FileListPanel;
