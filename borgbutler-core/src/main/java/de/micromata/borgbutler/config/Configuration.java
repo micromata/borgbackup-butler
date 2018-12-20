@@ -2,7 +2,6 @@ package de.micromata.borgbutler.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.micromata.borgbutler.BorgCommands;
 import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -24,8 +23,8 @@ public class Configuration {
      * Default is 100 MB (approximately).
      */
     @Getter
-    @JsonProperty("cache_archive_content_max_disc_size_mb")
-    private int cacheArchiveContentMaxDiscSizeMB = 100;
+    @JsonProperty("max_archive_ontent_cache_capacity_mb")
+    private int maxArchiveContentCacheCapacityMb = 100;
 
     /**
      * Default is restore inside BorgButler's home dir (~/.borgbutler/restore).
