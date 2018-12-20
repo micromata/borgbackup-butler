@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.BorgCommands;
+import de.micromata.borgbutler.DiffTool;
 import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
@@ -78,13 +79,23 @@ public class ArchivesRest {
                 .setMaxResultSize(maxSize)
                 .setMode(mode)
                 .setCurrentDirectory(currentDirectory);
-        List<BorgFilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, force,
-                filter);
-        if (items == null) {
-            return "[{\"mode\": \"notLoaded\"}]";
-        }
-        if (StringUtils.isNotBlank(diffArchiveId)) {
-            log.info("Diff between archives not yet supported.");
+        List<BorgFilesystemItem> items = null;
+        if (StringUtils.isBlank(diffArchiveId)) {
+            // Get file list (without running diff).
+            items = ButlerCache.getInstance().getArchiveContent(archiveId, force,
+                    filter);
+            if (items == null) {
+                return "[{\"mode\": \"notLoaded\"}]";
+            }
+        } else {
+            filter.setMode(FileSystemFilter.Mode.FLAT).setMaxResultSize(-1);
+            items = ButlerCache.getInstance().getArchiveContent(archiveId, true, filter);
+            List<BorgFilesystemItem> diffItems = ButlerCache.getInstance().getArchiveContent(diffArchiveId, true,
+                    filter);
+            items = DiffTool.extractDifferences(items, diffItems);
+            filter.setMaxResultSize(maxSize)
+                    .setMode(mode);
+            filter.reduce(items);
         }
         return JsonUtils.toJson(items, prettyPrinter);
     }
