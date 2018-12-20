@@ -74,6 +74,36 @@ public class DiffToolTest {
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(0).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(1).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(2).getDiffStatus());
+
+
+        l1 = create();
+        l2 = create();
+        remove(l1, "home/kai/.borgbutler/borgbutler-config-bak.json");
+        remove(l2, "home/kai/.borgbutler/borgbutler-config.json");
+        result = DiffTool.extractDifferences(l1, l2);
+        assertEquals(2, result.size());
+        assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(0).getDiffStatus());
+        assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(1).getDiffStatus());
+        result = DiffTool.extractDifferences(l2, l1);
+        assertEquals(2, result.size());
+        assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(0).getDiffStatus());
+        assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(1).getDiffStatus());
+
+        l1 = create();
+        l2 = create();
+        remove(l1, "home/kai");
+        remove(l1, "home/kai/.borgbutler");
+        remove(l2, "home/kai/.borgbutler/borgbutler-config-bak.json");
+        result = DiffTool.extractDifferences(l1, l2);
+        assertEquals(3, result.size());
+        assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(0).getDiffStatus());
+        assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(1).getDiffStatus());
+        assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(2).getDiffStatus());
+        result = DiffTool.extractDifferences(l2, l1);
+        assertEquals(3, result.size());
+        assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(0).getDiffStatus());
+        assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(1).getDiffStatus());
+        assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(2).getDiffStatus());
     }
 
     private BorgFilesystemItem create(String path, boolean directory, String mode, long size, String mtime) {
