@@ -95,7 +95,7 @@ public class ArchivesRest {
             items = DiffTool.extractDifferences(items, diffItems);
             filter.setMaxResultSize(maxSize)
                     .setMode(mode);
-            filter.reduce(items);
+            items = filter.reduce(items);
         }
         return JsonUtils.toJson(items, prettyPrinter);
     }

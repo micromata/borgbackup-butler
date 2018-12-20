@@ -3,6 +3,8 @@ package de.micromata.borgbutler.data;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +104,14 @@ public class FileSystemFilter {
      */
     public List<BorgFilesystemItem> reduce(List<BorgFilesystemItem> list) {
         if (mode == FileSystemFilter.Mode.TREE) {
+            if (MapUtils.isEmpty(subDirectories)) {
+                // If matches was not called before, do this now for getting all subdirectories.
+                subDirectories = new HashMap<>();
+                for (BorgFilesystemItem item : list) {
+                    // Needed for building subdirectories...
+                    this.matches(item);
+                }
+            }
             Set<String> set = new HashSet<>();
             List<BorgFilesystemItem> list2 = list;
             list = new ArrayList<>();
