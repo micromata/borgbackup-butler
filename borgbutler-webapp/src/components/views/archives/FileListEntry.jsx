@@ -34,16 +34,21 @@ function download(archiveId, fileNumber) {
 }
 
 function FileListEntry({archiveId, diffArchiveId, entry, search, mode, changeCurrentDirectory}) {
-    let displayPath = entry.displayPath;
     let downloadArchiveId = archiveId;
+    let displayPath = entry.displayPath;
+    let pathCss = 'tt';
+    let diffCol = undefined;
     if (entry.diffStatus === 'NEW') {
-        displayPath = "New: " + displayPath;
+        pathCss = 'tt file-new';
+        diffCol = <td className={'tt'}>NEW</td>;
     } else if  (entry.diffStatus === 'REMOVED') {
-        displayPath = "Rem: " + displayPath;
+        pathCss = 'tt file-removed';
         // Download removed files from other archive.
         downloadArchiveId = diffArchiveId;
+        diffCol = <td className={'tt'}>REMOVED</td>;
     } else if (entry.diffStatus === 'MODIFIED') {
-        displayPath = "Mod: " + displayPath;
+        pathCss = 'tt file-modified';
+        diffCol = <td className={'tt'}>{entry.differences}</td>;
     }
     let path;
     if (mode === 'tree' && entry.type === 'd') {
@@ -53,7 +58,7 @@ function FileListEntry({archiveId, diffArchiveId, entry, search, mode, changeCur
     }
     return (
         <tr>
-            <td className={'tt'}>{path}</td>
+            <td className={pathCss}>{path}</td>
             <td className={'tt'}>
                 <div className={'btn'} onClick={() => download(downloadArchiveId, entry.fileNumber)}>
                     <IconDownload/></div>
@@ -61,6 +66,7 @@ function FileListEntry({archiveId, diffArchiveId, entry, search, mode, changeCur
             <td className={'tt'}>{humanFileSize(entry.size, true, true)}</td>
             <td className={'tt'}>{entry.mode}</td>
             <td className={'tt'}>{entry.mtime}</td>
+            {diffCol}
         </tr>
     );
 }

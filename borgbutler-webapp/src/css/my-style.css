@@ -359,6 +359,20 @@ td.align-right {
     text-align: right;
 }
 
+td.file-removed {
+    text-decoration: line-through;
+    color: red;
+}
+
+td.file-new {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+td.file-modified {
+    color: red;
+}
+
 /* @media only screen and (max-width: 1050px) {
 	.navbar.navbar-light a.nav-link {
 		font-size: 0.8rem;
