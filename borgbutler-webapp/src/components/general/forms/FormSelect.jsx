@@ -50,7 +50,7 @@ const FormOption = (props) => {
     } else {
         label = props.label || props.value;
     }
-    const {value, ...other} = props;
+    const {value, i18nKey, ...other} = props;
     return (
         <React.Fragment>
             <option value={props.value}
