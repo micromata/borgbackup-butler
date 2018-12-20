@@ -33,18 +33,29 @@ function download(archiveId, fileNumber) {
         });
 }
 
-function FileListEntry({archiveId, entry, search, mode, changeCurrentDirectory}) {
+function FileListEntry({archiveId, diffArchiveId, entry, search, mode, changeCurrentDirectory}) {
+    let displayPath = entry.displayPath;
+    let downloadArchiveId = archiveId;
+    if (entry.diffStatus === 'NEW') {
+        displayPath = "New: " + displayPath;
+    } else if  (entry.diffStatus === 'REMOVED') {
+        displayPath = "Rem: " + displayPath;
+        // Download removed files from other archive.
+        downloadArchiveId = diffArchiveId;
+    } else if (entry.diffStatus === 'MODIFIED') {
+        displayPath = "Mod: " + displayPath;
+    }
     let path;
     if (mode === 'tree' && entry.type === 'd') {
-        path = <Button color={'link'} onClick={() => changeCurrentDirectory(entry.path)}><Highlight search={search}>{entry.displayPath}</Highlight></Button>;
+        path = <Button color={'link'} onClick={() => changeCurrentDirectory(entry.path)}><Highlight search={search}>{displayPath}</Highlight></Button>;
     } else {
-        path = <Highlight search={search}>{entry.displayPath}</Highlight>;
+        path = <Highlight search={search}>{displayPath}</Highlight>;
     }
     return (
         <tr>
             <td className={'tt'}>{path}</td>
             <td className={'tt'}>
-                <div className={'btn'} onClick={() => download(archiveId, entry.fileNumber)}>
+                <div className={'btn'} onClick={() => download(downloadArchiveId, entry.fileNumber)}>
                     <IconDownload/></div>
             </td>
             <td className={'tt'}>{humanFileSize(entry.size, true, true)}</td>

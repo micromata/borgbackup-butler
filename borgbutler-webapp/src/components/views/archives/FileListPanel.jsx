@@ -98,7 +98,6 @@ class FileListPanel extends React.Component {
                 </React.Fragment>;
             } else {
                 if (this.state.filter.mode === 'tree' && this.state.filter.currentDirectory.length > 0) {
-                    console.log(this.state.filter.currentDirectory);
                     let dirs = this.state.filter.currentDirectory.split('/');
                     let breadcrumbs = [];
                     for (let i = 0; i < dirs.length - 1; i++) {
@@ -135,6 +134,7 @@ class FileListPanel extends React.Component {
                     {breadcrumb}
                     <FileListTable
                         archiveId={this.props.archiveId}
+                        diffArchiveId={this.state.filter.diffArchiveId}
                         entries={this.state.fileList}
                         search={this.state.filter.search}
                         mode={this.state.filter.mode}
