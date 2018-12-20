@@ -1,11 +1,15 @@
 import React from 'react';
 import {UncontrolledTooltip} from 'reactstrap';
 import {
+    FormField,
+    FormGroup,
+    FormLabel,
     FormLabelField,
-    FormSelect, FormOption, FormGroup, FormLabel, FormField
+    FormOption,
+    FormSelect
 } from "../../general/forms/FormComponents";
+import {clearDictionary, getTranslation} from "../../../utilities/i18n";
 import {getRestServiceUrl} from "../../../utilities/global";
-import {clearDictionary} from '../../../utilities/i18n';
 import I18n from "../../general/translation/I18n";
 import ErrorAlertGenericRestFailure from "../../general/ErrorAlertGenericRestFailure";
 import Loading from "../../general/Loading";
@@ -102,7 +106,7 @@ class ConfigAccountTab extends React.Component {
                         <I18n name={'configuration.reloadDictionary.hint'}/>
                     </UncontrolledTooltip>
                 </div>
-                <FormLabelField label={<I18n name={'configuration.application.language'}/>} fieldLength={2}>
+                <FormLabelField label={getTranslation('configuration.application.language')} fieldLength={2}>
                     <FormSelect value={this.state.locale} name={'locale'} onChange={this.handleTextChange}>
                         <FormOption value={''} i18nKey={'configuration.application.language.option.default'}/>
                         <FormOption value={'en'} i18nKey={'language.english'}/>

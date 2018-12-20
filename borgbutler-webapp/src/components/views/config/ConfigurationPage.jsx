@@ -2,7 +2,6 @@ import React from 'react';
 import {FormGroup, Nav, NavLink, TabContent, TabPane} from 'reactstrap';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {FormButton, FormField} from '../../general/forms/FormComponents';
-import {isDevelopmentMode} from "../../../utilities/global";
 import {clearDictionary} from '../../../utilities/i18n';
 import I18n from "../../general/translation/I18n";
 import classNames from "classnames";
@@ -64,14 +63,6 @@ class ConfigurationPage
         if (this.state.reload) {
             window.location.reload();
         }
-        let todo = '';
-        if (isDevelopmentMode()) {
-            todo = <code><h3>ToDo</h3>
-                <ul>
-                    <li>Do the form validation (server and/or client side) with error fields.</li>
-                </ul>
-            </code>
-        }
         return (
             <React.Fragment>
                 <PageHeader><I18n name={'configuration'}/></PageHeader>
@@ -109,7 +100,6 @@ class ConfigurationPage
                         </FormButton>
                     </FormField>
                 </FormGroup>
-                {todo}
                 <LoadingOverlay active={this.state.loading} />
             </React.Fragment>
         );

@@ -1,21 +1,11 @@
 import React from 'react';
-import {Button, Collapse} from 'reactstrap';
-//import DirectoryItemsFieldset from './DirectoryItemsFieldset';
-import {
-    FormButton,
-    FormCheckbox,
-    FormLabelField,
-    FormLabelInputField,
-    FormFieldset
-} from "../../general/forms/FormComponents";
+import {FormButton, FormCheckbox, FormLabelField, FormLabelInputField} from "../../general/forms/FormComponents";
 import {getRestServiceUrl} from "../../../utilities/global";
-import {IconDanger, IconWarning} from '../../general/IconComponents';
+import {IconDanger} from '../../general/IconComponents';
 import {getTranslation} from "../../../utilities/i18n";
 import I18n from "../../general/translation/I18n";
 import ErrorAlertGenericRestFailure from '../../general/ErrorAlertGenericRestFailure';
 import Loading from "../../general/Loading";
-
-var directoryItems = [];
 
 class ConfigServerTab extends React.Component {
     loadConfig = () => {
@@ -34,20 +24,9 @@ class ConfigServerTab extends React.Component {
                 return resp.json()
             })
             .then((data) => {
-                const {templatesDirs, ...config} = data;
-
-                directoryItems.splice(0, directoryItems.length);
-                let idx = 0;
-                if (templatesDirs) {
-                    templatesDirs.forEach(function (item) {
-                        directoryItems.push({index: idx++, directory: item.directory, recursive: item.recursive});
-                    });
-                }
-                config.directoryItems = directoryItems;
-
                 this.setState({
                     loading: false,
-                    ...config
+                    ...data
                 })
             })
             .catch((error) => {
@@ -65,18 +44,13 @@ class ConfigServerTab extends React.Component {
         this.state = {
             loading: true,
             failed: false,
-            port: 8042,
-            showTestData: true,
+            port: 9042,
             webDevelopmentMode: false,
-            directoryItems: [],
-            redirect: false,
-            expertSettingsOpen: false
+            redirect: false
         };
 
         this.handleTextChange = this.handleTextChange.bind(this);
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
-        this.addDirectoryItem = this.addDirectoryItem.bind(this);
-        this.removeDirectoryItem = this.removeDirectoryItem.bind(this);
         this.onResetConfiguration = this.onResetConfiguration.bind(this);
         this.onClearAllCaches = this.onClearAllCaches.bind(this);
         this.loadConfig = this.loadConfig.bind(this);
@@ -95,36 +69,11 @@ class ConfigServerTab extends React.Component {
         this.setState({[event.target.name]: event.target.checked});
     }
 
-    handleDirectoryChange = (index, newDirectory) => {
-        const items = this.state.directoryItems;
-        items[index].directory = newDirectory;
-        // update state
-        this.setState({
-            directoryItems,
-        });
-    }
-
-    handleRecursiveFlagChange = (index, newRecursiveState) => {
-        const items = this.state.directoryItems;
-        items[index].recursive = newRecursiveState;
-        // update state
-        this.setState({
-            directoryItems,
-        });
-    }
-
     save() {
         var config = {
             port: this.state.port,
-            showTestData: this.state.showTestData,
-            webDevelopmentMode: this.state.webDevelopmentMode,
-            templatesDirs: []
+            webDevelopmentMode: this.state.webDevelopmentMode
         };
-        if (this.state.directoryItems) {
-            this.state.directoryItems.forEach(function (item) {
-                config.templatesDirs.push({directory: item.directory, recursive: item.recursive});
-            });
-        }
         return fetch(getRestServiceUrl("configuration/config"), {
             method: 'POST',
             headers: {
@@ -147,27 +96,15 @@ class ConfigServerTab extends React.Component {
     }
 
     onClearAllCaches() {
-        fetch(getRestServiceUrl("configuration/clearAllCaches"), {
-            method: "GET",
-            dataType: "JSON",
-            headers: {
-                "Content-Type": "text/plain; charset=utf-8"
-            }
-        })
-    }
-
-    addDirectoryItem() {
-        directoryItems.push({
-            index: directoryItems.length + 1,
-            directory: "",
-            recursive: false
-        });
-        this.setState({directoryItems: directoryItems});
-    }
-
-    removeDirectoryItem(itemIndex) {
-        directoryItems.splice(itemIndex, 1);
-        this.setState({directoryItems: directoryItems});
+        if (window.confirm('Do you really want to clear all caches? All Archive file lists and caches for repo and archive informatino will be cleared.')) {
+            fetch(getRestServiceUrl("configuration/clearAllCaches"), {
+                method: "GET",
+                dataType: "JSON",
+                headers: {
+                    "Content-Type": "text/plain; charset=utf-8"
+                }
+            })
+        }
     }
 
     render() {
@@ -181,42 +118,27 @@ class ConfigServerTab extends React.Component {
 
         return (
             <form>
-                <FormLabelField label={<I18n name={'configuration.showTestData'}/>} fieldLength={2}>
-                    <FormCheckbox checked={this.state.showTestData}
-                                  name="showTestData"
-                                  onChange={this.handleCheckboxChange}/>
-                </FormLabelField>
                 <FormLabelField>
                     <FormButton id={'clearAllCaches'} onClick={this.onClearAllCaches}> Clear all caches
                     </FormButton>
                 </FormLabelField>
-                <FormLabelField>
-                    <Button className={'btn-outline-primary'}
-                            onClick={() => this.setState({expertSettingsOpen: !this.state.expertSettingsOpen})}>
-                        <IconWarning/> <I18n name={'configuration.forExpertsOnly'}/>
-                    </Button>
+                <FormLabelInputField label={'Port'} fieldLength={2} type="number" min={0} max={65535}
+                                     step={1}
+                                     name={'port'} value={this.state.port}
+                                     onChange={this.handleTextChange}
+                                     placeholder="Enter port"/>
+                <FormLabelField label={<I18n name={'configuration.webDevelopmentMode'}/>} fieldLength={2}>
+                    <FormCheckbox checked={this.state.webDevelopmentMode}
+                                  hintKey={'configuration.webDevelopmentMode.hint'}
+                                  name="webDevelopmentMode"
+                                  onChange={this.handleCheckboxChange}/>
                 </FormLabelField>
-                <Collapse isOpen={this.state.expertSettingsOpen}>
-                    <FormFieldset text={<I18n name={'configuration.expertSettings'}/>}>
-                        <FormLabelInputField label={'Port'} fieldLength={2} type="number" min={0} max={65535}
-                                             step={1}
-                                             name={'port'} value={this.state.port}
-                                             onChange={this.handleTextChange}
-                                             placeholder="Enter port"/>
-                        <FormLabelField label={<I18n name={'configuration.webDevelopmentMode'}/>} fieldLength={2}>
-                            <FormCheckbox checked={this.state.webDevelopmentMode}
-                                          hintKey={'configuration.webDevelopmentMode.hint'}
-                                          name="webDevelopmentMode"
-                                          onChange={this.handleCheckboxChange}/>
-                        </FormLabelField>
-                        <FormLabelField>
-                            <FormButton id={'resetFactorySettings'} onClick={this.onResetConfiguration}
-                                        hintKey={'configuration.resetAllSettings.hint'}> <IconDanger/> <I18n
-                                name={'configuration.resetAllSettings'}/>
-                            </FormButton>
-                        </FormLabelField>
-                    </FormFieldset>
-                </Collapse>
+                <FormLabelField>
+                    <FormButton id={'resetFactorySettings'} onClick={this.onResetConfiguration}
+                                hintKey={'configuration.resetAllSettings.hint'}> <IconDanger/> <I18n
+                        name={'configuration.resetAllSettings'}/>
+                    </FormButton>
+                </FormLabelField>
             </form>
         );
     }
