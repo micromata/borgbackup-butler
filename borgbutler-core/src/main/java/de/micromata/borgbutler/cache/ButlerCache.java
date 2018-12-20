@@ -304,7 +304,7 @@ public class ButlerCache {
         Configuration configuration = ConfigurationHandler.getConfiguration();
         this.jcsCache = JCSCache.getInstance();
         this.repoCacheAccess = jcsCache.getJCSCache("repositories");
-        this.archiveFilelistCache = new ArchiveFilelistCache(getCacheDir(), configuration.getCacheArchiveContentMaxDiscSizeMB());
+        this.archiveFilelistCache = new ArchiveFilelistCache(getCacheDir(), configuration.getMaxArchiveContentCacheCapacityMb());
         // Assign the repo ids to the repo config objects:
         getAllRepositories();
     }
