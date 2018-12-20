@@ -100,7 +100,7 @@ public class FileSystemFilter {
      * @param list
      * @return The original list for mode {@link Mode#FLAT} or the reduced list for the tree view.
      */
-    public List reduce(List<BorgFilesystemItem> list) {
+    public List<BorgFilesystemItem> reduce(List<BorgFilesystemItem> list) {
         if (mode == FileSystemFilter.Mode.TREE) {
             Set<String> set = new HashSet<>();
             List<BorgFilesystemItem> list2 = list;
