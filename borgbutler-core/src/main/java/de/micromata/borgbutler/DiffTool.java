@@ -55,17 +55,13 @@ public class DiffTool {
                 other = otherIt.hasNext() ? otherIt.next() : null;
             }
         }
-        while (currentIt.hasNext()) {
-            if (current == null)
-                current = currentIt.next();
+        while (current != null) {
             result.add(current.setDiffStatus(BorgFilesystemItem.DiffStatus.NEW));
-            current = null;
+            current = currentIt.hasNext() ? currentIt.next() : null;
         }
-        while (otherIt.hasNext()) {
-            if (other == null)
-                other = otherIt.next();
+        while (other != null) {
             result.add(other.setDiffStatus(BorgFilesystemItem.DiffStatus.REMOVED));
-            other = null;
+            other = otherIt.hasNext() ? otherIt.next() : null;
         }
         return result;
     }
