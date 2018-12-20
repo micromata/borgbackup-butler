@@ -154,13 +154,13 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
         }
         StringBuilder sb = new StringBuilder();
         appendDiff(sb, "type", this.type, diffItem.type);
-        appendDiff(sb, "mode", this.mode, diffItem.mode);
+        //appendDiff(sb, "mode", this.mode, diffItem.mode); // Done by frontend (jsx)
         appendDiff(sb, "user", this.user, diffItem.user);
         appendDiff(sb, "group", this.group, diffItem.group);
         appendDiff(sb, "uid", this.uid, diffItem.uid);
         appendDiff(sb, "gid", this.gid, diffItem.gid);
-        appendDiff(sb, "mtime", this.mtime, diffItem.mtime);
-        appendDiff(sb, "size", this.size, diffItem.size);
+        //appendDiff(sb, "mtime", this.mtime, diffItem.mtime); // Done by frontend (jsx)
+        //appendDiff(sb, "size", this.size, diffItem.size); // Done by frontend (jsx)
         if (sb.length() > 0) {
             diffStatus = DiffStatus.MODIFIED;
             this.differences = sb.toString();

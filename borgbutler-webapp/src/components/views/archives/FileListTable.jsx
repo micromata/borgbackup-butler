@@ -5,10 +5,6 @@ import FileListEntry from './FileListEntry';
 
 function FileListTable({archiveId, diffArchiveId, entries, search, mode, changeCurrentDirectory}) {
     const lowercaseSearch = search.split(' ')[0].toLowerCase();
-    let diffCol = undefined;
-    if (diffArchiveId) {
-        diffCol = <th>Modification</th>;
-    }
     return (
         <Table striped bordered hover size={'sm'} responsive>
             <thead>
@@ -18,7 +14,6 @@ function FileListTable({archiveId, diffArchiveId, entries, search, mode, changeC
                 <th>Size</th>
                 <th>Mode</th>
                 <th>Modified time</th>
-                {diffCol}
             </tr>
             </thead>
             <tbody>

@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Highlight from 'react-highlighter';
+import {Button, UncontrolledTooltip} from 'reactstrap';
 import {IconCheck, IconDownload} from '../../general/IconComponents';
 import {getResponseHeaderFilename, getRestServiceUrl, humanFileSize} from '../../../utilities/global';
 import fileDownload from 'js-file-download';
-import {Button} from 'reactstrap';
 
 class FileListEntry extends React.Component {
 
@@ -41,42 +41,98 @@ class FileListEntry extends React.Component {
     }
 
     render = () => {
+        const entry = this.props.entry;
         let downloadArchiveId = this.props.archiveId;
-        let displayPath = this.props.entry.displayPath;
+        let displayPath = entry.displayPath;
         let pathCss = 'tt';
-        let diffCol = undefined;
-        if (this.props.entry.diffStatus === 'NEW') {
+
+        let pathId = undefined;
+        let pathTooltip = undefined;
+        let pathtooltipText = undefined;
+
+        let sizeCss = 'tt';
+        let sizeTooltip = undefined;
+        let sizeId = undefined;
+
+        let modeCss = 'tt';
+        let modeTooltip = undefined;
+        let modeId = undefined;
+
+        let mtimeCss = 'tt';
+        let mtimeTooltip = undefined;
+        let mtimeId = undefined;
+        if (entry.diffStatus === 'NEW') {
             pathCss = 'tt file-new';
-            diffCol = <td className={'tt'}>NEW</td>;
-        } else if (this.props.entry.diffStatus === 'REMOVED') {
+            pathtooltipText = 'NEW';
+        } else if (entry.diffStatus === 'REMOVED') {
             pathCss = 'tt file-removed';
             // Download removed files from other archive.
             downloadArchiveId = this.props.diffArchiveId;
-            diffCol = <td className={'tt'}>REMOVED</td>;
-        } else if (this.props.entry.diffStatus === 'MODIFIED') {
-            pathCss = 'tt file-modified';
-            diffCol = <td className={'tt'}>{this.props.entry.differences}</td>;
+            pathtooltipText = 'REMOVED';
+        } else if (entry.diffStatus === 'MODIFIED') {
+            if (entry.differences) {
+                pathCss = 'tt file-modified';
+                pathtooltipText = entry.differences;
+            }
+            if (entry.size !== entry.diffItem.size) {
+                sizeCss = 'tt file-modified';
+                sizeId = `size-${entry.fileNumber}`;
+                sizeTooltip =
+                    <UncontrolledTooltip target={sizeId}>
+                        Was: {humanFileSize(entry.diffItem.size, true, true)}
+                    </UncontrolledTooltip>;
+            }
+            if (entry.mode !== entry.diffItem.mode) {
+                modeCss = 'tt file-modified';
+                modeId = `mode-${entry.fileNumber}`;
+                modeTooltip =
+                    <UncontrolledTooltip target={modeId}>
+                        Was: {entry.diffItem.mode}
+                    </UncontrolledTooltip>;
+            }
+            if (entry.mtime !== entry.diffItem.mtime) {
+                mtimeCss = 'tt file-modified';
+                mtimeId = `mtime-${entry.fileNumber}`;
+                mtimeTooltip =
+                    <UncontrolledTooltip target={mtimeId}>
+                        Was: {entry.diffItem.mtime}
+                    </UncontrolledTooltip>;
+            }
+        }
+        if (pathtooltipText) {
+            pathId = `path-${entry.fileNumber}`;
+            pathTooltip =
+                <UncontrolledTooltip target={pathId}>
+                    {pathtooltipText}
+                </UncontrolledTooltip>;
         }
         let path;
-        if (this.props.mode === 'tree' && this.props.entry.type === 'd') {
-            path = <Button color={'link'} onClick={() => this.props.changeCurrentDirectory(this.props.entry.path)}><Highlight
-                search={this.props.search}>{displayPath}</Highlight></Button>;
+        if (this.props.mode === 'tree' && entry.type === 'd') {
+            path = <Button color={'link'} onClick={() => this.props.changeCurrentDirectory(entry.path)}><Highlight
+                search={this.props.search} id={pathId}>{displayPath}</Highlight></Button>;
         } else {
-            path = <Highlight search={this.props.search}>{displayPath}</Highlight>;
+            path = <Highlight search={this.props.search} id={pathId}>{displayPath}</Highlight>;
         }
         let icon = this.state.downloaded ? <IconCheck/> :
-            <div className={'btn'} onClick={() => this.download(downloadArchiveId, this.props.entry.fileNumber)}>
-            <IconDownload/></div>;
+            <div className={'btn'} onClick={() => this.download(downloadArchiveId, entry.fileNumber)}>
+                <IconDownload/></div>;
         return (
             <tr>
-                <td className={pathCss}>{path}</td>
+                <td className={pathCss}>
+                    {path}{pathTooltip}
+                </td>
                 <td className={'tt'} style={{textAlign: 'center'}}>
                     {icon}
                 </td>
-                <td className={'tt'}>{humanFileSize(this.props.entry.size, true, true)}</td>
-                <td className={'tt'}>{this.props.entry.mode}</td>
-                <td className={'tt'}>{this.props.entry.mtime}</td>
-                {diffCol}
+                <td className={sizeCss} style={{textAlign: 'center'}}>
+                    <span id={sizeId}>{humanFileSize(entry.size, true, true)}</span>{sizeTooltip}
+                </td>
+                <td className={modeCss}>
+                    <span id={modeId}>{entry.mode}</span>{modeTooltip}
+                </td>
+                <td className={mtimeCss}>
+                    <span id={mtimeId}>{entry.mtime}</span>{mtimeTooltip}
+                </td>
             </tr>
         );
     }
