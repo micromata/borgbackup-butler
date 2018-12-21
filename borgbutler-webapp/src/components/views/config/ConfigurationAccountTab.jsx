@@ -1,9 +1,6 @@
 import React from 'react';
 import {UncontrolledTooltip} from 'reactstrap';
 import {
-    FormField,
-    FormGroup,
-    FormLabel,
     FormLabelField,
     FormOption,
     FormSelect
