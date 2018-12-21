@@ -31,7 +31,7 @@ public class ReposRest {
     public String getList(@QueryParam("prettyPrinter") boolean prettyPrinter) {
         List<Repository> repositories = ButlerCache.getInstance().getAllRepositories();
         if (CollectionUtils.isEmpty(repositories)) {
-            return "";
+            return "[]";
         }
         return JsonUtils.toJson(repositories, prettyPrinter);
     }
