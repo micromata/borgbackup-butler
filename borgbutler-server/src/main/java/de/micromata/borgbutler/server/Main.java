@@ -116,6 +116,10 @@ public class Main {
     }
 
     private void _shutdown() {
+        if (server == null) {
+            // Do nothing (server wasn't started).
+            return;
+        }
         synchronized (this) {
             if (shutdownInProgress == true) {
                 // Another thread already called this method. There is nothing further to do.
