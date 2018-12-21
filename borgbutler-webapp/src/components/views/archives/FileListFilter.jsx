@@ -65,7 +65,7 @@ function FileListFilter({reload, changeFilter, filter, currentArchiveId, archive
             <FormSelect
                 value={filter.diffArchiveId}
                 name={'diffArchiveId'}
-                onChange={(event) => {changeFilter(event); reload(event)}}
+                onChange={(event) => {changeFilter(event, () => reload(event))}}
                 hint={'Show differences between current archive and this selected archive.'}
             >
                 <FormOption value={''} label={'Select diff archive'}/>

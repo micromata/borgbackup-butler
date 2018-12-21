@@ -23,13 +23,16 @@ class FileListPanel extends React.Component {
         this.fetchArchiveFileList(false);
     };
 
-    handleInputChange = (event) => {
+    handleInputChange = (event, callback) => {
         event.preventDefault();
         let target = event.target.name;
         this.setState({filter: {...this.state.filter, [event.target.name]: event.target.value}},
             () => {
                 if (target === 'mode') {
                     this.fetchArchiveFileList();
+                }
+                if (callback) {
+                    callback();
                 }
             });
     };
