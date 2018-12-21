@@ -42,7 +42,13 @@ class RepoListView extends React.Component {
                     repos
                 })
             })
-            .catch(() => this.setState({isFetching: false, failed: true}));
+            .catch((error) => {
+                console.log("error", error);
+                this.setState({
+                    isFetching: false,
+                    failed: true
+                });
+            })
     };
 
     render = () => {
