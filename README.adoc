@@ -15,10 +15,9 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 [source,json]
 ----
 {
-  "max_archive_ontent_cache_capacity_mb" : 1000,
   "repo-configs" : [ {
     "display_name" : "My-Laptop-Local-Backup",
-    "repo"         : "/Volumes/backup/my-laptop-backup",
+    "repo"         : "/Volumes/backup/my-laptop-backup"
   },
   {
     "display_name"    : "My-Laptop-Remote-Backup",
@@ -28,8 +27,6 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
   } ]
 }
 ----
-* `max_archive_ontent_cache_capacity_mb` specifies the cache size BorgButler may use for caching borg results (such as repository
-information, archive information and also file list of archive content).
 * `repo-configs`: You may add a list of all your repos with the borg variables. The name is only used for displaying
 purposes.
 
