@@ -92,6 +92,9 @@ public class BorgCommand {
 
     String getRepoArchive() {
         if (archive == null) {
+            if (repoConfig == null) {
+                return null;
+            }
             return repoConfig.getRepo();
         }
         return repoConfig.getRepo() + "::" + archive;

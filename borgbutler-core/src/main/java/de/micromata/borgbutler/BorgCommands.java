@@ -27,6 +27,24 @@ public class BorgCommands {
     private static Logger log = LoggerFactory.getLogger(BorgCommands.class);
 
     /**
+     * Executes borg --version
+     *
+     * @return version string.
+     */
+    public static String version() {
+        BorgCommand command = new BorgCommand()
+                .setParams("--version")
+                .setDescription("Getting borg version.");
+        execute(command);
+        if (command.getResultStatus() != BorgCommand.ResultStatus.OK) {
+            return null;
+        }
+        String version = command.getResponse();
+        log.info("Borg version: " + version);
+        return version;
+    }
+
+    /**
      * Executes borg info repository.
      *
      * @param repoConfig
@@ -199,7 +217,6 @@ public class BorgCommands {
 
     private static void execute(BorgCommand command) {
         Validate.notNull(command);
-        Validate.notNull(command.getRepoConfig());
         BorgExecutorQueue.getQueue(command.getRepoConfig()).execute(command);
     }
 }

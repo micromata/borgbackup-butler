@@ -29,20 +29,21 @@ public class BorgExecutorQueue {
 
     public static BorgExecutorQueue getQueue(BorgRepoConfig config) {
         synchronized (queueMap) {
-            BorgExecutorQueue queue = queueMap.get(config.getRepo());
+            String queueName = config != null ? config.getRepo() : "--NO_REPO--";
+            BorgExecutorQueue queue = queueMap.get(queueName);
             if (queue == null) {
                 queue = new BorgExecutorQueue();
-                queueMap.put(config.getRepo(), queue);
+                queueMap.put(queueName, queue);
             }
             return queue;
         }
     }
 
-    private ConcurrentLinkedQueue<BorgCommand> commandQueue = new ConcurrentLinkedQueue<>();
+    //private ConcurrentLinkedQueue<BorgCommand> commandQueue = new ConcurrentLinkedQueue<>();
 
     public void execute(BorgCommand command) {
         synchronized (this) {
-            commandQueue.add(command);
+            //commandQueue.add(command);
             _execute(command);
         }
         /*
@@ -65,7 +66,9 @@ public class BorgExecutorQueue {
                     cmdLine.addArgument(param);
             }
         }
-        cmdLine.addArgument(command.getRepoArchive());
+        if (command.getRepoArchive() != null) {
+            cmdLine.addArgument(command.getRepoArchive());
+        }
         if (command.getArgs() != null) {
             for (String arg : command.getArgs()) {
                 if (arg != null)
@@ -103,7 +106,9 @@ public class BorgExecutorQueue {
 
 
     private Map<String, String> getEnvironment(BorgRepoConfig repoConfig) throws IOException {
-        Configuration config = ConfigurationHandler.getConfiguration();
+        if (repoConfig == null) {
+            return null;
+        }
         Map<String, String> env = EnvironmentUtils.getProcEnvironment();
         addEnvironmentVariable(env, "BORG_REPO", repoConfig.getRepo());
         addEnvironmentVariable(env, "BORG_RSH", repoConfig.getRsh());
