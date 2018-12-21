@@ -2,11 +2,12 @@ package de.micromata.borgbutler.server.user;
 
 import de.micromata.borgbutler.server.Languages;
 import de.micromata.borgbutler.server.RunningMode;
-import de.micromata.borgbutler.server.ServerConfigurationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 /**
  * Contains only one (dummy) user (for desktop version).
@@ -15,6 +16,7 @@ public class SingleUserManager extends UserManager {
     private static final String USER_LOCAL_PREF_KEY = "userLocale";
     private static Logger log = LoggerFactory.getLogger(SingleUserManager.class);
     private UserData singleUser;
+    private Preferences preferences;
 
     public SingleUserManager() {
         if (RunningMode.getUserManagement() != RunningMode.UserManagement.SINGLE) {
@@ -22,14 +24,11 @@ public class SingleUserManager extends UserManager {
                     + "'. Only allowed in '" + RunningMode.UserManagement.SINGLE + "'.");
         }
         log.info("Using SingleUserManger as user manager.");
+        preferences = Preferences.userRoot().node("de").node("micromata").node("borgbutler");
         singleUser = new UserData();
         singleUser.setUsername("admin");
         singleUser.setAdmin(true);
-        String language = ServerConfigurationHandler.getInstance().get("userLocale", null);
-        Locale locale = Languages.asLocale(language);
-        singleUser.setLocale(locale);
-        String dateFormat = ServerConfigurationHandler.getInstance().get("userDateFormat", null);
-        singleUser.setDateFormat(dateFormat);
+        load(singleUser);
     }
 
     public UserData getUser(String id) {
@@ -37,10 +36,10 @@ public class SingleUserManager extends UserManager {
     }
 
     /**
-     * Stores only the user's configured locale.
+     * Stores only the user's configured locale as preference.
      *
      * @param userData
-     * @see ServerConfigurationHandler#save(String, String)
+     * @see Preferences
      */
     @Override
     public void saveUser(UserData userData) {
@@ -49,7 +48,17 @@ public class SingleUserManager extends UserManager {
         String dateFormat = userData.getDateFormat();
         this.singleUser.setDateFormat(dateFormat);
         String lang = Languages.asString(locale);
-        ServerConfigurationHandler.getInstance().save("userLocale", lang);
-        ServerConfigurationHandler.getInstance().save("userDateFormat", dateFormat);
+        preferences.put(USER_LOCAL_PREF_KEY, lang);
+        try {
+            preferences.flush();
+        } catch (BackingStoreException ex) {
+            log.error("Can't save user locale to preferences: " + ex.getMessage(), ex);
+        }
+    }
+
+    private void load(UserData userData) {
+        String language = preferences.get(USER_LOCAL_PREF_KEY, "en");
+        Locale locale = Languages.asLocale(language);
+        singleUser.setLocale(locale);
     }
 }

@@ -1,8 +1,6 @@
 import React from 'react';
 import {FormButton, FormCheckbox, FormLabelField, FormLabelInputField} from "../../general/forms/FormComponents";
 import {getRestServiceUrl} from "../../../utilities/global";
-import {IconDanger} from '../../general/IconComponents';
-import {getTranslation} from "../../../utilities/i18n";
 import I18n from "../../general/translation/I18n";
 import ErrorAlertGenericRestFailure from '../../general/ErrorAlertGenericRestFailure';
 import Loading from "../../general/Loading";
@@ -45,13 +43,13 @@ class ConfigServerTab extends React.Component {
             loading: true,
             failed: false,
             port: 9042,
-            webDevelopmentMode: false,
+            webdevelopmentMode: false,
+            maxArchiveContentCacheCapacityMb: 100,
             redirect: false
         };
 
         this.handleTextChange = this.handleTextChange.bind(this);
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
-        this.onResetConfiguration = this.onResetConfiguration.bind(this);
         this.onClearAllCaches = this.onClearAllCaches.bind(this);
         this.loadConfig = this.loadConfig.bind(this);
     }
@@ -72,6 +70,7 @@ class ConfigServerTab extends React.Component {
     save() {
         var config = {
             port: this.state.port,
+            maxArchiveContentCacheCapacityMb : this.state.maxArchiveContentCacheCapacityMb,
             webDevelopmentMode: this.state.webDevelopmentMode
         };
         return fetch(getRestServiceUrl("configuration/config"), {
@@ -81,18 +80,6 @@ class ConfigServerTab extends React.Component {
             },
             body: JSON.stringify(config)
         })
-    }
-
-    onResetConfiguration() {
-        if (window.confirm(getTranslation('configuration.resetAllSettings.question'))) {
-            fetch(getRestServiceUrl("configuration/reset?IKnowWhatImDoing=true"), {
-                method: "GET",
-                dataType: "JSON",
-                headers: {
-                    "Content-Type": "text/plain; charset=utf-8"
-                }
-            })
-        }
     }
 
     onClearAllCaches() {
@@ -115,7 +102,6 @@ class ConfigServerTab extends React.Component {
         if (this.state.failed) {
             return <ErrorAlertGenericRestFailure handleClick={this.loadConfig}/>;
         }
-
         return (
             <form>
                 <FormLabelField>
@@ -127,17 +113,16 @@ class ConfigServerTab extends React.Component {
                                      name={'port'} value={this.state.port}
                                      onChange={this.handleTextChange}
                                      placeholder="Enter port"/>
+                <FormLabelInputField label={'Maximum disc capacity (MB)'} fieldLength={2} type="number" min={50} max={10000}
+                                     step={50}
+                                     name={'maxArchiveContentCacheCapacityMb'} value={this.state.maxArchiveContentCacheCapacityMb}
+                                     onChange={this.handleTextChange}
+                                     placeholder="Enter maximum Capacity"/>
                 <FormLabelField label={<I18n name={'configuration.webDevelopmentMode'}/>} fieldLength={2}>
                     <FormCheckbox checked={this.state.webDevelopmentMode}
                                   hintKey={'configuration.webDevelopmentMode.hint'}
                                   name="webDevelopmentMode"
                                   onChange={this.handleCheckboxChange}/>
-                </FormLabelField>
-                <FormLabelField>
-                    <FormButton id={'resetFactorySettings'} onClick={this.onResetConfiguration}
-                                hintKey={'configuration.resetAllSettings.hint'}> <IconDanger/> <I18n
-                        name={'configuration.resetAllSettings'}/>
-                    </FormButton>
                 </FormLabelField>
             </form>
         );

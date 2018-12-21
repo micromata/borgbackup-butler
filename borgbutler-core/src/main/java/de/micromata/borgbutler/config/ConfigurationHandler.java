@@ -2,6 +2,7 @@ package de.micromata.borgbutler.config;
 
 import de.micromata.borgbutler.json.JsonUtils;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ import java.io.IOException;
 
 public class ConfigurationHandler {
     private static Logger log = LoggerFactory.getLogger(ConfigurationHandler.class);
-    private static ConfigurationHandler instance = new ConfigurationHandler();
+    private static ConfigurationHandler instance;
     private static final String BUTLER_HOME_DIR = ".borgbutler";
     private static final String CONFIG_FILENAME = "borgbutler-config.json";
     private static final String CONFIG_BACKUP_FILENAME = "borgbutler-config-bak.json";
@@ -21,24 +22,37 @@ public class ConfigurationHandler {
     private File configBackupFile;
     @Getter
     private File workingDir;
-    private Configuration configuration = new Configuration();
+    private Configuration configuration;
+    @Setter
+    private static Class<? extends Configuration> configClazz = Configuration.class;
 
     public static ConfigurationHandler getInstance() {
+        if (instance == null) instance = new ConfigurationHandler();
         return instance;
     }
 
     public static Configuration getConfiguration() {
-        return instance.configuration;
+        return getInstance().configuration;
     }
 
     private void read() {
         log.info("Reading config file '" + configFile.getAbsolutePath() + "'");
         try {
-            String json = FileUtils.readFileToString(configFile, Definitions.STD_CHARSET);
-            this.configuration = JsonUtils.fromJson(Configuration.class, json);
-            for (BorgRepoConfig repoConfig : this.configuration.getRepoConfigs()) {
-                if (StringUtils.isBlank(repoConfig.getDisplayName())) {
-                    repoConfig.setDisplayName(repoConfig.getRepo());
+            String json = "{}";
+            if (configFile.exists()) {
+                json = FileUtils.readFileToString(configFile, Definitions.STD_CHARSET);
+                // Migrate from first version:
+                if (json.contains("repo-configs")) {
+                    json = json.replace("repo-configs", "repoConfigs");
+                    json = json.replace("display_name", "displayName");
+                }
+            }
+            this.configuration = JsonUtils.fromJson(configClazz, json);
+            if (this.configuration.getRepoConfigs() != null) {
+                for (BorgRepoConfig repoConfig : this.configuration.getRepoConfigs()) {
+                    if (StringUtils.isBlank(repoConfig.getDisplayName())) {
+                        repoConfig.setDisplayName(repoConfig.getRepo());
+                    }
                 }
             }
         } catch (IOException ex) {
@@ -47,7 +61,7 @@ public class ConfigurationHandler {
         }
     }
 
-    public void write() {
+    public void save() {
         String json = JsonUtils.toJson(configuration, true);
         try {
             if (configFile.exists()) {

@@ -1,7 +1,6 @@
 package de.micromata.borgbutler.server.jetty;
 
 import de.micromata.borgbutler.server.ServerConfiguration;
-import de.micromata.borgbutler.server.ServerConfigurationHandler;
 import de.micromata.borgbutler.server.RunningMode;
 import de.micromata.borgbutler.server.rest.ConfigurationRest;
 import de.micromata.borgbutler.server.user.UserFilter;
@@ -99,7 +98,7 @@ public class JettyServer {
         errorHandler.addErrorPage(404, "/");
         ctx.setErrorHandler(errorHandler);
 
-        if (RunningMode.isDevelopmentMode() || ServerConfigurationHandler.getDefaultConfiguration().isWebDevelopmentMode()) {
+        if (RunningMode.isDevelopmentMode() || ServerConfiguration.get().isWebDevelopmentMode()) {
             log.warn("*********************************");
             log.warn("***********            **********");
             log.warn("*********** ATTENTION! **********");
@@ -139,7 +138,7 @@ public class JettyServer {
     }
 
     private int findFreePort() {
-        int port = ServerConfigurationHandler.getInstance().getConfiguration().getPort();
+        int port = ServerConfiguration.get().getPort();
         return findFreePort(port);
     }
 
@@ -147,7 +146,7 @@ public class JettyServer {
         int port = startPort > 0 ? startPort : 1;
         if (port > MAX_PORT_NUMBER) {
             log.warn("Port can't be higher than " + MAX_PORT_NUMBER + ": " + port + ". It's a possible mis-configuration.");
-            port = ServerConfigurationHandler.WEBSERVER_PORT_DEFAULT;
+            port = ServerConfiguration.WEBSERVER_PORT_DEFAULT;
         }
         for (int i = port; i < port + 10; i++) {
             try (ServerSocket socket = new ServerSocket()) {
@@ -158,9 +157,9 @@ public class JettyServer {
                 continue; // try next port
             }
         }
-        if (startPort != ServerConfigurationHandler.WEBSERVER_PORT_DEFAULT) {
+        if (startPort != ServerConfiguration.WEBSERVER_PORT_DEFAULT) {
             log.info("Trying to fix port due to a possible mis-configuration.");
-            return findFreePort(ServerConfigurationHandler.WEBSERVER_PORT_DEFAULT);
+            return findFreePort(ServerConfiguration.WEBSERVER_PORT_DEFAULT);
         }
         log.error("No free port found! Giving up.");
         return -1;

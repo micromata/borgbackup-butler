@@ -71,23 +71,23 @@ class ConfigurationPage
                         className={classNames({active: this.state.activeTab === '1'})}
                         onClick={this.toggleTab('1')}
                     >
-                        <I18n name={'configuration.account'}/>
+                        <I18n name={'configuration.server'}/>
                     </NavLink>
                     <NavLink
                         className={classNames({active: this.state.activeTab === '2'})}
                         onClick={this.toggleTab('2')}
                     >
-                        <I18n name={'configuration.server'}/>
+                        <I18n name={'configuration.account'}/>
                     </NavLink>
                 </Nav>
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId={'1'}>
-                        <ConfigAccountTab ref={this.accountTabRef}/>
+                        <ConfigServerTab ref={this.serverTabRef}/>
                     </TabPane>
                 </TabContent>
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId={'2'}>
-                        <ConfigServerTab ref={this.serverTabRef}/>
+                        <ConfigAccountTab ref={this.accountTabRef}/>
                     </TabPane>
                 </TabContent>
                 <FormGroup>

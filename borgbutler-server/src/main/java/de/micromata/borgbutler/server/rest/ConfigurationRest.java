@@ -1,9 +1,9 @@
 package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.cache.ButlerCache;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.server.ServerConfiguration;
-import de.micromata.borgbutler.server.ServerConfigurationHandler;
 import de.micromata.borgbutler.server.user.UserData;
 import de.micromata.borgbutler.server.user.UserManager;
 import org.apache.commons.lang3.StringUtils;
@@ -26,9 +26,7 @@ public class ConfigurationRest {
      * @see JsonUtils#toJson(Object, boolean)
      */
     public String getConfig(@QueryParam("prettyPrinter") boolean prettyPrinter) {
-        ServerConfiguration config = new ServerConfiguration();
-        config.copyFrom(ServerConfigurationHandler.getInstance().getConfiguration());
-        String json = JsonUtils.toJson(config, prettyPrinter);
+        String json = JsonUtils.toJson(ServerConfiguration.get(), prettyPrinter);
         return json;
     }
 
@@ -36,8 +34,8 @@ public class ConfigurationRest {
     @Path("config")
     @Produces(MediaType.TEXT_PLAIN)
     public void setConfig(String jsonConfig) {
-        ServerConfigurationHandler configurationHandler = ServerConfigurationHandler.getInstance();
-        ServerConfiguration config = configurationHandler.getConfiguration();
+        ConfigurationHandler configurationHandler = ConfigurationHandler.getInstance();
+        ServerConfiguration config = (ServerConfiguration)configurationHandler.getConfiguration();
         ServerConfiguration srcConfig = JsonUtils.fromJson(ServerConfiguration.class, jsonConfig);
         config.copyFrom(srcConfig);
         configurationHandler.save();
@@ -71,19 +69,6 @@ public class ConfigurationRest {
             user.setDateFormat(null);
         }
         UserManager.instance().saveUser(user);
-    }
-
-    /**
-     * Resets the settings to default values (deletes all settings).
-     */
-    @GET
-    @Path("reset")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String resetConfig(@QueryParam("IKnowWhatImDoing") boolean securityQuestion) {
-        if (securityQuestion) {
-            ServerConfigurationHandler.getInstance().removeAllSettings();
-        }
-        return getConfig(false);
     }
 
     /**

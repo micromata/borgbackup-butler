@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.server;
 
 import de.micromata.borgbutler.cache.ButlerCache;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import de.micromata.borgbutler.server.jetty.JettyServer;
 import de.micromata.borgbutler.server.user.SingleUserManager;
@@ -45,6 +46,7 @@ public class Main {
 
 
     private void _start(String[] args) {
+        ConfigurationHandler.setConfigClazz(ServerConfiguration.class);
         // create Options object
         Options options = new Options();
         options.addOption("e", "extract-archive-content", true, "Extracts the content of an archive cache file only (doesn't start the server). A complete file list of the archive will be extracted to stdout.");
@@ -73,7 +75,7 @@ public class Main {
                         System.err.println("Port outside range.");
                         return;
                     }
-                    ServerConfigurationHandler.getDefaultConfiguration().setPort(port);
+                    ServerConfiguration.get().setPort(port);
                 } catch (NumberFormatException ex) {
                     printHelp(options);
                     return;

@@ -12,7 +12,7 @@ public class ConfigHandlerTest {
         File workingDir = ConfigurationHandler.getInstance().getWorkingDir();
         File origConfigFile = new File(workingDir, ".borgbutler-orig.json");
         FileUtils.copyFile(ConfigurationHandler.getInstance().getConfigFile(), origConfigFile);
-        ConfigurationHandler.getInstance().write();
+        ConfigurationHandler.getInstance().save();
         FileUtils.copyFile(origConfigFile, ConfigurationHandler.getInstance().getConfigFile());
     }
 }

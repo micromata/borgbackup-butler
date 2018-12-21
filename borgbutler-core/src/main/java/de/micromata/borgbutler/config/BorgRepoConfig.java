@@ -10,7 +10,6 @@ public class BorgRepoConfig {
      * A name describing this config. Only used for displaying purposes.
      */
     @Getter @Setter
-    @JsonProperty("display_name")
     private String displayName;
     @Getter @Setter
     private String repo;

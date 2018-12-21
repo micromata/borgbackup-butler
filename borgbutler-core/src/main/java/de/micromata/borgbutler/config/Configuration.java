@@ -17,26 +17,28 @@ public class Configuration {
      * Default dir name for restoring archives.
      */
     private static final String RESTORE_DIRNAME = "restore";
+
+    @JsonIgnore
+    private File workingDir;
+
     @Getter
     private String borgCommand = "borg";
     /**
      * Default is 100 MB (approximately).
      */
     @Getter
-    @JsonProperty("max_archive_ontent_cache_capacity_mb")
     private int maxArchiveContentCacheCapacityMb = 100;
 
     /**
      * Default is restore inside BorgButler's home dir (~/.borgbutler/restore).
      */
     @Getter
-    @JsonProperty("restore_dir")
+    @JsonProperty("restoreDir")
     private String restoreDirPath;
     @JsonIgnore
     private File restoreHomeDir;
 
     @Getter
-    @JsonProperty("repo-configs")
     private List<BorgRepoConfig> repoConfigs = new ArrayList<>();
 
     public void add(BorgRepoConfig repoConfig) {
@@ -60,12 +62,17 @@ public class Configuration {
             if (StringUtils.isNotBlank(restoreDirPath)) {
                 restoreHomeDir = new File(restoreDirPath);
             } else {
-                restoreHomeDir = new File(ConfigurationHandler.getInstance().getWorkingDir(), RESTORE_DIRNAME);
+                restoreHomeDir = new File(workingDir, RESTORE_DIRNAME);
             }
             if (!restoreHomeDir.exists()) {
                 log.info("Creating dir '" + restoreHomeDir.getAbsolutePath() + "' for restoring backup files and directories.");
             }
         }
         return restoreHomeDir;
+    }
+
+    public void copyFrom(Configuration other) {
+        this.borgCommand = other.borgCommand;
+        this.maxArchiveContentCacheCapacityMb = other.maxArchiveContentCacheCapacityMb;
     }
 }
