@@ -7,8 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
-public class TestJob extends AbstractJob {
+public class TestJob extends AbstractJob<String> {
     private Logger log = LoggerFactory.getLogger(TestJob.class);
     private int time;
     private File counterScript;
@@ -30,7 +31,7 @@ public class TestJob extends AbstractJob {
     }
 
     @Override
-    public void execute() {
+    public String execute() {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ByteArrayOutputStream errorOutputStream = new ByteArrayOutputStream();
         CommandLine cmdLine = new CommandLine(counterScript.getAbsolutePath());
@@ -72,7 +73,7 @@ public class TestJob extends AbstractJob {
                 log.error("Error while executing script: " + ex.getMessage(), ex);
             }
         }
-        //log.info(outputStream.toString(Charset.forName("UTF-8")));
+        return outputStream.toString(Charset.forName("UTF-8"));
         //log.error(errorOutputStream.toString(Charset.forName("UTF-8")));
     }
 }

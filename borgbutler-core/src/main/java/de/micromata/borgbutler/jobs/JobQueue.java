@@ -5,16 +5,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class JobQueue {
+public class JobQueue<T> {
     private static final int MAX_DONE_JOBS_SIZE = 50;
     private Logger log = LoggerFactory.getLogger(JobQueue.class);
     private List<AbstractJob> queue = new ArrayList<>();
     private List<AbstractJob> doneJobs = new LinkedList<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private Runner runner = new Runner();
 
     public int getQueueSize() {
         return queue.size();
@@ -38,8 +38,8 @@ public class JobQueue {
                 }
             }
             queue.add(job.setStatus(AbstractJob.Status.QUEUED));
+            executorService.submit(new CallableTask(job));
         }
-        run();
     }
 
     public AbstractJob getQueuedJob(Object id) {
@@ -55,19 +55,9 @@ public class JobQueue {
         int counter = seconds / 10;
         while (CollectionUtils.isNotEmpty(queue) && counter > 0) {
             try {
-                run(); // If not running!
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
                 log.error(ex.getMessage(), ex);
-            }
-        }
-    }
-
-    private void run() {
-        synchronized (executorService) {
-            if (!runner.running) {
-                log.info("Starting job executor...");
-                executorService.submit(runner);
             }
         }
     }
@@ -91,43 +81,33 @@ public class JobQueue {
         }
     }
 
-    private class Runner implements Runnable {
-        private boolean running;
+    private class CallableTask implements Callable<T> {
+        private AbstractJob<T> job;
+
+        private CallableTask(AbstractJob<T> job) {
+            this.job = job;
+        }
 
         @Override
-        public void run() {
-            running = true;
-            while (true) {
-                AbstractJob job = null;
-                synchronized (queue) {
-                    organizeQueue();
-                    if (queue.isEmpty()) {
-                        running = false;
-                        return;
-                    }
-                    for (AbstractJob queuedJob : queue) {
-                        if (queuedJob.getStatus() == AbstractJob.Status.QUEUED) {
-                            job = queuedJob;
-                            break;
-                        }
-                    }
+        public T call() throws Exception {
+            if (job.isStopRequested()) {
+                job.setStatus(AbstractJob.Status.STOPPED);
+                return null;
+            }
+            try {
+                log.info("Starting job: " + job.getId());
+                job.setStatus(AbstractJob.Status.RUNNING);
+                T result = job.execute();
+                if (!job.isFinished()) {
+                    // Don't overwrite status failed set by job.
+                    job.setStatus(AbstractJob.Status.DONE);
                 }
-                if (job == null) {
-                    running = false;
-                    return;
-                }
-                try {
-                    log.info("Starting job: " + job.getId());
-                    job.setStatus(AbstractJob.Status.RUNNING);
-                    job.execute();
-                    if (!job.isFinished()) {
-                        // Don't overwrite status failed set by job.
-                        job.setStatus(AbstractJob.Status.DONE);
-                    }
-                } catch (Exception ex) {
-                    log.error("Error while executing job '" + job.getId() + "': " + ex.getMessage(), ex);
-                    job.setStatus(AbstractJob.Status.FAILED);
-                }
+                organizeQueue();
+                return result;
+            } catch (Exception ex) {
+                log.error("Error while executing job '" + job.getId() + "': " + ex.getMessage(), ex);
+                job.setStatus(AbstractJob.Status.FAILED);
+                return null;
             }
         }
     }

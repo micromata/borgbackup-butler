@@ -24,7 +24,7 @@ public class JobQueueTest {
             "    echo Error on counter $COUNTER >&2\n" +
             "    exit 2\n" +
             "  fi\n" +
-            "  sleep 0.05\n" +
+            "  sleep 0.1\n" +
             "  echo The counter is $COUNTER >&2\n" +
             "  let COUNTER=COUNTER+1 \n" +
             "done\n" +

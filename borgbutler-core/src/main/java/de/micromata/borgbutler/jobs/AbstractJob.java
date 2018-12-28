@@ -6,7 +6,9 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractJob {
+import java.util.concurrent.Future;
+
+public abstract class AbstractJob<T> {
     private Logger logger = LoggerFactory.getLogger(AbstractJob.class);
     public enum Status {DONE, RUNNING, QUEUED, STOPPED, FAILED}
     @Getter
@@ -22,6 +24,8 @@ public abstract class AbstractJob {
     @Getter
     @Setter
     private String statusText;
+
+    private Future<T> future;
 
     protected void failed() {
         if (this.status != Status.RUNNING) {
@@ -40,7 +44,7 @@ public abstract class AbstractJob {
         return false;
     }
 
-    public abstract void execute();
+    public abstract T execute();
 
     /**
      * A job is identified by this id. If a job with the same id is already queued (not yet finished), this job will
