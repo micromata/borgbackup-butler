@@ -6,11 +6,14 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public abstract class AbstractJob<T> {
     private Logger logger = LoggerFactory.getLogger(AbstractJob.class);
+
     public enum Status {DONE, RUNNING, QUEUED, STOPPED, FAILED}
+
     @Getter
     @Setter
     private boolean stopRequested;
@@ -24,8 +27,18 @@ public abstract class AbstractJob<T> {
     @Getter
     @Setter
     private String statusText;
-
+    @Getter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PACKAGE)
     private Future<T> future;
+
+    public T waitForResult() {
+        try {
+            return future.get();
+        } catch (InterruptedException | ExecutionException ex) {
+            logger.error(ex.getMessage(), ex);
+        }
+        return null;
+    }
 
     protected void failed() {
         if (this.status != Status.RUNNING) {
@@ -33,8 +46,8 @@ public abstract class AbstractJob<T> {
         }
         this.status = Status.FAILED;
     }
+
     /**
-     *
      * @return true, if the job is done, stopped or failed. Otherwise false (if job is running or queued).
      */
     public boolean isFinished() {
@@ -49,6 +62,7 @@ public abstract class AbstractJob<T> {
     /**
      * A job is identified by this id. If a job with the same id is already queued (not yet finished), this job will
      * not be added twice.
+     *
      * @return
      */
     public abstract Object getId();

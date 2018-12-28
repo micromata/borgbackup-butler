@@ -38,7 +38,7 @@ public class JobQueue<T> {
                 }
             }
             queue.add(job.setStatus(AbstractJob.Status.QUEUED));
-            executorService.submit(new CallableTask(job));
+            job.setFuture(executorService.submit(new CallableTask(job)));
         }
     }
 

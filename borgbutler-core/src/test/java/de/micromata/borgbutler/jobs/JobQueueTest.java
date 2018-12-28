@@ -50,36 +50,35 @@ public class JobQueueTest {
         assertEquals(2, queue.getQueueSize());
         queue.append(new TestJob(10, file));
         assertEquals(2, queue.getQueueSize());
-        TestJob job = (TestJob) queue.getQueuedJob(10);
+        TestJob job1 = (TestJob) queue.getQueuedJob(10);
         int counter = 100;
-        while (job.getStatus() != AbstractJob.Status.RUNNING && counter-- > 0) {
+        while (job1.getStatus() != AbstractJob.Status.RUNNING && counter-- > 0) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException ex) {
                 log.error(ex.getMessage(), ex);
             }
         }
-        assertEquals(AbstractJob.Status.RUNNING, job.getStatus());
-        job = (TestJob) queue.getQueuedJob(5);
+        assertEquals(AbstractJob.Status.RUNNING, job1.getStatus());
+
+        TestJob job = (TestJob) queue.getQueuedJob(5);
         assertEquals(AbstractJob.Status.QUEUED, job.getStatus());
-        counter = 100;
-        while (job.getStatus() != AbstractJob.Status.RUNNING && counter-- > 0) {
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException ex) {
-                log.error(ex.getMessage(), ex);
-            }
-        }
+        String result = job1.waitForResult();
+        assertEquals("10\n", result);
+        assertEquals(AbstractJob.Status.DONE, job1.getStatus());
+
         queue.append(new TestJob(10, file));
         job = (TestJob) queue.getQueuedJob(10);
         assertEquals(AbstractJob.Status.QUEUED, job.getStatus());
-        queue.waitForQueue(10);
+        result = job.waitForResult();
+        assertEquals("10\n", result);
+
         assertEquals(0, queue.getQueueSize());
         List<AbstractJob> doneJobs = queue.getDoneJobs();
         assertEquals(3, doneJobs.size());
-        check(((TestJob)doneJobs.get(0)), AbstractJob.Status.DONE, "10");
-        check(((TestJob)doneJobs.get(1)), AbstractJob.Status.FAILED, "10");
-        check(((TestJob)doneJobs.get(2)), AbstractJob.Status.DONE, "10");
+        check(((TestJob) doneJobs.get(0)), AbstractJob.Status.DONE, "10");
+        check(((TestJob) doneJobs.get(1)), AbstractJob.Status.FAILED, "10");
+        check(((TestJob) doneJobs.get(2)), AbstractJob.Status.DONE, "10");
     }
 
     private void check(TestJob job, AbstractJob.Status status, String result) {
