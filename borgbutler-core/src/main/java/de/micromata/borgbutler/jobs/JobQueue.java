@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class JobQueue {
+    private static final int MAX_DONE_JOBS_SIZE = 50;
     private Logger log = LoggerFactory.getLogger(JobQueue.class);
     private List<AbstractJob> queue = new ArrayList<>();
     private List<AbstractJob> doneJobs = new LinkedList<>();
@@ -17,6 +18,10 @@ public class JobQueue {
 
     public int getQueueSize() {
         return queue.size();
+    }
+
+    public List<AbstractJob> getDoneJobs() {
+        return Collections.unmodifiableList(doneJobs);
     }
 
     /**
@@ -79,6 +84,9 @@ public class JobQueue {
                     it.remove();
                     doneJobs.add(0, job);
                 }
+                while (doneJobs.size() > MAX_DONE_JOBS_SIZE) {
+                    doneJobs.remove(doneJobs.size() - 1);
+                }
             }
         }
     }
@@ -112,7 +120,10 @@ public class JobQueue {
                     log.info("Starting job: " + job.getId());
                     job.setStatus(AbstractJob.Status.RUNNING);
                     job.execute();
-                    job.setStatus(AbstractJob.Status.DONE);
+                    if (!job.isFinished()) {
+                        // Don't overwrite status failed set by job.
+                        job.setStatus(AbstractJob.Status.DONE);
+                    }
                 } catch (Exception ex) {
                     log.error("Error while executing job '" + job.getId() + "': " + ex.getMessage(), ex);
                     job.setStatus(AbstractJob.Status.FAILED);

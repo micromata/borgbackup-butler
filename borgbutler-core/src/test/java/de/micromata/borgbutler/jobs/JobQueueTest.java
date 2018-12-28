@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermissions;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -23,7 +24,7 @@ public class JobQueueTest {
             "    echo Error on counter $COUNTER >&2\n" +
             "    exit 2\n" +
             "  fi\n" +
-            "  sleep 0.01\n" +
+            "  sleep 0.05\n" +
             "  echo The counter is $COUNTER >&2\n" +
             "  let COUNTER=COUNTER+1 \n" +
             "done\n" +
@@ -40,7 +41,7 @@ public class JobQueueTest {
     }
 
     @Test
-    void test() {
+    void queueTest() {
         JobQueue queue = new JobQueue();
         assertEquals(0, queue.getQueueSize());
         queue.append(new TestJob(10, file));
@@ -49,20 +50,20 @@ public class JobQueueTest {
         assertEquals(2, queue.getQueueSize());
         queue.append(new TestJob(10, file));
         assertEquals(2, queue.getQueueSize());
-        TestJob job1 = (TestJob)queue.getQueuedJob(10);
+        TestJob job = (TestJob) queue.getQueuedJob(10);
         int counter = 100;
-        while (job1.getStatus() != AbstractJob.Status.RUNNING && counter-- > 0) {
+        while (job.getStatus() != AbstractJob.Status.RUNNING && counter-- > 0) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException ex) {
                 log.error(ex.getMessage(), ex);
             }
         }
-        assertEquals(AbstractJob.Status.RUNNING, job1.getStatus());
-        TestJob job2 = (TestJob)queue.getQueuedJob(5);
-        assertEquals(AbstractJob.Status.QUEUED, job2.getStatus());
+        assertEquals(AbstractJob.Status.RUNNING, job.getStatus());
+        job = (TestJob) queue.getQueuedJob(5);
+        assertEquals(AbstractJob.Status.QUEUED, job.getStatus());
         counter = 100;
-        while (job2.getStatus() != AbstractJob.Status.RUNNING && counter-- > 0) {
+        while (job.getStatus() != AbstractJob.Status.RUNNING && counter-- > 0) {
             try {
                 Thread.sleep(10);
             } catch (InterruptedException ex) {
@@ -70,9 +71,18 @@ public class JobQueueTest {
             }
         }
         queue.append(new TestJob(10, file));
-        TestJob job3 = (TestJob)queue.getQueuedJob(10);
-        assertEquals(AbstractJob.Status.QUEUED, job3.getStatus());
+        job = (TestJob) queue.getQueuedJob(10);
+        assertEquals(AbstractJob.Status.QUEUED, job.getStatus());
         queue.waitForQueue(10);
         assertEquals(0, queue.getQueueSize());
+        List<AbstractJob> doneJobs = queue.getDoneJobs();
+        assertEquals(3, doneJobs.size());
+        check(((TestJob)doneJobs.get(0)), AbstractJob.Status.DONE, "10");
+        check(((TestJob)doneJobs.get(1)), AbstractJob.Status.FAILED, "10");
+        check(((TestJob)doneJobs.get(2)), AbstractJob.Status.DONE, "10");
+    }
+
+    private void check(TestJob job, AbstractJob.Status status, String result) {
+        assertEquals(status, job.getStatus());
     }
 }

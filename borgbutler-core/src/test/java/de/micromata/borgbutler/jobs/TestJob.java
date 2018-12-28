@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 public class TestJob extends AbstractJob {
     private Logger log = LoggerFactory.getLogger(TestJob.class);
@@ -43,7 +42,7 @@ public class TestJob extends AbstractJob {
         PumpStreamHandler streamHandler = new PumpStreamHandler(new LogOutputStream() {
             @Override
             protected void processLine(String line, int level) {
-                log.info(line);
+                //log.info(line);
                 try {
                     outputStream.write(line.getBytes());
                     outputStream.write("\n".getBytes());
@@ -54,7 +53,7 @@ public class TestJob extends AbstractJob {
         }, new LogOutputStream() {
             @Override
             protected void processLine(String line, int logLevel) {
-                log.error(line);
+                //log.error(line);
                 try {
                     errorOutputStream.write(line.getBytes());
                     errorOutputStream.write("\n".getBytes());
@@ -68,9 +67,12 @@ public class TestJob extends AbstractJob {
         try {
             executor.execute(cmdLine);
         } catch (Exception ex) {
-            log.error("Error while executing script: " + ex.getMessage(), ex);
+            failed();
+            if (failOn < 0) {
+                log.error("Error while executing script: " + ex.getMessage(), ex);
+            }
         }
-        log.info(outputStream.toString(Charset.forName("UTF-8")));
-        log.error(errorOutputStream.toString(Charset.forName("UTF-8")));
+        //log.info(outputStream.toString(Charset.forName("UTF-8")));
+        //log.error(errorOutputStream.toString(Charset.forName("UTF-8")));
     }
 }
