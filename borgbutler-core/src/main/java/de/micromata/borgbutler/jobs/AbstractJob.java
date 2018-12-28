@@ -12,11 +12,11 @@ import java.util.concurrent.Future;
 public abstract class AbstractJob<T> {
     private Logger logger = LoggerFactory.getLogger(AbstractJob.class);
 
-    public enum Status {DONE, RUNNING, QUEUED, STOPPED, FAILED}
+    public enum Status {DONE, RUNNING, QUEUED, CANCELLED, FAILED}
 
     @Getter
     @Setter
-    private boolean stopRequested;
+    private boolean cancelledRequested;
 
     @Getter
     @Setter(AccessLevel.PACKAGE)
@@ -31,7 +31,18 @@ public abstract class AbstractJob<T> {
     @Setter(AccessLevel.PACKAGE)
     private Future<T> future;
 
-    public T waitForResult() {
+    public void cancel() {
+        if (this.getStatus() == Status.QUEUED) {
+            this.status = Status.CANCELLED;
+        }
+        this.cancelledRequested = true;
+    }
+
+    /**
+     * Waits for and gets the result.
+     * @return
+     */
+    public T getResult() {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException ex) {
@@ -51,7 +62,7 @@ public abstract class AbstractJob<T> {
      * @return true, if the job is done, stopped or failed. Otherwise false (if job is running or queued).
      */
     public boolean isFinished() {
-        if (status == Status.DONE || status == Status.STOPPED || status == Status.FAILED) {
+        if (status == Status.DONE || status == Status.CANCELLED || status == Status.FAILED) {
             return true;
         }
         return false;

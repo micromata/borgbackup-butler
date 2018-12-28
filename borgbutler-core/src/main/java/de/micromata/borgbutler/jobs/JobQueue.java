@@ -90,8 +90,8 @@ public class JobQueue<T> {
 
         @Override
         public T call() throws Exception {
-            if (job.isStopRequested()) {
-                job.setStatus(AbstractJob.Status.STOPPED);
+            if (job.isCancelledRequested()) {
+                job.setStatus(AbstractJob.Status.CANCELLED);
                 return null;
             }
             try {

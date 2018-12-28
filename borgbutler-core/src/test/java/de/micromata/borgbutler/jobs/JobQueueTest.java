@@ -63,25 +63,35 @@ public class JobQueueTest {
 
         TestJob job = (TestJob) queue.getQueuedJob(5);
         assertEquals(AbstractJob.Status.QUEUED, job.getStatus());
-        String result = job1.waitForResult();
+        String result = job1.getResult();
         assertEquals("10\n", result);
         assertEquals(AbstractJob.Status.DONE, job1.getStatus());
 
         queue.append(new TestJob(10, file));
-        job = (TestJob) queue.getQueuedJob(10);
-        assertEquals(AbstractJob.Status.QUEUED, job.getStatus());
-        result = job.waitForResult();
+        queue.append(new TestJob(100, file));
+        job1 = (TestJob) queue.getQueuedJob(10);
+        assertEquals(AbstractJob.Status.QUEUED, job1.getStatus());
+
+        job = (TestJob)queue.getQueuedJob(100);
+        job.cancel();
+        assertEquals(AbstractJob.Status.CANCELLED, job.getStatus());
+
+        result = job1.getResult();
         assertEquals("10\n", result);
 
         assertEquals(0, queue.getQueueSize());
         List<AbstractJob> doneJobs = queue.getDoneJobs();
-        assertEquals(3, doneJobs.size());
+        assertEquals(4, doneJobs.size());
         check(((TestJob) doneJobs.get(0)), AbstractJob.Status.DONE, "10");
-        check(((TestJob) doneJobs.get(1)), AbstractJob.Status.FAILED, "10");
-        check(((TestJob) doneJobs.get(2)), AbstractJob.Status.DONE, "10");
+        check(((TestJob) doneJobs.get(1)), AbstractJob.Status.CANCELLED, null);
+        check(((TestJob) doneJobs.get(2)), AbstractJob.Status.FAILED, null);
+        check(((TestJob) doneJobs.get(3)), AbstractJob.Status.DONE, "10");
     }
 
     private void check(TestJob job, AbstractJob.Status status, String result) {
         assertEquals(status, job.getStatus());
+        if (result != null) {
+            assertEquals(result + "\n", job.getResult());
+        }
     }
 }
