@@ -87,15 +87,14 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
             }
         });
         executor.setStreamHandler(streamHandler);
-
-        if (StringUtils.isNotBlank(this.description)) {
-            log.info(description);
-        }
-        log.info("Executing '" + commandLineAsString + "'...");
+        String msg = StringUtils.isNotBlank(this.description) ? description + " ('" + commandLineAsString + "')..."
+                : "Executing '" + commandLineAsString + "'...";
+        log.info(msg);
         this.executeStarted = true;
         try {
             executor.execute(commandLine, getEnvironment());
             afterSuccess();
+            log.info(msg + " Done.");
         } catch (Exception ex) {
             failed();
             afterFailure(ex);
