@@ -35,11 +35,10 @@ public class BorgCommands {
         BorgCommand command = new BorgCommand()
                 .setParams("--version")
                 .setDescription("Getting borg version.");
-        execute(command);
+        String version = execute(command).getResult();
         if (command.getResultStatus() != BorgCommand.ResultStatus.OK) {
             return null;
         }
-        String version = command.getResponse();
         log.info("Borg version: " + version);
         return version;
     }
@@ -56,11 +55,11 @@ public class BorgCommands {
                 .setCommand("info")
                 .setParams("--json")
                 .setDescription("Loading info of repo '" + repoConfig.getDisplayName() + "'.");
-        execute(command);
+        String result = execute(command).getResult();
         if (command.getResultStatus() != BorgCommand.ResultStatus.OK) {
             return null;
         }
-        BorgRepoInfo repoInfo = JsonUtils.fromJson(BorgRepoInfo.class, command.getResponse());
+        BorgRepoInfo repoInfo = JsonUtils.fromJson(BorgRepoInfo.class, result);
         BorgRepository borgRepository = repoInfo.getRepository();
         Repository repository = new Repository()
                 .setId(borgRepository.getId())
@@ -88,12 +87,12 @@ public class BorgCommands {
                 .setCommand("list")
                 .setParams("--json")
                 .setDescription("Loading list of archives of repo '" + repoConfig.getDisplayName() + "'.");
-        execute(command);
+        String result = execute(command).getResult();
         if (command.getResultStatus() != BorgCommand.ResultStatus.OK) {
             log.error("Can't load archives from repo '" + repository.getName() + "'.");
             return;
         }
-        BorgRepoList repoList = JsonUtils.fromJson(BorgRepoList.class, command.getResponse());
+        BorgRepoList repoList = JsonUtils.fromJson(BorgRepoList.class, result);
         if (repoList == null || CollectionUtils.isEmpty(repoList.getArchives())) {
             log.error("Can't load archives from repo '" + repository.getName() + "'.");
             return;
@@ -129,11 +128,11 @@ public class BorgCommands {
                 .setArchive(archive.getName())
                 .setParams("--json")
                 .setDescription("Loading info of archive '" + archive.getName() + "' of repo '" + repoConfig.getDisplayName() + "'.");
-        execute(command);
+        String result = execute(command).getResult();
         if (command.getResultStatus() != BorgCommand.ResultStatus.OK) {
             return;
         }
-        BorgArchiveInfo archiveInfo = JsonUtils.fromJson(BorgArchiveInfo.class, command.getResponse());
+        BorgArchiveInfo archiveInfo = JsonUtils.fromJson(BorgArchiveInfo.class, result);
         if (archiveInfo == null) {
             log.error("Archive '" + command.getRepoArchive() + "' not found.");
             return;
@@ -170,12 +169,12 @@ public class BorgCommands {
                 .setArchive(archive.getName())
                 .setParams("--json-lines")
                 .setDescription("Loading list of files of archive '" + archive.getName() + "' of repo '" + repoConfig.getDisplayName() + "'.");
-        execute(command);
+        String result = execute(command).getResult();
         List<BorgFilesystemItem> content = new ArrayList<>();
         if (command.getResultStatus() != BorgCommand.ResultStatus.OK) {
             return content;
         }
-        try (Scanner scanner = new Scanner(command.getResponse())) {
+        try (Scanner scanner = new Scanner(result)) {
             while (scanner.hasNextLine()) {
                 String json = scanner.nextLine();
                 BorgFilesystemItem item = JsonUtils.fromJson(BorgFilesystemItem.class, json);
@@ -209,14 +208,14 @@ public class BorgCommands {
                 .setArchive(archive.getName())
                 .setArgs(path)
                 .setDescription("Extract content of archive '" + archive.getName()
-                                + "' of repo '" + repoConfig.getDisplayName() + "': "
+                        + "' of repo '" + repoConfig.getDisplayName() + "': "
                         + path);
         execute(command);
         return restoreDir;
     }
 
-    private static void execute(BorgCommand command) {
+    private static BorgJob execute(BorgCommand command) {
         Validate.notNull(command);
-        BorgExecutorQueue.getQueue(command.getRepoConfig()).execute(command);
+        return BorgQueueExecutor.getInstance().execute(command);
     }
 }

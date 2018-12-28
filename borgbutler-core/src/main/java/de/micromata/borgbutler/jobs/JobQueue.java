@@ -28,17 +28,19 @@ public class JobQueue<T> {
      * Appends the job if not alread in the queue. Starts the execution if no execution thread is already running.
      *
      * @param job
+     * @return The given job (if it's not already running or queued), otherwise the already running or queued job.
      */
-    public void append(AbstractJob job) {
+    public AbstractJob append(AbstractJob job) {
         synchronized (queue) {
             for (AbstractJob queuedJob : queue) {
                 if (Objects.equals(queuedJob.getId(), job.getId())) {
                     log.info("Job is already in the queue, don't run twice (OK): " + job.getId());
-                    return;
+                    return queuedJob;
                 }
             }
             queue.add(job.setStatus(AbstractJob.Status.QUEUED));
             job.setFuture(executorService.submit(new CallableTask(job)));
+            return job;
         }
     }
 

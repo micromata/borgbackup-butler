@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.jobs;
 
+import de.micromata.borgbutler.config.Definitions;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.exec.*;
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
@@ -32,6 +32,8 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
     private File workingDirectory;
     @Setter
     private String description;
+    protected ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    protected ByteArrayOutputStream errorOutputStream = new ByteArrayOutputStream();
 
     protected abstract CommandLine buildCommandLine();
 
@@ -53,8 +55,6 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
     @Override
     public String execute() {
         getCommandLineAsString();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ByteArrayOutputStream errorOutputStream = new ByteArrayOutputStream();
         DefaultExecutor executor = new DefaultExecutor();
         if (workingDirectory != null) {
             executor.setWorkingDirectory(workingDirectory);
@@ -100,7 +100,7 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
             failed();
             afterFailure(ex);
         }
-        return outputStream.toString(Charset.forName("UTF-8"));
+        return outputStream.toString(Definitions.STD_CHARSET);
     }
 
     @Override
