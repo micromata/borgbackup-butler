@@ -43,7 +43,7 @@ public class JobQueueTest {
 
     @Test
     void queueTest() {
-        JobQueue queue = new JobQueue();
+        JobQueue<String> queue = new JobQueue<>();
         assertEquals(0, queue.getQueueSize());
         queue.append(new TestJob(10, file));
         assertEquals(1, queue.getQueueSize());
@@ -91,7 +91,7 @@ public class JobQueueTest {
 
     @Test
     void queueStopRunningProcessTest() {
-        JobQueue queue = new JobQueue();
+        JobQueue<String> queue = new JobQueue<>();
         assertEquals(0, queue.getQueueSize());
         queue.append(new TestJob(1000, file));
         queue.append(new TestJob(10, file));
