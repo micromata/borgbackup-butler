@@ -21,14 +21,14 @@ public class BorgQueueExecutor {
     }
 
     // key is the repo name.
-    private Map<String, JobQueue> queueMap = new HashMap<>();
+    private Map<String, JobQueue<String>> queueMap = new HashMap<>();
 
-    private JobQueue getQueue(BorgRepoConfig config) {
+    private JobQueue<String> getQueue(BorgRepoConfig config) {
         synchronized (queueMap) {
             String queueName = config != null ? config.getRepo() : "--NO_REPO--";
-            JobQueue queue = queueMap.get(queueName);
+            JobQueue<String> queue = queueMap.get(queueName);
             if (queue == null) {
-                queue = new JobQueue();
+                queue = new JobQueue<>();
                 queueMap.put(queueName, queue);
             }
             return queue;
