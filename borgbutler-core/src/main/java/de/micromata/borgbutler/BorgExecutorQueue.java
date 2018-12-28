@@ -1,11 +1,11 @@
 package de.micromata.borgbutler;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.config.Definitions;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * A queue is important because Borg doesn't support parallel calls for one repository.
@@ -80,8 +79,8 @@ public class BorgExecutorQueue {
             executor.setWorkingDirectory(command.getWorkingDir());
         }
         //executor.setExitValue(2);
-        //ExecuteWatchdog watchdog = new ExecuteWatchdog(60000);
-        //executor.setWatchdog(watchdog);
+        ExecuteWatchdog watchdog = new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT);
+        executor.setWatchdog(watchdog);
         //  ExecuteResultHandler handler = new DefaultExecuteResultHandler();
         PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
         executor.setStreamHandler(streamHandler);
@@ -101,7 +100,6 @@ public class BorgExecutorQueue {
         if (command.getResultStatus() == BorgCommand.ResultStatus.ERROR) {
             log.error("Response: " + command.getAbbreviatedResponse());
         }
-
     }
 
 
