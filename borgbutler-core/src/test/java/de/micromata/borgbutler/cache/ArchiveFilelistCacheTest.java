@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,6 +38,7 @@ public class ArchiveFilelistCacheTest {
         List<BorgFilesystemItem> filesystemItems = cache.load(repoConfig, archive);
         log.info("Loading " + filesystemItems.size() + " items done.");
         assertEquals(list.size(), filesystemItems.size());
+        Collections.sort(list);
         for (int i = 0; i < filesystemItems.size(); i++) {
             assertEquals(list.get(i).getPath(), filesystemItems.get(i).getPath());
         }
