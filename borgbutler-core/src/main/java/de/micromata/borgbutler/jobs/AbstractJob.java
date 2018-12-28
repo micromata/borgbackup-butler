@@ -36,6 +36,17 @@ public abstract class AbstractJob<T> {
             this.status = Status.CANCELLED;
         }
         this.cancelledRequested = true;
+        cancelRunningProcess();
+    }
+
+    protected void setCancelled() {
+        this.status = Status.CANCELLED;
+    }
+
+    /**
+     * Not supported if not implemented.
+     */
+    protected void cancelRunningProcess() {
     }
 
     /**
@@ -52,6 +63,10 @@ public abstract class AbstractJob<T> {
     }
 
     protected void failed() {
+        if (this.status == Status.CANCELLED) {
+            // do nothing. It's normal that cancelled jobs fail.
+            return;
+        }
         if (this.status != Status.RUNNING) {
             logger.error("Internal error, illegal state! You shouldn't set the job status to FAILED if not in status RUNNING: " + this.status);
         }

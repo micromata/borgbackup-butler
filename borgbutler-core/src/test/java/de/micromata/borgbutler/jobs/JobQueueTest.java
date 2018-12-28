@@ -13,10 +13,11 @@ import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class JobQueueTest {
     private Logger log = LoggerFactory.getLogger(JobQueueTest.class);
+    // Bash script with simple counter and forced error if second argument is a valid counter.
     private static String bashScript = "#!/bin/bash\n" +
             "COUNTER=0\n" +
             "while [ $COUNTER -lt $1 ]; do\n" +
@@ -72,7 +73,7 @@ public class JobQueueTest {
         job1 = (TestJob) queue.getQueuedJob(10);
         assertEquals(AbstractJob.Status.QUEUED, job1.getStatus());
 
-        job = (TestJob)queue.getQueuedJob(100);
+        job = (TestJob) queue.getQueuedJob(100);
         job.cancel();
         assertEquals(AbstractJob.Status.CANCELLED, job.getStatus());
 
@@ -86,6 +87,42 @@ public class JobQueueTest {
         check(((TestJob) doneJobs.get(1)), AbstractJob.Status.CANCELLED, null);
         check(((TestJob) doneJobs.get(2)), AbstractJob.Status.FAILED, null);
         check(((TestJob) doneJobs.get(3)), AbstractJob.Status.DONE, "10");
+    }
+
+    @Test
+    void queueStopRunningProcessTest() {
+        JobQueue queue = new JobQueue();
+        assertEquals(0, queue.getQueueSize());
+        queue.append(new TestJob(1000, file));
+        queue.append(new TestJob(10, file));
+        TestJob job = (TestJob) queue.getQueuedJob(1000);
+        int counter = 100;
+        while (!job.isExecuteStarted() && counter-- > 0) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
+                log.error(ex.getMessage(), ex);
+            }
+        }
+        assertTrue(counter > 0);
+        assertEquals(AbstractJob.Status.RUNNING, job.getStatus());
+        job.cancel();
+        counter = 100;
+        while (job.getStatus() == AbstractJob.Status.RUNNING && counter-- > 0) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
+                log.error(ex.getMessage(), ex);
+            }
+        }
+        assertTrue(counter > 0);
+        assertEquals(AbstractJob.Status.CANCELLED, job.getStatus());
+        job = (TestJob)queue.getQueuedJob(10);
+        assertEquals("10\n", job.getResult());
+        List<AbstractJob> doneJobs = queue.getDoneJobs();
+        assertEquals(2, doneJobs.size());
+        check(((TestJob) doneJobs.get(0)), AbstractJob.Status.DONE, null);
+        check(((TestJob) doneJobs.get(1)), AbstractJob.Status.CANCELLED, null);
     }
 
     private void check(TestJob job, AbstractJob.Status status, String result) {

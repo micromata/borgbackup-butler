@@ -3,10 +3,7 @@ package de.micromata.borgbutler;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.config.Definitions;
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteWatchdog;
-import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.exec.*;
 import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -42,21 +39,13 @@ public class BorgExecutorQueue {
 
     public void execute(BorgCommand command) {
         synchronized (this) {
-            //commandQueue.add(command);
             _execute(command);
         }
-        /*
-        while (true) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                log.warn("Command '" + command.);
-            }
-        }*/
     }
 
     private void _execute(BorgCommand command) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ByteArrayOutputStream errorOutputStream = new ByteArrayOutputStream();
         CommandLine cmdLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
         cmdLine.addArgument(command.getCommand());
         if (command.getParams() != null) {
@@ -82,7 +71,27 @@ public class BorgExecutorQueue {
         ExecuteWatchdog watchdog = new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT);
         executor.setWatchdog(watchdog);
         //  ExecuteResultHandler handler = new DefaultExecuteResultHandler();
-        PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
+        PumpStreamHandler streamHandler = new PumpStreamHandler(new LogOutputStream() {
+            @Override
+            protected void processLine(String line, int level) {
+                try {
+                    outputStream.write(line.getBytes());
+                    outputStream.write("\n".getBytes());
+                } catch (IOException ex) {
+                    log.error(ex.getMessage(), ex);
+                }
+            }
+        }, new LogOutputStream() {
+            @Override
+            protected void processLine(String line, int logLevel) {
+                try {
+                    errorOutputStream.write(line.getBytes());
+                    errorOutputStream.write("\n".getBytes());
+                } catch (IOException ex) {
+                    log.error(ex.getMessage(), ex);
+                }
+            }
+        });
         executor.setStreamHandler(streamHandler);
         String borgCall = cmdLine.getExecutable() + " " + StringUtils.join(cmdLine.getArguments(), " ");
         if (StringUtils.isNotBlank(command.getDescription())) {
