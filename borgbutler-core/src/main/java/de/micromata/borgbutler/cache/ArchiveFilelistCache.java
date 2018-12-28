@@ -4,9 +4,7 @@ import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.FileSystemFilter;
 import de.micromata.borgbutler.data.Repository;
-import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import de.micromata.borgbutler.utils.ReplaceUtils;
-import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
@@ -31,7 +29,7 @@ class ArchiveFilelistCache {
     private int cacheArchiveContentMaxDiscSizeMB;
     private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
 
-    public void save(BorgRepoConfig repoConfig, Archive archive, List<BorgFilesystemItem> filesystemItems) {
+    public void save(BorgRepoConfig repoConfig, Archive archive, List<FilesystemItem> filesystemItems) {
         if (CollectionUtils.isEmpty(filesystemItems)) {
             return;
         }
@@ -39,7 +37,7 @@ class ArchiveFilelistCache {
         log.info("Saving archive content as file list: " + file.getAbsolutePath());
         try (ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(file))))) {
             outputStream.writeObject(filesystemItems.size());
-            for (BorgFilesystemItem item : filesystemItems) {
+            for (FilesystemItem item : filesystemItems) {
                 outputStream.writeObject(item);
             }
             outputStream.writeObject("EOF");
@@ -66,7 +64,7 @@ class ArchiveFilelistCache {
      * @param archive
      * @return
      */
-    public List<BorgFilesystemItem> load(BorgRepoConfig repoConfig, Archive archive) {
+    public List<FilesystemItem> load(BorgRepoConfig repoConfig, Archive archive) {
         return load(repoConfig, archive, null);
     }
 
@@ -80,7 +78,7 @@ class ArchiveFilelistCache {
      * @param filter     If given, only file items matching this filter are returned.
      * @return
      */
-    public List<BorgFilesystemItem> load(BorgRepoConfig repoConfig, Archive archive, FileSystemFilter filter) {
+    public List<FilesystemItem> load(BorgRepoConfig repoConfig, Archive archive, FileSystemFilter filter) {
         File file = getFile(repoConfig, archive);
         if (!file.exists()) {
             return null;
@@ -93,13 +91,13 @@ class ArchiveFilelistCache {
      * @param filter If given, only file items matching this filter are returned.
      * @return
      */
-    public List<BorgFilesystemItem> load(File file, FileSystemFilter filter) {
+    public List<FilesystemItem> load(File file, FileSystemFilter filter) {
         if (!file.exists()) {
             log.error("File '" + file.getAbsolutePath() + "' doesn't exist. Can't get archive content files.");
             return null;
         }
         log.info("Loading archive content as file list from: " + file.getAbsolutePath());
-        List<BorgFilesystemItem> list = null;
+        List<FilesystemItem> list = null;
         try {
             // Set last modified time of file:
             Files.setAttribute(file.toPath(), "lastModifiedTime", FileTime.fromMillis(System.currentTimeMillis()));
@@ -118,9 +116,9 @@ class ArchiveFilelistCache {
             for (int i = 0; i < size; i++) {
                 ++fileNumber;
                 obj = inputStream.readObject();
-                if (obj instanceof BorgFilesystemItem) {
-                    BorgFilesystemItem item = (BorgFilesystemItem) obj;
-                    item.setFileNumber(fileNumber);
+                if (obj instanceof FilesystemItem) {
+                    FilesystemItem item = (FilesystemItem) obj;
+                   // item.setFileNumber(fileNumber);
                     if (filter == null || filter.matches(item)) {
                         list.add(item);
                         if (filter != null && filter.isFinished()) break;
@@ -138,7 +136,7 @@ class ArchiveFilelistCache {
         Collections.sort(list); // Sort by path (if archive list order wasn't correct).
         log.info("Loading done.");
         if (filter != null) {
-            return filter.reduce(list);
+           // return filter.reduce(list);
         }
         return list;
     }

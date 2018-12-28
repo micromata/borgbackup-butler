@@ -1,15 +1,15 @@
 package de.micromata.borgbutler.data;
 
-import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
+import de.micromata.borgbutler.cache.FilesystemItem;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileSystemFilter {
     private Logger log = LoggerFactory.getLogger(FileSystemFilter.class);
@@ -22,8 +22,6 @@ public class FileSystemFilter {
     private Mode mode;
     @Getter
     private String currentDirectory;
-    // For storing sub directories of the currentDirectory
-    private Map<String, BorgFilesystemItem> subDirectories;
     @Getter
     @Setter
     private int maxResultSize = -1;
@@ -39,6 +37,43 @@ public class FileSystemFilter {
     @Getter
     private boolean finished;
 
+    public List<FilesystemItem> buildMatchList(FilesystemItem root) {
+        FilesystemItem current = root;
+        if (StringUtils.isNotBlank(currentDirectory)) {
+            current = root.find(currentDirectory);
+            if (current == null) {
+                current = root;
+                log.warn("Directory '" + currentDirectory + "' not found. Searching in root directory.");
+                currentDirectory = null;
+            }
+        }
+        List<FilesystemItem> resultList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(current.getChilds())) {
+            for (FilesystemItem item : current.getChilds()) {
+                buildMatchList(item, resultList);
+            }
+        }
+        return resultList;
+    }
+
+    private void buildMatchList(FilesystemItem item, List<FilesystemItem> resultList) {
+        String pathString = item.getPath();
+        if (mode == Mode.TREE && currentDirectory != null) {
+            if (matchesRecursive(item)) {
+                resultList.add(item);
+            }
+            return;
+        }
+        if (matches(item)) {
+            resultList.add(item);
+            if (CollectionUtils.isEmpty(item.getChilds()))
+                return;
+            for (FilesystemItem child : item.getChilds()) {
+                buildMatchList(child, resultList);
+            }
+        }
+    }
+
     /**
      * Please ensure that you call matches exactly ones for every file item. If matches returns true, the internal
      * item counter is incremented (for maxResultSize functionality).
@@ -48,7 +83,7 @@ public class FileSystemFilter {
      * @param item
      * @return true if the given item matches this filter.
      */
-    public boolean matches(BorgFilesystemItem item) {
+    public boolean matches(FilesystemItem item) {
         item.setDisplayPath(item.getPath());
         if (fileNumber != null) {
             if (item.getFileNumber() == fileNumber) {
@@ -57,23 +92,17 @@ public class FileSystemFilter {
             }
             return false;
         }
+        if (item.getPath() == null) {
+            return false;
+        }
         if (mode == Mode.TREE) {
-            // In this run only register all direct childs of currentDirectory.
-            String topLevelDir = getTopLevel(item.getPath());
-            if (topLevelDir == null) {
-                // item is not inside the current directory.
+            if (currentDirectory != null && item.getPath().startsWith(currentDirectory) == false) {
                 return false;
-            }
-            if (!subDirectories.containsKey(topLevelDir)) {
-                subDirectories.put(topLevelDir, item);
             }
         }
         if (searchKeyWords == null && blackListSearchKeyWords == null) {
             processFinishedFlag();
             return true;
-        }
-        if (item.getPath() == null) {
-            return false;
         }
         String path = item.getPath().toLowerCase();
         if (searchKeyWords != null) {
@@ -93,86 +122,27 @@ public class FileSystemFilter {
     }
 
     /**
-     * After processing a list by using {@link #matches(BorgFilesystemItem)} you should call finally this method with
-     * your result list to reduce the files and directories for mode {@link Mode#TREE}. For the mode {@link Mode#FLAT}
-     * nothing is done.
+     * Please ensure that you call matches exactly ones for every file item. If matches returns true, the internal
+     * item counter is incremented (for maxResultSize functionality).
      * <br>
-     * Reorders the list (.files will be displayed after normal files).
+     * If the number of positive matches is greater than {@link #maxResultSize}, the finished flag is set to true.
      *
-     * @param list
-     * @return The original list for mode {@link Mode#FLAT} or the reduced list for the tree view.
+     * @param item
+     * @return true if the given item matches this filter.
      */
-    public List<BorgFilesystemItem> reduce(List<BorgFilesystemItem> list) {
-        if (mode == FileSystemFilter.Mode.TREE) {
-            if (MapUtils.isEmpty(subDirectories)) {
-                // If matches was not called before, do this now for getting all subdirectories.
-                subDirectories = new HashMap<>();
-                for (BorgFilesystemItem item : list) {
-                    // Needed for building subdirectories...
-                    this.matches(item);
-                }
-            }
-            Set<String> set = new HashSet<>();
-            List<BorgFilesystemItem> list2 = list;
-            list = new ArrayList<>();
-            for (BorgFilesystemItem item : list2) {
-                String topLevel = getTopLevel(item.getPath());
-                if (topLevel == null) {
-                    continue;
-                }
-                if (set.contains(topLevel) == false) {
-                    set.add(topLevel);
-                    BorgFilesystemItem topItem = subDirectories.get(topLevel);
-                    topItem.setDisplayPath(StringUtils.removeStart(topItem.getPath(), currentDirectory));
-                    list.add(topItem);
-                }
-            }
-            list2 = list;
-            // Re-ordering (show dot files at last)
-            list = new ArrayList<>();
-            // First add normal files:
-            for (BorgFilesystemItem item : list2) {
-                if (!item.getDisplayPath().startsWith(".")) {
-                    list.add(item);
-                }
-            }
-            // Now add dot files:
-            for (BorgFilesystemItem item : list2) {
-                if (item.getDisplayPath().startsWith(".")) {
-                    list.add(item);
+    public boolean matchesRecursive(FilesystemItem item) {
+        boolean matches = matches(item);
+        if (matches == true) {
+            return true;
+        }
+        if (item.getChilds() != null) {
+            for (FilesystemItem child : item.getChilds()) {
+                if (matchesRecursive(child)) {
+                    return true;
                 }
             }
         }
-        return list;
-    }
-
-    /**
-     * @param path The path of the current item.
-     * @return null if the item is not a child of the current directory otherwise the top level sub directory name of
-     * the current directory.
-     */
-    String getTopLevel(String path) {
-        if (StringUtils.isEmpty(currentDirectory)) {
-            int pos = path.indexOf('/');
-            if (pos < 0) {
-                return path;
-            }
-            return path.substring(0, pos);
-        }
-        if (!path.startsWith(currentDirectory)) {
-            // item is not a child of currentDirectory.
-            return null;
-        }
-        if (path.length() <= currentDirectory.length() + 1) {
-            // Don't show the current directory itself.
-            return null;
-        }
-        path = StringUtils.removeStart(path, currentDirectory);
-        int pos = path.indexOf('/');
-        if (pos < 0) {
-            return path;
-        }
-        return path.substring(0, pos);
+        return false;
     }
 
     /**
@@ -227,9 +197,6 @@ public class FileSystemFilter {
      */
     public FileSystemFilter setMode(Mode mode) {
         this.mode = mode;
-        if (mode == Mode.TREE) {
-            this.subDirectories = new HashMap<>(); // needed only for tree view.
-        }
         return this;
     }
 

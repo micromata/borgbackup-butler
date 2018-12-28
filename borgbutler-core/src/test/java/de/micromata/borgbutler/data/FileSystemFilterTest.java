@@ -1,6 +1,6 @@
 package de.micromata.borgbutler.data;
 
-import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
+import de.micromata.borgbutler.cache.FilesystemItem;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -21,31 +21,32 @@ public class FileSystemFilterTest {
         assertEquals("kai", filter.getTopLevel("home/kai"));
         assertEquals("kai", filter.getTopLevel("home/kai/test.java"));
         assertNull(filter.getTopLevel("etc/test"));
-        List<BorgFilesystemItem> list = createList();
+        List<FilesystemItem> list = createList();
         filter.setCurrentDirectory("").setMode(FileSystemFilter.Mode.TREE);
-        for (BorgFilesystemItem item : list) {
+        for (FilesystemItem item : list) {
             if (filter.matches(item)) {
                 // Do nothing.
             }
         }
-        list = filter.reduce(list);
+       // list = filter.reduce(list);
         assertEquals(2, list.size());
         list = createList();
         filter.setCurrentDirectory("home");
-        for (BorgFilesystemItem item : list) {
+        for (FilesystemItem item : list) {
             if (filter.matches(item)) {
                 // Do nothing.
             }
         }
-        list = filter.reduce(list);
+      //  list = filter.reduce(list);
         assertEquals(4, list.size());
         assertEquals(".bashrc", list.get(0).getDisplayPath());
         assertEquals(".borgbutler", list.get(1).getDisplayPath());
 
     }
 
-    private BorgFilesystemItem create(String path, boolean directory) {
-        BorgFilesystemItem item = new BorgFilesystemItem().setPath(path);
+    private FilesystemItem create(String path, boolean directory) {
+        FilesystemItem item = new FilesystemItem();
+        item.setPath(path);
         if (directory) {
             item.setType("d");
         } else {
@@ -54,8 +55,8 @@ public class FileSystemFilterTest {
         return item;
     }
 
-    private List<BorgFilesystemItem> createList() {
-        List<BorgFilesystemItem> list = new ArrayList<>();
+    private List<FilesystemItem> createList() {
+        List<FilesystemItem> list = new ArrayList<>();
         list.add(create("home", true));
         list.add(create("home/.bashrc", false));
         list.add(create("home/.borgbutler", true));

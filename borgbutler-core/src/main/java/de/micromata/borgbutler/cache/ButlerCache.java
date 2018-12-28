@@ -187,7 +187,7 @@ public class ButlerCache {
         return archive;
     }
 
-    public List<BorgFilesystemItem> getArchiveContent(String archiveId) {
+    public List<FilesystemItem> getArchiveContent(String archiveId) {
         return getArchiveContent(archiveId, true, null);
     }
 
@@ -232,7 +232,7 @@ public class ButlerCache {
      * @param filter    If not null, the result will be filtered.
      * @return
      */
-    public List<BorgFilesystemItem> getArchiveContent(String archiveId, boolean forceLoad, FileSystemFilter filter) {
+    public List<FilesystemItem> getArchiveContent(String archiveId, boolean forceLoad, FileSystemFilter filter) {
         Archive archive = getArchive(archiveId);
         if (archive == null) {
             log.error("Can't find archive with id '" + archiveId + "'. May-be it doesn't exist or the archives of the target repository aren't yet loaded.");
@@ -247,7 +247,7 @@ public class ButlerCache {
      * @param archive
      * @return
      */
-    public List<BorgFilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
+    public List<FilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive) {
         return getArchiveContent(repoConfig, archive, true, null);
     }
 
@@ -257,28 +257,26 @@ public class ButlerCache {
      * @param filter     If given, only the items matching this filter are returned..
      * @return
      */
-    public List<BorgFilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive, boolean forceLoad,
-                                                      FileSystemFilter filter) {
+    public List<FilesystemItem> getArchiveContent(BorgRepoConfig repoConfig, Archive archive, boolean forceLoad,
+                                                  FileSystemFilter filter) {
         if (archive == null || StringUtils.isBlank(archive.getName())) {
             return null;
         }
-        List<BorgFilesystemItem> items = archiveFilelistCache.load(repoConfig, archive, filter);
+        List<FilesystemItem> items = archiveFilelistCache.load(repoConfig, archive, filter);
         if (items == null && forceLoad) {
-            List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive);
-            if (CollectionUtils.isNotEmpty(list)) {
-                archiveFilelistCache.save(repoConfig, archive, list);
+            List<BorgFilesystemItem> borgList = BorgCommands.listArchiveContent(repoConfig, archive);
+            FilesystemItem root =  Filesystem.build(borgList);
+            if (CollectionUtils.isNotEmpty(root.getChilds())) {
+                archiveFilelistCache.save(repoConfig, archive, root.getChilds());
                 items = new ArrayList<>();
-                int fileNumber = -1;
-                for (BorgFilesystemItem item : list) {
-                    ++fileNumber;
-                    item.setFileNumber(fileNumber);
+                for (FilesystemItem item : list) {
                     if (filter == null || filter.matches(item)) {
                         items.add(item);
                         if (filter != null && filter.isFinished()) break;
                     }
                 }
                 if (filter != null) {
-                    items = filter.reduce(items);
+                   // items = filter.reduce(items);
                 }
             }
         }
@@ -288,7 +286,7 @@ public class ButlerCache {
         return items;
     }
 
-    public List<BorgFilesystemItem> getArchiveContent(File file) {
+    public List<FilesystemItem> getArchiveContent(File file) {
         return archiveFilelistCache.load(file, null);
     }
 

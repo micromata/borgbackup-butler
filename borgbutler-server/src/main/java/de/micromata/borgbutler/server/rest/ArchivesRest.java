@@ -9,7 +9,7 @@ import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.FileSystemFilter;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
-import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
+import de.micromata.borgbutler.cache.FilesystemItem;
 import de.micromata.borgbutler.utils.DirUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -79,7 +79,7 @@ public class ArchivesRest {
                 .setMaxResultSize(maxSize)
                 .setMode(mode)
                 .setCurrentDirectory(currentDirectory);
-        List<BorgFilesystemItem> items = null;
+        List<FilesystemItem> items = null;
         if (StringUtils.isBlank(diffArchiveId)) {
             // Get file list (without running diff).
             items = ButlerCache.getInstance().getArchiveContent(archiveId, force,
@@ -90,7 +90,7 @@ public class ArchivesRest {
         } else {
             filter.setMode(FileSystemFilter.Mode.FLAT).setMaxResultSize(-1);
             items = ButlerCache.getInstance().getArchiveContent(archiveId, true, filter);
-            List<BorgFilesystemItem> diffItems = ButlerCache.getInstance().getArchiveContent(diffArchiveId, true,
+            List<FilesystemItem> diffItems = ButlerCache.getInstance().getArchiveContent(diffArchiveId, true,
                     filter);
             items = DiffTool.extractDifferences(items, diffItems);
             filter.setMaxResultSize(maxSize)
@@ -110,7 +110,7 @@ public class ArchivesRest {
     public Response restore(@QueryParam("archiveId") String archiveId, @QueryParam("fileNumber") int fileNumber) {
         log.info("Requesting file #" + fileNumber + " of archive '" + archiveId + "'.");
         FileSystemFilter filter = new FileSystemFilter().setFileNumber(fileNumber);
-        List<BorgFilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, false,
+        List<FilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, false,
                 filter);
         if (CollectionUtils.isEmpty(items)) {
             log.error("Requested file #" + fileNumber + " not found in archive '" + archiveId
@@ -131,7 +131,7 @@ public class ArchivesRest {
         }
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(archive.getRepoId());
         try {
-            BorgFilesystemItem item = items.get(0);
+            FilesystemItem item = items.get(0);
             File restoreHomeDir = ConfigurationHandler.getConfiguration().getRestoreHomeDir();
             File restoreDir = BorgCommands.extractFiles(restoreHomeDir, repoConfig, archive, item.getPath());
             List<java.nio.file.Path> files = DirUtils.listFiles(restoreDir.toPath());

@@ -1,5 +1,6 @@
 package de.micromata.borgbutler;
 
+import de.micromata.borgbutler.cache.FilesystemItem;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
@@ -16,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 
@@ -178,12 +178,11 @@ public class BorgCommands {
         try (Scanner scanner = new Scanner(command.getResponse())) {
             while (scanner.hasNextLine()) {
                 String json = scanner.nextLine();
-                BorgFilesystemItem item = JsonUtils.fromJson(BorgFilesystemItem.class, json);
+                FilesystemItem item = JsonUtils.fromJson(FilesystemItem.class, json);
                 item.setMtime(DateUtils.format(item.getMtime()));
                 content.add(item);
             }
         }
-        Collections.sort(content); // Sort by path.
         return content;
     }
 

@@ -2,7 +2,7 @@ package de.micromata.borgbutler.server;
 
 import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.ConfigurationHandler;
-import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
+import de.micromata.borgbutler.cache.FilesystemItem;
 import de.micromata.borgbutler.server.jetty.JettyServer;
 import de.micromata.borgbutler.server.user.SingleUserManager;
 import de.micromata.borgbutler.server.user.UserManager;
@@ -139,7 +139,7 @@ public class Main {
 
     private static void printArchiveContent(String fileName) {
         File file = new File(fileName);
-        List<BorgFilesystemItem> fileList = ButlerCache.getInstance().getArchiveContent(file);
+        List<FilesystemItem> fileList = ButlerCache.getInstance().getArchiveContent(file);
         boolean parseFormatExceptionPrinted = false;
         if (fileList != null && fileList.size() > 0) {
             TimeZone tz = TimeZone.getTimeZone("UTC");
@@ -149,7 +149,7 @@ public class Main {
             File out = new File(FilenameUtils.getBaseName(fileName) + ".txt.gz");
             log.info("Writing file list to: " + out.getAbsolutePath());
             try (PrintWriter writer = new PrintWriter(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(out))))) {
-                for (BorgFilesystemItem item : fileList) {
+                for (FilesystemItem item : fileList) {
                     String time = item.getMtime();
                     if (time.indexOf('T') > 0) {
                         try {

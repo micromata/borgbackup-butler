@@ -5,7 +5,6 @@ import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
-import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -57,7 +56,7 @@ public class CacheTest {
                 assertNotNull(archive2);
                 archive = ButlerCache.getInstance().getArchive(repoConfig.getRepo(), archive.getId());
                 assertNotNull(archive2);
-                List<BorgFilesystemItem> content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive2);
+                List<FilesystemItem> content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive2);
                 log.info("Number of items (content) of archive: " + content.size());
                 content = ButlerCache.getInstance().getArchiveContent(repoConfig, archive2);
                 log.info("Number of items (content) of archive: " + content.size());
