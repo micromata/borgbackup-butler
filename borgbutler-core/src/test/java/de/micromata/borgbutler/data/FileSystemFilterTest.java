@@ -39,8 +39,10 @@ public class FileSystemFilterTest {
         }
         list = filter.reduce(list);
         assertEquals(4, list.size());
-        assertEquals(".bashrc", list.get(0).getDisplayPath());
-        assertEquals(".borgbutler", list.get(1).getDisplayPath());
+        assertEquals("admin", list.get(0).getDisplayPath());
+        assertEquals("kai", list.get(1).getDisplayPath());
+        assertEquals(".bashrc", list.get(2).getDisplayPath());
+        assertEquals(".borgbutler", list.get(3).getDisplayPath());
 
     }
 
@@ -57,14 +59,14 @@ public class FileSystemFilterTest {
     private List<BorgFilesystemItem> createList() {
         List<BorgFilesystemItem> list = new ArrayList<>();
         list.add(create("home", true));
-        list.add(create("home/.bashrc", false));
-        list.add(create("home/.borgbutler", true));
         list.add(create("home/admin", false));
         list.add(create("home/kai", true));
         list.add(create("home/kai/borg/cache", false));
         list.add(create("home/kai/borg/config", false));
         list.add(create("home/kai/Java/test.java", false));
         list.add(create("home/kai/Java/test2.java", false));
+        list.add(create("home/.bashrc", false));
+        list.add(create("home/.borgbutler", true));
         list.add(create("etc/apache", true));
         list.add(create("etc/apache/http.conf", false));
         return list;
