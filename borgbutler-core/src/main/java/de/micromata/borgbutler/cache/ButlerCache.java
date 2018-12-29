@@ -20,6 +20,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Caches all borg objects such as repository information, archive and archive content. Therefore a fluent work
+ * is possible. Without caching, working with BorgButler especially for remote backups would be a time consuming mess.
+ * <br>
+ * For most objects JCS is used. For file lists (up to million of files) an own implementation is used because JCS
+ * isn't recommended for caching a very large number of objects or very large objects.
+ */
 public class ButlerCache {
     private Logger log = LoggerFactory.getLogger(ButlerCache.class);
     public static final String CACHE_DIR_NAME = "cache";
