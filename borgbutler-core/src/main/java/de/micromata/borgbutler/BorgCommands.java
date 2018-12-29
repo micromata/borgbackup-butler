@@ -215,7 +215,7 @@ public class BorgCommands {
                 .setDescription("Extract content of archive '" + archive.getName()
                         + "' of repo '" + repoConfig.getDisplayName() + "': "
                         + path);
-        execute(command);
+        JobResult<String> jobResult = execute(command).getResult();
         return restoreDir;
     }
 
