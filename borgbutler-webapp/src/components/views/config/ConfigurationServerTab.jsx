@@ -117,7 +117,8 @@ class ConfigServerTab extends React.Component {
                                      step={50}
                                      name={'maxArchiveContentCacheCapacityMb'} value={this.state.maxArchiveContentCacheCapacityMb}
                                      onChange={this.handleTextChange}
-                                     placeholder="Enter maximum Capacity"/>
+                                     placeholder="Enter maximum Capacity"
+                hint={`Limits the cache size of archive file lists in the local cache directory: ${this.state.cacheDir}`}/>
                 <FormLabelField label={<I18n name={'configuration.webDevelopmentMode'}/>} fieldLength={2}>
                     <FormCheckbox checked={this.state.webDevelopmentMode}
                                   hintKey={'configuration.webDevelopmentMode.hint'}

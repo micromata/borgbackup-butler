@@ -2,6 +2,7 @@ package de.micromata.borgbutler.server;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import lombok.Getter;
@@ -9,8 +10,6 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.beans.Transient;
 
 public class ServerConfiguration extends Configuration {
     private static Logger log = LoggerFactory.getLogger(ServerConfiguration.class);
@@ -27,6 +26,10 @@ public class ServerConfiguration extends Configuration {
     @JsonIgnore
     private boolean showTestData = SHOW_TEST_DATA_PREF_DEFAULT;
     private boolean webDevelopmentMode = WEB_DEVELOPMENT_MODE_PREF_DEFAULT;
+    @JsonProperty
+    public String getCacheDir() {
+        return ButlerCache.getInstance().getCacheDir().getAbsolutePath();
+    }
 
     public static ServerConfiguration get() {
         return (ServerConfiguration)ConfigurationHandler.getConfiguration();
