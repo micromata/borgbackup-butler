@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 @Path("/archives")
@@ -150,9 +151,14 @@ public class ArchivesRest {
         }
     }
 
-    private void openFileBrowser(File directory) {
+    private void openFileBrowser(File fileDirectory) {
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE_FILE_DIR)) {
-            Desktop.getDesktop().browseFileDirectory(directory);
+            File file = fileDirectory;
+            if (!fileDirectory.exists() || Files.isSymbolicLink(fileDirectory.toPath())) {
+                // Open parent.
+                file = fileDirectory.getParentFile();
+            }
+            Desktop.getDesktop().browseFileDirectory(file);
         }
     }
 
