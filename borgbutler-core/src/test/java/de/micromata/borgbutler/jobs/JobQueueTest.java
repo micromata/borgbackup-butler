@@ -81,7 +81,7 @@ public class JobQueueTest {
         assertEquals("10\n", result);
 
         assertEquals(0, queue.getQueueSize());
-        List<AbstractJob> doneJobs = queue.getDoneJobs();
+        List<AbstractJob<String>> doneJobs = queue.getDoneJobs();
         assertEquals(4, doneJobs.size());
         check(((TestJob) doneJobs.get(0)), AbstractJob.Status.DONE, "10");
         check(((TestJob) doneJobs.get(1)), AbstractJob.Status.CANCELLED, null);
@@ -119,7 +119,7 @@ public class JobQueueTest {
         assertEquals(AbstractJob.Status.CANCELLED, job.getStatus());
         job = (TestJob)queue.getQueuedJob(10);
         assertEquals("10\n", job.getResultObject());
-        List<AbstractJob> doneJobs = queue.getDoneJobs();
+        List<AbstractJob<String>> doneJobs = queue.getDoneJobs();
         assertEquals(2, doneJobs.size());
         check(((TestJob) doneJobs.get(0)), AbstractJob.Status.DONE, null);
         check(((TestJob) doneJobs.get(1)), AbstractJob.Status.CANCELLED, null);
