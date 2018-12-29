@@ -6,7 +6,6 @@ import de.micromata.borgbutler.data.FileSystemFilter;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import de.micromata.borgbutler.utils.ReplaceUtils;
-import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
@@ -22,6 +21,9 @@ import java.util.*;
 /**
  * Cache for storing complete file lists of archives as gzipped files (using Java standard serialization for
  * fastest access).
+ * <br>
+ * A file list (archive content) with over million file system items is over 100MB large (uncompressed).
+ * The compression is also useful for faster reading from the filesystem.
  */
 class ArchiveFilelistCache {
     private static Logger log = LoggerFactory.getLogger(ArchiveFilelistCache.class);
@@ -30,21 +32,37 @@ class ArchiveFilelistCache {
     private File cacheDir;
     private int cacheArchiveContentMaxDiscSizeMB;
     private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
+    // For avoiding concurrent writing of same files (e. g. after the user has pressed a button twice).
+    private Set<File> savingFiles = new HashSet<>();
 
     public void save(BorgRepoConfig repoConfig, Archive archive, List<BorgFilesystemItem> filesystemItems) {
         if (CollectionUtils.isEmpty(filesystemItems)) {
             return;
         }
         File file = getFile(repoConfig, archive);
-        log.info("Saving archive content as file list: " + file.getAbsolutePath());
-        try (ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(file))))) {
-            outputStream.writeObject(filesystemItems.size());
-            for (BorgFilesystemItem item : filesystemItems) {
-                outputStream.writeObject(item);
+        try {
+            synchronized (savingFiles) {
+                if (savingFiles.contains(file)) {
+                    // File will already be written. This occurs if the user pressed a button twice.
+                    log.info("Don't write the archive content twice.");
+                    return;
+                }
+                savingFiles.add(file);
             }
-            outputStream.writeObject("EOF");
-        } catch (IOException ex) {
-            log.error("Error while writing file list '" + file.getAbsolutePath() + "': " + ex.getMessage(), ex);
+            log.info("Saving archive content as file list: " + file.getAbsolutePath());
+            try (ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(file))))) {
+                outputStream.writeObject(filesystemItems.size());
+                for (BorgFilesystemItem item : filesystemItems) {
+                    outputStream.writeObject(item);
+                }
+                outputStream.writeObject("EOF");
+            } catch (IOException ex) {
+                log.error("Error while writing file list '" + file.getAbsolutePath() + "': " + ex.getMessage(), ex);
+            }
+        } finally {
+            synchronized (savingFiles) {
+                savingFiles.remove(file);
+            }
         }
         log.info("Saving done.");
     }
@@ -229,7 +247,7 @@ class ArchiveFilelistCache {
         return getFile(repoConfig.getRepo(), archive);
     }
 
-   private File getFile(String repo, Archive archive) {
+    private File getFile(String repo, Archive archive) {
         return new File(cacheDir, ReplaceUtils.encodeFilename(CACHE_ARCHIVE_LISTS_BASENAME + archive.getTime()
                         + "-" + repo + "-" + archive.getName() + CACHE_FILE_GZIP_EXTENSION,
                 true));
