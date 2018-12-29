@@ -2,7 +2,9 @@ package de.micromata.borgbutler.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ public class Configuration {
     private static final String RESTORE_DIRNAME = "restore";
 
     @JsonIgnore
+    @Setter(AccessLevel.PACKAGE)
     private File workingDir;
 
     @Getter

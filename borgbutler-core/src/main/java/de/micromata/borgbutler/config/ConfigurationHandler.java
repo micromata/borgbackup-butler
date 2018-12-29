@@ -55,6 +55,7 @@ public class ConfigurationHandler {
                     }
                 }
             }
+            this.configuration.setWorkingDir(workingDir);
         } catch (IOException ex) {
             log.error("Error while trying to read from config file: " + configFile.getAbsolutePath() + ": " + ex.getMessage(), ex);
             return;
