@@ -15,10 +15,12 @@ public class DiffToolTest {
         BorgFilesystemItem i1 = create("etc", true, "drwx------", 0, "2018-11-21");
         BorgFilesystemItem i2 = create("etc", true, "drwx------", 0, "2018-11-21");
         assertTrue(i1.equals(i2));
-        i1.setType("-").setMode("drwxrwxrwx").setMtime("2018-11-22");
+        i1.setType("-").setMode("drwxrwxrwx").setMtime("2018-11-22").setUser("kai").setUid(501);
+        i2.setUser("root").setUid(0);
         assertFalse(i1.equals(i2));
         i1.setDiffItem(i2).buildDifferencesString();
-        assertEquals("type:['d'->'-'], mode:['drwx------'->'drwxrwxrwx'], mtime:['2018-11-21'->'2018-11-22']", i1.getDifferences());
+        // Mode and mtime are not part of differences (they will be displayed especially in a separate column).
+        assertEquals("type:['d'->'-'], user:['root'->'kai'], uid:['0'->'501']", i1.getDifferences());
     }
 
     @Test

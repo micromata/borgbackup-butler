@@ -32,10 +32,12 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
     @Setter
     private String mode;
     @Getter
+    @Setter
     private String user;
     @Getter
     private String group;
     @Getter
+    @Setter
     private long uid;
     @Getter
     private long gid;
@@ -186,7 +188,7 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
         if (sb.length() > 0) {
             sb.append(", ");
         }
-        sb.append(field + ": ['" + current + "' -> '" + other + "']");
+        sb.append(field + ":['" + other + "'->'" + current + "']");
     }
 
     @Override
