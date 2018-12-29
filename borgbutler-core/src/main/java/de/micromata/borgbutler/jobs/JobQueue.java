@@ -30,7 +30,7 @@ public class JobQueue<T> {
      * @param job
      * @return The given job (if it's not already running or queued), otherwise the already running or queued job.
      */
-    public AbstractJob append(AbstractJob<T> job) {
+    public AbstractJob append(AbstractJob job) {
         synchronized (queue) {
             for (AbstractJob queuedJob : queue) {
                 if (Objects.equals(queuedJob.getId(), job.getId())) {
@@ -83,15 +83,15 @@ public class JobQueue<T> {
         }
     }
 
-    private class CallableTask implements Callable<T> {
-        private AbstractJob<T> job;
+    private class CallableTask implements Callable<JobResult<T>> {
+        private AbstractJob job;
 
-        private CallableTask(AbstractJob<T> job) {
+        private CallableTask(AbstractJob job) {
             this.job = job;
         }
 
         @Override
-        public T call() throws Exception {
+        public JobResult<T> call() throws Exception {
             if (job.isCancelledRequested()) {
                 job.setStatus(AbstractJob.Status.CANCELLED);
                 return null;
@@ -99,7 +99,7 @@ public class JobQueue<T> {
             try {
                 log.info("Starting job: " + job.getId());
                 job.setStatus(AbstractJob.Status.RUNNING);
-                T result = job.execute();
+                JobResult<T> result = job.execute();
                 if (!job.isFinished()) {
                     // Don't overwrite status failed set by job.
                     job.setStatus(AbstractJob.Status.DONE);

@@ -18,7 +18,7 @@ import java.util.Map;
  * A queue is important because Borg doesn't support parallel calls for one repository.
  * For each repository one single queue is allocated.
  */
-public abstract class AbstractCommandLineJob extends AbstractJob<String> {
+public abstract class AbstractCommandLineJob<T> extends AbstractJob<T> {
     private Logger log = LoggerFactory.getLogger(AbstractCommandLineJob.class);
     private ExecuteWatchdog watchdog;
     @Getter
@@ -53,7 +53,7 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
     }
 
     @Override
-    public String execute() {
+    public JobResult<String> execute() {
         getCommandLineAsString();
         DefaultExecutor executor = new DefaultExecutor();
         if (workingDirectory != null) {
@@ -91,15 +91,17 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
                 : "Executing '" + commandLineAsString + "'...";
         log.info(msg);
         this.executeStarted = true;
+        JobResult<String> result = new JobResult<>();
         try {
             executor.execute(commandLine, getEnvironment());
-            afterSuccess();
+            result.setStatus(JobResult.Status.OK);
             log.info(msg + " Done.");
         } catch (Exception ex) {
+            result.setStatus(JobResult.Status.ERROR);
             failed();
-            afterFailure(ex);
         }
-        return outputStream.toString(Definitions.STD_CHARSET);
+        result.setResultObject(outputStream.toString(Definitions.STD_CHARSET));
+        return result;
     }
 
     @Override
@@ -110,12 +112,6 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
             watchdog = null;
             setCancelled();
         }
-    }
-
-    protected void afterSuccess() {
-    }
-
-    protected void afterFailure(Exception ex) {
     }
 
     protected Map<String, String> getEnvironment() throws IOException {

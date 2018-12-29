@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class TestJob extends AbstractCommandLineJob {
+public class TestJob extends AbstractCommandLineJob<String> {
     private Logger log = LoggerFactory.getLogger(TestJob.class);
     private int time;
     private File counterScript;
@@ -33,12 +33,5 @@ public class TestJob extends AbstractCommandLineJob {
         commandLine.addArgument(String.valueOf(this.time));
         commandLine.addArgument(String.valueOf(this.failOn));
         return commandLine;
-    }
-
-    @Override
-    protected void afterFailure(Exception ex) {
-        if (failOn < 0 && getStatus() != Status.CANCELLED) {
-            log.error("Error while executing script '" + getCommandLineAsString() + "': " + ex.getMessage(), ex);
-        }
     }
 }

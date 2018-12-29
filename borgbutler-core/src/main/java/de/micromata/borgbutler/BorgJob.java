@@ -2,7 +2,6 @@ package de.micromata.borgbutler;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
-import de.micromata.borgbutler.config.Definitions;
 import de.micromata.borgbutler.jobs.AbstractCommandLineJob;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.environment.EnvironmentUtils;
@@ -17,7 +16,7 @@ import java.util.Map;
  * A queue is important because Borg doesn't support parallel calls for one repository.
  * For each repository one single queue is allocated.
  */
-public class BorgJob extends AbstractCommandLineJob {
+public class BorgJob extends AbstractCommandLineJob<String> {
     private Logger log = LoggerFactory.getLogger(BorgJob.class);
     private BorgCommand command;
 
@@ -47,19 +46,6 @@ public class BorgJob extends AbstractCommandLineJob {
             }
         }
         return commandLine;
-    }
-
-    @Override
-    protected void afterSuccess() {
-        command.setResultStatus(BorgCommand.ResultStatus.OK);
-        command.setResponse(outputStream.toString(Definitions.STD_CHARSET));
-    }
-
-    @Override
-    protected void afterFailure(Exception ex) {
-        command.setResultStatus(BorgCommand.ResultStatus.ERROR);
-        command.setResponse(outputStream.toString(Definitions.STD_CHARSET));
-        log.error("Response: " + command.getAbbreviatedResponse());
     }
 
     @Override

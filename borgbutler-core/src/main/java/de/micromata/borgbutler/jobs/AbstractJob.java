@@ -29,7 +29,9 @@ public abstract class AbstractJob<T> {
     private String statusText;
     @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PACKAGE)
-    private Future<T> future;
+
+    // TODO: JobResult
+    private Future<JobResult<T>> future;
 
     public void cancel() {
         if (this.getStatus() == Status.QUEUED) {
@@ -53,13 +55,17 @@ public abstract class AbstractJob<T> {
      * Waits for and gets the result.
      * @return
      */
-    public T getResult() {
+    public JobResult<T> getResult() {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException ex) {
             logger.error(ex.getMessage(), ex);
         }
         return null;
+    }
+
+    public T getResultObject() {
+        return getResult().getResultObject();
     }
 
     protected void failed() {
@@ -83,7 +89,7 @@ public abstract class AbstractJob<T> {
         return false;
     }
 
-    public abstract T execute();
+    public abstract JobResult execute();
 
     /**
      * A job is identified by this id. If a job with the same id is already queued (not yet finished), this job will
