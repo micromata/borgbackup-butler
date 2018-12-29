@@ -20,6 +20,10 @@ public class TestJob extends AbstractCommandLineJob<String> {
         this.time = time;
         this.failOn = failOn;
         this.counterScript = counterScript;
+        if (failOn >= 0) {
+            // Don't log the error in the log files due to a failed job, because it's intended to force a failed job.
+            this.logError = false;
+        }
     }
 
     @Override

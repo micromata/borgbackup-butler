@@ -34,6 +34,7 @@ public abstract class AbstractCommandLineJob<T> extends AbstractJob<T> {
     private String description;
     protected ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     protected ByteArrayOutputStream errorOutputStream = new ByteArrayOutputStream();
+    protected boolean logError = true;
 
     protected abstract CommandLine buildCommandLine();
 
@@ -98,6 +99,9 @@ public abstract class AbstractCommandLineJob<T> extends AbstractJob<T> {
             log.info(msg + " Done.");
         } catch (Exception ex) {
             result.setStatus(JobResult.Status.ERROR);
+            if (logError && !isCancelledRequested() && getStatus() != Status.CANCELLED) {
+                log.error("Execution failed for job: '" + commandLineAsString + "': " + ex.getMessage());
+            }
             failed();
         }
         result.setResultObject(outputStream.toString(Definitions.STD_CHARSET));
