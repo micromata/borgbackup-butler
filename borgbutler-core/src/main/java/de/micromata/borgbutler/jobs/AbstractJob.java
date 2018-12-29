@@ -30,7 +30,6 @@ public abstract class AbstractJob<T> {
     @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PACKAGE)
 
-    // TODO: JobResult
     private Future<JobResult<T>> future;
 
     public void cancel() {
