@@ -12,15 +12,15 @@ import java.util.concurrent.Executors;
 public class JobQueue<T> {
     private static final int MAX_DONE_JOBS_SIZE = 50;
     private Logger log = LoggerFactory.getLogger(JobQueue.class);
-    private List<AbstractJob> queue = new ArrayList<>();
-    private List<AbstractJob> doneJobs = new LinkedList<>();
+    private List<AbstractJob<T>> queue = new ArrayList<>();
+    private List<AbstractJob<T>> doneJobs = new LinkedList<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public int getQueueSize() {
         return queue.size();
     }
 
-    public List<AbstractJob> getDoneJobs() {
+    public List<AbstractJob<T>> getDoneJobs() {
         return Collections.unmodifiableList(doneJobs);
     }
 
@@ -30,9 +30,9 @@ public class JobQueue<T> {
      * @param job
      * @return The given job (if it's not already running or queued), otherwise the already running or queued job.
      */
-    public AbstractJob append(AbstractJob job) {
+    public AbstractJob append(AbstractJob<T> job) {
         synchronized (queue) {
-            for (AbstractJob queuedJob : queue) {
+            for (AbstractJob<T> queuedJob : queue) {
                 if (Objects.equals(queuedJob.getId(), job.getId())) {
                     log.info("Job is already in the queue, don't run twice (OK): " + job.getId());
                     return queuedJob;
@@ -69,9 +69,9 @@ public class JobQueue<T> {
             if (queue.isEmpty()) {
                 return;
             }
-            Iterator<AbstractJob> it = queue.iterator();
+            Iterator<AbstractJob<T>> it = queue.iterator();
             while (it.hasNext()) {
-                AbstractJob job = it.next();
+                AbstractJob<T> job = it.next();
                 if (job.isFinished()) {
                     it.remove();
                     doneJobs.add(0, job);
@@ -84,9 +84,9 @@ public class JobQueue<T> {
     }
 
     private class CallableTask implements Callable<JobResult<T>> {
-        private AbstractJob job;
+        private AbstractJob<T> job;
 
-        private CallableTask(AbstractJob job) {
+        private CallableTask(AbstractJob<T> job) {
             this.job = job;
         }
 
