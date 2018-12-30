@@ -48,6 +48,7 @@ class ArchiveFilelistCache {
                     return;
                 }
                 savingFiles.add(file);
+                Collections.sort(filesystemItems); // Sort by path.
             }
             log.info("Saving archive content as file list: " + file.getAbsolutePath());
             try (ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(file))))) {

@@ -17,10 +17,12 @@ import java.util.Map;
  * A queue is important because Borg doesn't support parallel calls for one repository.
  * For each repository one single queue is allocated.
  */
-public class BorgJob extends AbstractCommandLineJob<String> {
+public class BorgJob<T> extends AbstractCommandLineJob<String> {
     private Logger log = LoggerFactory.getLogger(BorgJob.class);
     @Getter
     private BorgCommand command;
+    @Getter
+    protected T payload;
 
     public BorgJob(BorgCommand command) {
         this.command = command;

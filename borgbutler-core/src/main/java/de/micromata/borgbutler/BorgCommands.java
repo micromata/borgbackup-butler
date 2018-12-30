@@ -172,23 +172,21 @@ public class BorgCommands {
                 .setArchive(archive.getName())
                 .setParams("--json-lines")
                 .setDescription("Loading list of files of archive '" + archive.getName() + "' of repo '" + repoConfig.getDisplayName() + "'.");
-        List<BorgFilesystemItem> content = new ArrayList<>();
         // The returned job might be an already queued or running one!
-        BorgJob job = BorgQueueExecutor.getInstance().execute(new BorgJob(command) {
+        BorgJob<List<BorgFilesystemItem>> job = BorgQueueExecutor.getInstance().execute(new BorgJob<List<BorgFilesystemItem>>(command) {
             @Override
             protected void processStdOutLine(String line, int level) {
                 BorgFilesystemItem item = JsonUtils.fromJson(BorgFilesystemItem.class, line);
                 item.setMtime(DateUtils.format(item.getMtime()));
-                content.add(item);
+                payload.add(item);
             }
         });
-
+        job.payload = new ArrayList<>();
         JobResult<String> jobResult = job.getResult();
         if (jobResult.getStatus() != JobResult.Status.OK) {
-            return content;
+            return job.getPayload();
         }
-        Collections.sort(content); // Sort by path.
-        return content;
+        return job.payload;
     }
 
     /**
