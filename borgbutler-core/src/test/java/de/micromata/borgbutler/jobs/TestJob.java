@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-public class TestJob extends AbstractCommandLineJob<String> {
+public class TestJob extends AbstractCommandLineJob {
     private Logger log = LoggerFactory.getLogger(TestJob.class);
     private int time;
     private File counterScript;

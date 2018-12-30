@@ -30,7 +30,7 @@ public class JobQueue<T> {
      * @param job
      * @return The given job (if it's not already running or queued), otherwise the already running or queued job.
      */
-    public AbstractJob append(AbstractJob<T> job) {
+    public AbstractJob<T> append(AbstractJob<T> job) {
         synchronized (queue) {
             for (AbstractJob<T> queuedJob : queue) {
                 if (Objects.equals(queuedJob.getId(), job.getId())) {

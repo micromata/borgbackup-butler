@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -217,7 +216,7 @@ public class BorgCommands {
         return restoreDir;
     }
 
-    private static BorgJob execute(BorgCommand command) {
+    private static BorgJob<Void> execute(BorgCommand command) {
         Validate.notNull(command);
         return BorgQueueExecutor.getInstance().execute(command);
     }

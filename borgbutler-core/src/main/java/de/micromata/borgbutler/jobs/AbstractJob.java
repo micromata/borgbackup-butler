@@ -88,7 +88,7 @@ public abstract class AbstractJob<T> {
         return false;
     }
 
-    public abstract JobResult execute();
+    public abstract JobResult<T> execute();
 
     /**
      * A job is identified by this id. If a job with the same id is already queued (not yet finished), this job will
