@@ -3,6 +3,7 @@ package de.micromata.borgbutler;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.jobs.AbstractCommandLineJob;
+import lombok.Getter;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +19,7 @@ import java.util.Map;
  */
 public class BorgJob extends AbstractCommandLineJob<String> {
     private Logger log = LoggerFactory.getLogger(BorgJob.class);
+    @Getter
     private BorgCommand command;
 
     public BorgJob(BorgCommand command) {

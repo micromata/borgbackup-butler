@@ -37,7 +37,11 @@ public class BorgQueueExecutor {
 
     public BorgJob execute(BorgCommand command) {
         BorgJob job = new BorgJob(command);
-        return (BorgJob)getQueue(command.getRepoConfig()).append(job);
+        return execute(job);
+    }
+
+    public BorgJob execute(BorgJob job) {
+        return (BorgJob)getQueue(job.getCommand().getRepoConfig()).append(job);
     }
 
     private BorgQueueExecutor() {

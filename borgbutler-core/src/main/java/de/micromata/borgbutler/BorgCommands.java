@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Creates and executes  borg commands by calling system's borg application (Borg must be installed).
@@ -174,18 +173,19 @@ public class BorgCommands {
                 .setParams("--json-lines")
                 .setDescription("Loading list of files of archive '" + archive.getName() + "' of repo '" + repoConfig.getDisplayName() + "'.");
         List<BorgFilesystemItem> content = new ArrayList<>();
-        JobResult<String> jobResult = execute(command).getResult();
-        if (jobResult.getStatus() != JobResult.Status.OK) {
-            return content;
-        }
-        String result = jobResult.getResultObject();
-        try (Scanner scanner = new Scanner(result)) {
-            while (scanner.hasNextLine()) {
-                String json = scanner.nextLine();
-                BorgFilesystemItem item = JsonUtils.fromJson(BorgFilesystemItem.class, json);
+        // The returned job might be an already queued or running one!
+        BorgJob job = BorgQueueExecutor.getInstance().execute(new BorgJob(command) {
+            @Override
+            protected void processStdOutLine(String line, int level) {
+                BorgFilesystemItem item = JsonUtils.fromJson(BorgFilesystemItem.class, line);
                 item.setMtime(DateUtils.format(item.getMtime()));
                 content.add(item);
             }
+        });
+
+        JobResult<String> jobResult = job.getResult();
+        if (jobResult.getStatus() != JobResult.Status.OK) {
+            return content;
         }
         Collections.sort(content); // Sort by path.
         return content;

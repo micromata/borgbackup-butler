@@ -67,24 +67,12 @@ public abstract class AbstractCommandLineJob<T> extends AbstractJob<T> {
         PumpStreamHandler streamHandler = new PumpStreamHandler(new LogOutputStream() {
             @Override
             protected void processLine(String line, int level) {
-                //log.info(line);
-                try {
-                    outputStream.write(line.getBytes());
-                    outputStream.write("\n".getBytes());
-                } catch (IOException ex) {
-                    log.error(ex.getMessage(), ex);
-                }
+                processStdOutLine(line, level);
             }
         }, new LogOutputStream() {
             @Override
-            protected void processLine(String line, int logLevel) {
-                //log.error(line);
-                try {
-                    errorOutputStream.write(line.getBytes());
-                    errorOutputStream.write("\n".getBytes());
-                } catch (IOException ex) {
-                    log.error(ex.getMessage(), ex);
-                }
+            protected void processLine(String line, int level) {
+                processStdErrLine(line, level);
             }
         });
         executor.setStreamHandler(streamHandler);
@@ -106,6 +94,26 @@ public abstract class AbstractCommandLineJob<T> extends AbstractJob<T> {
         }
         result.setResultObject(outputStream.toString(Definitions.STD_CHARSET));
         return result;
+    }
+
+    protected void processStdOutLine(String line, int level) {
+        //log.info(line);
+        try {
+            outputStream.write(line.getBytes());
+            outputStream.write("\n".getBytes());
+        } catch (IOException ex) {
+            log.error(ex.getMessage(), ex);
+        }
+    }
+
+    protected void processStdErrLine(String line, int level) {
+        //log.info(line);
+        try {
+            errorOutputStream.write(line.getBytes());
+            errorOutputStream.write("\n".getBytes());
+        } catch (IOException ex) {
+            log.error(ex.getMessage(), ex);
+        }
     }
 
     @Override
