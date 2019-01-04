@@ -17,19 +17,14 @@ public abstract class AbstractJob<T> {
     @Getter
     @Setter
     private boolean cancelledRequested;
-
     @Getter
-    @Setter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PROTECTED)
     private Status status;
     @Getter
     @Setter
     private String title;
-    @Getter
-    @Setter
-    private String statusText;
     @Getter(AccessLevel.PACKAGE)
     @Setter(AccessLevel.PACKAGE)
-
     private Future<JobResult<T>> future;
 
     public void cancel() {
@@ -52,6 +47,7 @@ public abstract class AbstractJob<T> {
 
     /**
      * Waits for and gets the result.
+     *
      * @return
      */
     public JobResult<T> getResult() {

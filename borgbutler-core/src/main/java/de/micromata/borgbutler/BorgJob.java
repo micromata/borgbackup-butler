@@ -2,8 +2,13 @@ package de.micromata.borgbutler;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.jobs.AbstractCommandLineJob;
+import de.micromata.borgbutler.json.JsonUtils;
+import de.micromata.borgbutler.json.borg.ProgressMessage;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,17 +22,27 @@ import java.util.Map;
  * A queue is important because Borg doesn't support parallel calls for one repository.
  * For each repository one single queue is allocated.
  */
-public class BorgJob<T> extends AbstractCommandLineJob {
+public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
     private Logger log = LoggerFactory.getLogger(BorgJob.class);
     @Getter
     private BorgCommand command;
+    /**
+     * Some jobs may store here the result of the command (e. g. {@link BorgCommands#listArchiveContent(BorgRepoConfig, Archive)}).
+     */
     @Getter
     protected T payload;
+
+    @Getter
+    @Setter(AccessLevel.PROTECTED)
+    private ProgressMessage progressMessage;
 
     public BorgJob(BorgCommand command) {
         this.command = command;
         setWorkingDirectory(command.getWorkingDir());
         setDescription(command.getDescription());
+    }
+
+    private BorgJob() {
     }
 
     @Override
@@ -52,6 +67,24 @@ public class BorgJob<T> extends AbstractCommandLineJob {
         return commandLine;
     }
 
+    protected void processStdErrLine(String line, int level) {
+        log.info(line);
+        try {
+            if (StringUtils.startsWith(line, "{\"message")) {
+                ProgressMessage message = JsonUtils.fromJson(ProgressMessage.class, line);
+                if (message != null) {
+                    log.info(JsonUtils.toJson(progressMessage));
+                    progressMessage = message;
+                    return;
+                }
+            }
+            errorOutputStream.write(line.getBytes());
+            errorOutputStream.write("\n".getBytes());
+        } catch (IOException ex) {
+            log.error(ex.getMessage(), ex);
+        }
+    }
+
     @Override
     protected Map<String, String> getEnvironment() throws IOException {
         BorgRepoConfig repoConfig = command.getRepoConfig();
@@ -69,5 +102,18 @@ public class BorgJob<T> extends AbstractCommandLineJob {
             addEnvironmentVariable(env, "BORG_PASSCOMMAND", passcommand);
         }
         return env;
+    }
+
+    @Override
+    public BorgJob<?> clone() {
+        BorgJob<?> clone = new BorgJob<>();
+        clone.setTitle(getTitle());
+        clone.setExecuteStarted(isExecuteStarted());
+        clone.setCommandLineAsString(getCommandLineAsString());
+        clone.setCancelledRequested(isCancelledRequested());
+        clone.setStatus(getStatus());
+        clone.setWorkingDirectory(getWorkingDirectory());
+        clone.setDescription(getDescription());
+        return clone;
     }
 }

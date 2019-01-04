@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.jobs;
 
 import de.micromata.borgbutler.config.Definitions;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.exec.*;
@@ -22,14 +23,18 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
     private Logger log = LoggerFactory.getLogger(AbstractCommandLineJob.class);
     private ExecuteWatchdog watchdog;
     @Getter
+    @Setter(AccessLevel.PROTECTED)
     private boolean executeStarted;
     private CommandLine commandLine;
     /**
      * The command line as string. This property is also used as ID for detecting multiple borg calls.
      */
+    @Setter(AccessLevel.PROTECTED)
     private String commandLineAsString;
+    @Getter
     @Setter
     private File workingDirectory;
+    @Getter
     @Setter
     private String description;
     protected ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

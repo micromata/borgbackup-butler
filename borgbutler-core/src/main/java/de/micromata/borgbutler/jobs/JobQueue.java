@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.jobs;
 
+import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import java.util.concurrent.Executors;
 public class JobQueue<T> {
     private static final int MAX_DONE_JOBS_SIZE = 50;
     private Logger log = LoggerFactory.getLogger(JobQueue.class);
+    @Getter
     private List<AbstractJob<T>> queue = new ArrayList<>();
     private List<AbstractJob<T>> doneJobs = new LinkedList<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
