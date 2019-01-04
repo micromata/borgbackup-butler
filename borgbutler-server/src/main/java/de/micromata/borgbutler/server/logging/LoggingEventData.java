@@ -117,5 +117,4 @@ public class LoggingEventData implements Cloneable {
         }
         return clone;
     }
-
 }
