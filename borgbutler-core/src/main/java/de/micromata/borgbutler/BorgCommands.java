@@ -128,7 +128,7 @@ public class BorgCommands {
                 .setRepoConfig(repoConfig)
                 .setCommand("info")
                 .setArchive(archive.getName())
-                .setParams("--json", "--progress")
+                .setParams("--json", "--log-json", "--progress")
                 .setDescription("Loading info of archive '" + archive.getName() + "' of repo '" + repoConfig.getDisplayName() + "'.");
         JobResult<String> jobResult = execute(command).getResult();
         if (jobResult.getStatus() != JobResult.Status.OK) {

@@ -6,10 +6,7 @@ import de.micromata.borgbutler.jobs.JobQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A queue is important because Borg doesn't support parallel calls for one repository.
@@ -25,6 +22,16 @@ public class BorgQueueExecutor {
 
     // key is the repo name.
     private Map<String, JobQueue<String>> queueMap = new HashMap<>();
+
+    /**
+     * @return A list of all repos with queues.
+     */
+    public List<String> getRepos() {
+        List<String> list = new ArrayList<>();
+        list.addAll(queueMap.keySet());
+        Collections.sort(list);
+        return list;
+    }
 
     /**
      * For displaying purposes.

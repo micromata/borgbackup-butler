@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.server.user;
 
+import java.text.NumberFormat;
 import java.util.Locale;
 
 public class UserUtils {
@@ -25,6 +26,9 @@ public class UserUtils {
         if (locale == null) {
             locale = userInfo.requestLocale;
         }
+        if (locale == null) {
+            locale = Locale.getDefault();
+        }
         return locale;
     }
 
@@ -49,5 +53,10 @@ public class UserUtils {
             this.userData = userData;
             this.requestLocale = requestLocale;
         }
+    }
+
+    public static String formatNumber(long number) {
+        NumberFormat numberFormat = NumberFormat.getInstance(getUserLocale());
+        return numberFormat.format(number);
     }
 }

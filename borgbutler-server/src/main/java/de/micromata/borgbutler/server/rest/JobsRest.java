@@ -2,10 +2,9 @@ package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.BorgJob;
 import de.micromata.borgbutler.BorgQueueExecutor;
-import de.micromata.borgbutler.data.Archive;
-import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.server.rest.queue.JsonJob;
+import de.micromata.borgbutler.server.rest.queue.JsonJobQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,24 +24,24 @@ public class JobsRest {
     @Produces(MediaType.APPLICATION_JSON)
     /**
      *
-     * @param repo Name of repository ({@link Repository#getName()}.
      * @param prettyPrinter If true then the json output will be in pretty format.
-     * @return Job queue as json string.
+     * @return Job queues as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
-    public String getJobs(@QueryParam("repo") String repoName,
-                          @QueryParam("prettyPrinter") boolean prettyPrinter) {
+    public String getJobs(@QueryParam("prettyPrinter") boolean prettyPrinter) {
         BorgQueueExecutor borgQueueExecutor = BorgQueueExecutor.getInstance();
-        List<BorgJob<?>> borgJobList = borgQueueExecutor.getJobListCopy(repoName);
-        List<JsonJob> jobList = new ArrayList<>(borgJobList.size());
-        for (BorgJob<?> borgJob : borgJobList) {
-            JsonJob job = new JsonJob();
-            job.setTitle(borgJob.getTitle());
-            // job.setProgressText(borgJob.get);
-            job.setStatus(borgJob.getStatus());
-            job.setCancelledRequested(borgJob.isCancelledRequested());
+        List<JsonJobQueue> queueList = new ArrayList<>();
+        for (String repo : borgQueueExecutor.getRepos()) {
+            List<BorgJob<?>> borgJobList = borgQueueExecutor.getJobListCopy(repo);
+            JsonJobQueue queue = new JsonJobQueue()
+                    .setRepo(repo);
+            queueList.add(queue);
+            queue.setJobs(new ArrayList<>(borgJobList.size()));
+            for (BorgJob<?> borgJob : borgJobList) {
+                JsonJob job = new JsonJob(borgJob);
+                queue.getJobs().add(job);
+            }
         }
-        Archive archive = null;
-        return JsonUtils.toJson(archive, prettyPrinter);
+        return JsonUtils.toJson(queueList, prettyPrinter);
     }
 }

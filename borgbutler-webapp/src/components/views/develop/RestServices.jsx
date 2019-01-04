@@ -36,6 +36,12 @@ class RestServices extends React.Component {
                     <li><RestUrlLink service='repos/list'/></li>
                 </ul>
                 <h3>
+                    Job monitor
+                </h3>
+                <ul>
+                    <li><RestUrlLink service='jobs'/></li>
+                </ul>
+                <h3>
                     Config
                 </h3>
                 <ul>

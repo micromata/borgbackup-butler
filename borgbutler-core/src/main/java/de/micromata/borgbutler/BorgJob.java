@@ -47,6 +47,9 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
 
     @Override
     protected CommandLine buildCommandLine() {
+        if (command == null) {
+            return null;
+        }
         CommandLine commandLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
         commandLine.addArgument(command.getCommand());
         if (command.getParams() != null) {
@@ -68,12 +71,10 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
     }
 
     protected void processStdErrLine(String line, int level) {
-        log.info(line);
         try {
             if (StringUtils.startsWith(line, "{\"message")) {
                 ProgressMessage message = JsonUtils.fromJson(ProgressMessage.class, line);
                 if (message != null) {
-                    log.info(JsonUtils.toJson(progressMessage));
                     progressMessage = message;
                     return;
                 }
@@ -114,6 +115,9 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
         clone.setStatus(getStatus());
         clone.setWorkingDirectory(getWorkingDirectory());
         clone.setDescription(getDescription());
+        if (progressMessage != null) {
+            clone.setProgressMessage(progressMessage.clone());
+        }
         return clone;
     }
 }

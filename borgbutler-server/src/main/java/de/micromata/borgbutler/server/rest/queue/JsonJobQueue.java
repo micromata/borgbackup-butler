@@ -8,7 +8,7 @@ import java.util.List;
 public class JsonJobQueue {
     @Getter
     @Setter
-    private String title;
+    private String repo;
     @Getter
     @Setter
     private List<JsonJob> jobs;
