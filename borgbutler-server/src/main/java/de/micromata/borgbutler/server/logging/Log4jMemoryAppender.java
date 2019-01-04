@@ -94,7 +94,7 @@ public class Log4jMemoryAppender extends AppenderSkeleton {
                 LoggingEventData resultEvent = event;
                 if (localizedMessage) {
                     // Need a clone
-                    resultEvent = (LoggingEventData)event.clone();
+                    resultEvent = event.clone();
                     resultEvent.setMessage(message);
                 }
                 if (filter.isAscendingOrder()) {

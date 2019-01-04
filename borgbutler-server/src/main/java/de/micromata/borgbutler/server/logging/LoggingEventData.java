@@ -108,7 +108,7 @@ public class LoggingEventData implements Cloneable {
     }
 
     @Override
-    public Object clone() {
+    public LoggingEventData clone() {
         LoggingEventData clone = null;
         try {
             clone = (LoggingEventData) super.clone();
