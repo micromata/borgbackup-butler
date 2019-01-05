@@ -1,6 +1,6 @@
 import React from 'react';
 import {FormButton, FormCheckbox, FormLabelField, FormLabelInputField} from '../../general/forms/FormComponents';
-import {getRestServiceUrl, isDevelopmentMode} from '../../../utilities/global';
+import {getRestServiceUrl} from '../../../utilities/global';
 import I18n from '../../general/translation/I18n';
 import ErrorAlertGenericRestFailure from '../../general/ErrorAlertGenericRestFailure';
 import Loading from '../../general/Loading';
