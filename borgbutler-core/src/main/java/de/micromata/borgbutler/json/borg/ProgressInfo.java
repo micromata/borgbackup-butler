@@ -35,7 +35,7 @@ public class ProgressInfo implements Cloneable {
     @Getter
     private int operation;
     @Getter
-    private int msgid;
+    private String msgid;
     /**
      * e. g. progress_percent
      */
