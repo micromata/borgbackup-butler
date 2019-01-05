@@ -27,8 +27,8 @@ public abstract class AbstractJob<T> {
     @Setter(AccessLevel.PACKAGE)
     private Future<JobResult<T>> future;
     @Getter
-    @Setter(AccessLevel.PACKAGE)
-    private long uniqueJobNumber;
+    @Setter(AccessLevel.PROTECTED)
+    private long uniqueJobNumber = -1;
 
     public void cancel() {
         if (this.getStatus() == Status.QUEUED) {

@@ -35,7 +35,7 @@ public class BorgCommands {
                 .setParams("--version")
                 .setDescription("Getting borg version.");
         JobResult<String> jobResult = execute(command).getResult();
-        if (jobResult.getStatus() != JobResult.Status.OK) {
+        if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             return null;
         }
         String version = jobResult.getResultObject();
@@ -56,7 +56,7 @@ public class BorgCommands {
                 .setParams("--json") // --progress has no effect.
                 .setDescription("Loading info of repo '" + repoConfig.getDisplayName() + "'.");
         JobResult<String> jobResult = execute(command).getResult();
-        if (jobResult.getStatus() != JobResult.Status.OK) {
+        if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             return null;
         }
         String result = jobResult.getResultObject();
@@ -89,7 +89,7 @@ public class BorgCommands {
                 .setParams("--json") // --progress has no effect.
                 .setDescription("Loading list of archives of repo '" + repoConfig.getDisplayName() + "'.");
         JobResult<String> jobResult = execute(command).getResult();
-        if (jobResult.getStatus() != JobResult.Status.OK) {
+        if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             log.error("Can't load archives from repo '" + repository.getName() + "'.");
             return;
         }
@@ -131,7 +131,7 @@ public class BorgCommands {
                 .setParams("--json", "--log-json", "--progress")
                 .setDescription("Loading info of archive '" + archive.getName() + "' of repo '" + repoConfig.getDisplayName() + "'.");
         JobResult<String> jobResult = execute(command).getResult();
-        if (jobResult.getStatus() != JobResult.Status.OK) {
+        if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             return;
         }
         String result = jobResult.getResultObject();

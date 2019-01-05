@@ -29,6 +29,22 @@ public class JobQueue<T> {
     }
 
     /**
+     * Searches only for queued jobs (not done jobs).
+     * @param uniqueJobNumber
+     * @return The job if any job with the given unique job number is queued, otherwise null.
+     */
+    public AbstractJob<T> getQueuedJobByUniqueJobNumber(long uniqueJobNumber) {
+        Iterator<AbstractJob<T>> it = queue.iterator();
+        while (it.hasNext()) {
+            AbstractJob<T> job = it.next();
+            if (job.getUniqueJobNumber() == uniqueJobNumber) {
+                return job;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Appends the job if not alread in the queue. Starts the execution if no execution thread is already running.
      *
      * @param job

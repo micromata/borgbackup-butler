@@ -124,7 +124,7 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
     @Override
     protected void cancelRunningProcess() {
         if (watchdog != null) {
-            log.info("Cancelling job: " + getId());
+            log.info("Cancelling job #" + getUniqueJobNumber() + ": " + getId());
             watchdog.destroyProcess();
             watchdog = null;
             setCancelled();

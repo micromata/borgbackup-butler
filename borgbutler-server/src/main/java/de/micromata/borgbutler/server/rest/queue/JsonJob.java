@@ -31,11 +31,15 @@ public class JsonJob {
     @Getter
     @Setter
     private String commandLineAsString;
+    @Getter
+    @Setter
+    private long uniqueJobNumber;
 
     public JsonJob() {
     }
 
     public JsonJob(BorgJob<?> borgJob) {
+        this.uniqueJobNumber = borgJob.getUniqueJobNumber();
         this.cancellationRequested = borgJob.isCancellationRequested();
         this.status = borgJob.getStatus();
         this.title = borgJob.getTitle();

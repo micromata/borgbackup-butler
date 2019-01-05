@@ -28,9 +28,31 @@ public class BorgQueueExecutor {
      */
     public List<String> getRepos() {
         List<String> list = new ArrayList<>();
-        list.addAll(queueMap.keySet());
+        synchronized (queueMap) {
+            list.addAll(queueMap.keySet());
+        }
         Collections.sort(list);
         return list;
+    }
+
+    public void cancelJob(long uniqueJobNumber) {
+        AbstractJob<?> job = getQueuedJobByUniqueJobNumber(uniqueJobNumber);
+        if (job == null) {
+            log.info("Can't cancel job #" + uniqueJobNumber + ". Not found as queued job (may-be already cancelled or finished). Nothing to do.");
+            return;
+        }
+        job.cancel();
+    }
+
+    private AbstractJob<?> getQueuedJobByUniqueJobNumber(long uniqueJobNumber) {
+        Iterator<JobQueue<String>> it = queueMap.values().iterator();
+        while (it.hasNext()) {
+            AbstractJob<?> job = it.next().getQueuedJobByUniqueJobNumber(uniqueJobNumber);
+            if (job != null) {
+                return job;
+            }
+        }
+        return null;
     }
 
     /**
@@ -56,7 +78,9 @@ public class BorgQueueExecutor {
     }
 
     private JobQueue<String> getQueue(String repo) {
-        return queueMap.get(getQueueName(repo));
+        synchronized (queueMap) {
+            return queueMap.get(getQueueName(repo));
+        }
     }
 
     private JobQueue<String> ensureAndGetQueue(String repo) {

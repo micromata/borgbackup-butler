@@ -59,34 +59,43 @@ public class JobsRest {
     }
 
     @Path("/cancel")
-    @PUT
-    @Produces(MediaType.APPLICATION_JSON)
+    @GET
     /**
-     * @param testMode If true, then a test job list is created.
-     * @param prettyPrinter If true then the json output will be in pretty format.
-     * @return Job queues as json string.
-     * @see JsonUtils#toJson(Object, boolean)
+     * @param uniqueJobNumberString The id of the job to cancel.
      */
-    public void cancelJob(@QueryParam("job") String job, @QueryParam("prettyPrinter") boolean prettyPrinter) {
-        log.info("Cancelling job");
+    public void cancelJob(@QueryParam("uniqueJobNumber") String uniqueJobNumberString) {
+        Long uniqueJobNumber = null;
+        try {
+            uniqueJobNumber = Long.parseLong(uniqueJobNumberString);
+        } catch (NumberFormatException ex) {
+            log.error("Can't cancel job, because unique job number couln't be parsed (long value expected): " + uniqueJobNumberString);
+            return;
+        }
+        BorgQueueExecutor.getInstance().cancelJob(uniqueJobNumber);
     }
 
     /**
      * Only for test purposes and development.
+     *
      * @param prettyPrinter
      * @return
      */
     private String returnTestList(boolean prettyPrinter) {
         if (testList == null) {
             testList = new ArrayList<>();
+            long uniqueJobNumber = 100000;
             JsonJobQueue queue = new JsonJobQueue().setRepo("My Computer");
-            addTestJob(queue, "info", "my-macbook", 0, 2342);
-            addTestJob(queue, "list", "my-macbook", -1, -1);
+            addTestJob(queue, "info", "my-macbook", 0, 2342)
+                    .setUniqueJobNumber(uniqueJobNumber++);
+            addTestJob(queue, "list", "my-macbook", -1, -1)
+                    .setUniqueJobNumber(uniqueJobNumber++);
             testList.add(queue);
 
             queue = new JsonJobQueue().setRepo("My Server");
-            addTestJob(queue, "list", "my-server", 0, 1135821);
-            addTestJob(queue, "info", "my-server", -1, -1);
+            addTestJob(queue, "list", "my-server", 0, 1135821)
+                    .setUniqueJobNumber(uniqueJobNumber++);
+            addTestJob(queue, "info", "my-server", -1, -1)
+                    .setUniqueJobNumber(uniqueJobNumber++);
             testList.add(queue);
         } else {
             for (JsonJobQueue jobQueue : testList) {
@@ -117,6 +126,7 @@ public class JobsRest {
 
     /**
      * Only for test purposes and development.
+     *
      * @param queue
      * @param operation
      * @param host

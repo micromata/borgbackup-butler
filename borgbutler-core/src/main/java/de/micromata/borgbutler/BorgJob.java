@@ -108,6 +108,7 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
     @Override
     public BorgJob<?> clone() {
         BorgJob<?> clone = new BorgJob<>();
+        clone.setUniqueJobNumber(getUniqueJobNumber());
         clone.setTitle(getTitle());
         clone.setExecuteStarted(isExecuteStarted());
         clone.setCommandLineAsString(getCommandLineAsString());
