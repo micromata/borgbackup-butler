@@ -1,5 +1,5 @@
 import React from 'react';
-import { Collapse, Button, CardBody, Card } from 'reactstrap';
+import {Button, Card, CardBody, Collapse} from 'reactstrap';
 import Job from "./Job";
 
 class JobQueue extends React.Component {

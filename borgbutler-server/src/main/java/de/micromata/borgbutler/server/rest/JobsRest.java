@@ -109,7 +109,7 @@ public class JobsRest {
                 .setProgressInfo(msg)
                 .setDescription(description)
                 .setStatus(AbstractJob.Status.QUEUED)
-                .setCommandLineAsString(description);
+                .setCommandLineAsString("borg info --json --log-json --progress ssh://...:23/./backups/my-computer::my-computer-2018-12-05T23:10:33");
         job.buildProgressText();
         if (message != null) {
             job.setStatus(AbstractJob.Status.RUNNING);
