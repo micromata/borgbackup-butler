@@ -377,6 +377,14 @@ td.file-modified {
     color: red;
 }
 
+div.progress-bar {
+    font-weight: bold;
+}
+
+div.progress {
+    background-color: #bbbbbb;
+}
+
 /* @media only screen and (max-width: 1050px) {
 	.navbar.navbar-light a.nav-link {
 		font-size: 0.8rem;
