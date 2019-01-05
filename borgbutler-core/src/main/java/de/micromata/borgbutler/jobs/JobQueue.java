@@ -1,7 +1,6 @@
 package de.micromata.borgbutler.jobs;
 
 import lombok.Getter;
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,9 @@ public class JobQueue<T> {
     }
 
     public List<AbstractJob<T>> getDoneJobs() {
-        return Collections.unmodifiableList(doneJobs);
+        synchronized (doneJobs) {
+            return Collections.unmodifiableList(doneJobs);
+        }
     }
 
     /**
@@ -41,29 +42,20 @@ public class JobQueue<T> {
                 }
             }
             queue.add(job.setStatus(AbstractJob.Status.QUEUED));
-            job.setFuture(executorService.submit(new CallableTask(job)));
-            return job;
         }
+        job.setFuture(executorService.submit(new CallableTask(job)));
+        return job;
     }
 
     public AbstractJob getQueuedJob(Object id) {
-        for (AbstractJob job : queue) {
-            if (Objects.equals(job.getId(), id)) {
-                return job;
+        synchronized (queue) {
+            for (AbstractJob job : queue) {
+                if (Objects.equals(job.getId(), id)) {
+                    return job;
+                }
             }
         }
         return null;
-    }
-
-    void waitForQueue(int seconds) {
-        int counter = seconds / 10;
-        while (CollectionUtils.isNotEmpty(queue) && counter > 0) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                log.error(ex.getMessage(), ex);
-            }
-        }
     }
 
     private void organizeQueue() {
@@ -76,13 +68,19 @@ public class JobQueue<T> {
                 AbstractJob<T> job = it.next();
                 if (job.isFinished()) {
                     it.remove();
-                    doneJobs.add(0, job);
+                    synchronized (doneJobs) {
+                        doneJobs.add(0, job);
+                    }
                 }
-                while (doneJobs.size() > MAX_DONE_JOBS_SIZE) {
-                    doneJobs.remove(doneJobs.size() - 1);
+                synchronized (doneJobs) {
+                    while (doneJobs.size() > MAX_DONE_JOBS_SIZE) {
+                        doneJobs.remove(doneJobs.size() - 1);
+                    }
                 }
             }
         }
+
+
     }
 
     private class CallableTask implements Callable<JobResult<T>> {

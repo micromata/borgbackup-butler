@@ -48,7 +48,7 @@ public class CacheTest {
             repoConfig = repoConfigs.get(0);
             Repository rerepositoryoList = ButlerCache.getInstance().getRepositoryArchives(repoConfig.getRepo());
             if (rerepositoryoList != null && CollectionUtils.isNotEmpty(rerepositoryoList.getArchives())) {
-                archive = rerepositoryoList.getArchives().first();
+                archive = rerepositoryoList.getArchives().iterator().next();
             }
         }
         {

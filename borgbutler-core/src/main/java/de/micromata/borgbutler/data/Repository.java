@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -69,15 +71,18 @@ public class Repository implements Serializable {
     /**
      * Might be null.
      */
-    @Getter
     @Setter
     private SortedSet<Archive> archives;
 
     public Repository add(Archive archive) {
-        if (this.archives == null) {
-            this.archives = new TreeSet<>();
+        synchronized (this) {
+            if (this.archives == null) {
+                this.archives = new TreeSet<>();
+            }
         }
-        this.archives.add(archive);
+        synchronized (this.archives) {
+            this.archives.add(archive);
+        }
         return this;
     }
 
@@ -86,9 +91,11 @@ public class Repository implements Serializable {
             log.warn("Can't get archive '" + idOrName + "' from repository '" + name + "'. Archives not yet loaded or don't exist.");
             return null;
         }
-        for (Archive archive : archives) {
-            if (StringUtils.equals(idOrName, archive.getId()) || StringUtils.equals(idOrName, archive.getName())) {
-                return archive;
+        synchronized (this.archives) {
+            for (Archive archive : archives) {
+                if (StringUtils.equals(idOrName, archive.getId()) || StringUtils.equals(idOrName, archive.getName())) {
+                    return archive;
+                }
             }
         }
         log.warn("Archive '" + idOrName + "' not found in repository '" + name + "'.");
@@ -102,5 +109,14 @@ public class Repository implements Serializable {
      */
     public boolean isArchivesLoaded() {
         return CollectionUtils.isNotEmpty(archives);
+    }
+
+    public Collection<Archive> getArchives() {
+        if (this.archives == null) {
+            return null;
+        }
+        synchronized (this.archives) {
+            return Collections.unmodifiableSet(this.archives);
+        }
     }
 }
