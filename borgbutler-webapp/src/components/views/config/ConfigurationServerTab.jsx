@@ -101,20 +101,12 @@ class ConfigServerTab extends React.Component {
     }
 
     render() {
-        let todo = '';
         if (this.state.loading) {
             return <Loading/>;
         }
 
         if (this.state.failed) {
             return <ErrorAlertGenericRestFailure handleClick={this.loadConfig}/>;
-        }
-        if (isDevelopmentMode()) {
-            todo = <code>
-                    <h2>To-do</h2>
-                    Statt dem windows.confirm-Dialog nach Klicken auf 'Clear all caches' einen Modaldialog nehmen (in der Art
-                    von ConfirmReloadDialog.jsx). Am besten als Komponente verwendbar.
-                </code>
         }
 
         return (
@@ -152,7 +144,6 @@ class ConfigServerTab extends React.Component {
                                       name="webDevelopmentMode"
                                       onChange={this.handleCheckboxChange} />
                     </FormLabelField>
-                    {todo}
                 </form>
             </div>
         );
