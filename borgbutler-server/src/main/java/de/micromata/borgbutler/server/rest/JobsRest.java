@@ -2,8 +2,8 @@ package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.BorgJob;
 import de.micromata.borgbutler.BorgQueueExecutor;
-import de.micromata.borgbutler.cache.ButlerCache;
-import de.micromata.borgbutler.data.Repository;
+import de.micromata.borgbutler.config.BorgRepoConfig;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.jobs.AbstractJob;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.ProgressInfo;
@@ -14,10 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,13 +35,14 @@ public class JobsRest {
      */
     public String getJobs(@QueryParam("testMode") boolean testMode, @QueryParam("prettyPrinter") boolean prettyPrinter) {
         if (testMode) {
+            // Return dynamic test queue:
             return returnTestList(prettyPrinter);
         }
         BorgQueueExecutor borgQueueExecutor = BorgQueueExecutor.getInstance();
         List<JsonJobQueue> queueList = new ArrayList<>();
         for (String repo : borgQueueExecutor.getRepos()) {
-            Repository repository = ButlerCache.getInstance().getRepositoryArchives(repo);
-            String title = repository != null ? repository.getDisplayName() : repo;
+            BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repo);
+            String title = repoConfig != null ? repoConfig.getDisplayName() : repo;
             List<BorgJob<?>> borgJobList = borgQueueExecutor.getJobListCopy(repo);
             if (CollectionUtils.isEmpty(borgJobList))
                 continue;
@@ -60,6 +58,24 @@ public class JobsRest {
         return JsonUtils.toJson(queueList, prettyPrinter);
     }
 
+    @Path("/cancel")
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON)
+    /**
+     * @param testMode If true, then a test job list is created.
+     * @param prettyPrinter If true then the json output will be in pretty format.
+     * @return Job queues as json string.
+     * @see JsonUtils#toJson(Object, boolean)
+     */
+    public void cancelJob(@QueryParam("job") String job, @QueryParam("prettyPrinter") boolean prettyPrinter) {
+        log.info("Cancelling job");
+    }
+
+    /**
+     * Only for test purposes and development.
+     * @param prettyPrinter
+     * @return
+     */
     private String returnTestList(boolean prettyPrinter) {
         if (testList == null) {
             testList = new ArrayList<>();
@@ -99,7 +115,15 @@ public class JobsRest {
         return JsonUtils.toJson(testList, prettyPrinter);
     }
 
-
+    /**
+     * Only for test purposes and development.
+     * @param queue
+     * @param operation
+     * @param host
+     * @param current
+     * @param total
+     * @return
+     */
     private JsonJob addTestJob(JsonJobQueue queue, String operation, String host, long current, long total) {
         ProgressInfo progressInfo = new ProgressInfo()
                 .setCurrent(current)
