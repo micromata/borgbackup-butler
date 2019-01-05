@@ -111,7 +111,7 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
         clone.setTitle(getTitle());
         clone.setExecuteStarted(isExecuteStarted());
         clone.setCommandLineAsString(getCommandLineAsString());
-        clone.setCancelledRequested(isCancelledRequested());
+        clone.setCancellationRequested(isCancellationRequested());
         clone.setStatus(getStatus());
         clone.setWorkingDirectory(getWorkingDirectory());
         clone.setDescription(getDescription());

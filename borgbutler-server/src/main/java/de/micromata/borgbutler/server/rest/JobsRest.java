@@ -2,9 +2,12 @@ package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.BorgJob;
 import de.micromata.borgbutler.BorgQueueExecutor;
+import de.micromata.borgbutler.cache.ButlerCache;
+import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.server.rest.queue.JsonJob;
 import de.micromata.borgbutler.server.rest.queue.JsonJobQueue;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +35,13 @@ public class JobsRest {
         BorgQueueExecutor borgQueueExecutor = BorgQueueExecutor.getInstance();
         List<JsonJobQueue> queueList = new ArrayList<>();
         for (String repo : borgQueueExecutor.getRepos()) {
+            Repository repository = ButlerCache.getInstance().getRepositoryArchives(repo);
+            String title = repository != null ? repository.getDisplayName() : repo;
             List<BorgJob<?>> borgJobList = borgQueueExecutor.getJobListCopy(repo);
+            if (CollectionUtils.isEmpty(borgJobList))
+                continue;
             JsonJobQueue queue = new JsonJobQueue()
-                    .setRepo(repo);
+                    .setRepo(title);
             queueList.add(queue);
             queue.setJobs(new ArrayList<>(borgJobList.size()));
             for (BorgJob<?> borgJob : borgJobList) {

@@ -94,7 +94,7 @@ public class JobQueue<T> {
 
         @Override
         public JobResult<T> call() throws Exception {
-            if (job.isCancelledRequested()) {
+            if (job.isCancellationRequested()) {
                 job.setStatus(AbstractJob.Status.CANCELLED);
                 return null;
             }

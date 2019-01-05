@@ -10,7 +10,7 @@ import lombok.Setter;
 public class JsonJob {
     @Getter
     @Setter
-    private boolean cancelledRequested;
+    private boolean cancellationRequested;
     @Getter
     @Setter
     private AbstractJob.Status status;
@@ -32,7 +32,7 @@ public class JsonJob {
     }
 
     public JsonJob(BorgJob<?> borgJob) {
-        this.cancelledRequested = borgJob.isCancelledRequested();
+        this.cancellationRequested = borgJob.isCancellationRequested();
         this.status = borgJob.getStatus();
         this.title = borgJob.getTitle();
         ProgressMessage progressMessage = borgJob.getProgressMessage();

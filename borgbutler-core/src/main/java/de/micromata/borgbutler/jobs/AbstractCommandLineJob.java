@@ -92,7 +92,7 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
             log.info(msg + " Done.");
         } catch (Exception ex) {
             result.setStatus(JobResult.Status.ERROR);
-            if (logError && !isCancelledRequested() && getStatus() != Status.CANCELLED) {
+            if (logError && !isCancellationRequested() && getStatus() != Status.CANCELLED) {
                 log.error("Execution failed for job: '" + commandLineAsString + "': " + ex.getMessage());
             }
             failed();

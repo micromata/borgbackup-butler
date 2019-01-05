@@ -16,7 +16,7 @@ public abstract class AbstractJob<T> {
 
     @Getter
     @Setter
-    private boolean cancelledRequested;
+    private boolean cancellationRequested;
     @Getter
     @Setter(AccessLevel.PROTECTED)
     private Status status;
@@ -31,7 +31,7 @@ public abstract class AbstractJob<T> {
         if (this.getStatus() == Status.QUEUED) {
             this.status = Status.CANCELLED;
         }
-        this.cancelledRequested = true;
+        this.cancellationRequested = true;
         cancelRunningProcess();
     }
 
