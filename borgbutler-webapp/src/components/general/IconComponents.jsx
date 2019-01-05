@@ -30,6 +30,12 @@ function IconCancel() {
     );
 }
 
+function IconCancelJob() {
+    return (
+        <FontAwesomeIcon icon={faTimes} color={'red'} size={'lg'}/>
+    );
+}
+
 function IconCheck() {
     return (
         <FontAwesomeIcon icon={faCheck}/>
@@ -111,6 +117,7 @@ function IconWarning() {
 export {
     IconAdd,
     IconCancel,
+    IconCancelJob,
     IconCheck,
     IconCollapseClose,
     IconCollapseOpen,
