@@ -2,7 +2,7 @@ package de.micromata.borgbutler.server.rest.queue;
 
 import de.micromata.borgbutler.BorgJob;
 import de.micromata.borgbutler.jobs.AbstractJob;
-import de.micromata.borgbutler.json.borg.ProgressMessage;
+import de.micromata.borgbutler.json.borg.ProgressInfo;
 import de.micromata.borgbutler.server.user.UserUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,14 +18,16 @@ public class JsonJob {
     @Setter
     private String title;
     @Getter
+    @Setter
     private String description;
     @Getter
     @Setter
     private String progressText;
+    @Getter
     @Setter
+    private ProgressInfo progressInfo;
     @Getter
-    private ProgressMessage progressMessage;
-    @Getter
+    @Setter
     private String commandLineAsString;
 
     public JsonJob() {
@@ -35,35 +37,40 @@ public class JsonJob {
         this.cancellationRequested = borgJob.isCancellationRequested();
         this.status = borgJob.getStatus();
         this.title = borgJob.getTitle();
-        ProgressMessage progressMessage = borgJob.getProgressMessage();
-        if (progressMessage != null) {
-            this.progressMessage = progressMessage;
-            this.progressText = progressMessageToString();
+        ProgressInfo progressInfo = borgJob.getProgressInfo();
+        if (progressInfo != null) {
+            this.progressInfo = progressInfo;
+            buildProgressText();
         }
         this.commandLineAsString = borgJob.getCommandLineAsString();
         this.description = borgJob.getDescription();
     }
 
-    public String progressMessageToString() {
-        if (progressMessage == null) {
+    /**
+     * Builds and sets progressText from the progressInfo object if given.
+     * @return progressText
+     */
+    public String buildProgressText() {
+        if (progressInfo == null) {
             return "";
         }
         StringBuilder sb = new StringBuilder();
-        if (progressMessage.getMessage()!= null) {
-            sb.append(progressMessage.getMessage());
+        if (progressInfo.getMessage() != null) {
+            sb.append(progressInfo.getMessage());
         }
-        if (progressMessage.getCurrent() > 0) {
-            sb.append(" (").append(UserUtils.formatNumber(progressMessage.getCurrent()));
-            if (progressMessage.getTotal() > 0) {
-                sb.append("/").append(UserUtils.formatNumber(progressMessage.getTotal()));
+        if (progressInfo.getCurrent() > 0) {
+            sb.append(" (").append(UserUtils.formatNumber(progressInfo.getCurrent()));
+            if (progressInfo.getTotal() > 0) {
+                sb.append("/").append(UserUtils.formatNumber(progressInfo.getTotal()));
             }
             sb.append(")");
         }
-        if (progressMessage.isFinished()) {
+        if (progressInfo.isFinished()) {
             sb.append(" (finished)");
         }
         sb.append(".");
-        return sb.toString();
+        progressText = sb.toString();
+        return progressText;
     }
 
 }

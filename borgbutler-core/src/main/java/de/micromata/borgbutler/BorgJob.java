@@ -5,7 +5,7 @@ import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.jobs.AbstractCommandLineJob;
 import de.micromata.borgbutler.json.JsonUtils;
-import de.micromata.borgbutler.json.borg.ProgressMessage;
+import de.micromata.borgbutler.json.borg.ProgressInfo;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +34,7 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
 
     @Getter
     @Setter(AccessLevel.PROTECTED)
-    private ProgressMessage progressMessage;
+    private ProgressInfo progressInfo;
 
     public BorgJob(BorgCommand command) {
         this.command = command;
@@ -73,9 +73,9 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
     protected void processStdErrLine(String line, int level) {
         try {
             if (StringUtils.startsWith(line, "{\"message")) {
-                ProgressMessage message = JsonUtils.fromJson(ProgressMessage.class, line);
+                ProgressInfo message = JsonUtils.fromJson(ProgressInfo.class, line);
                 if (message != null) {
-                    progressMessage = message;
+                    progressInfo = message;
                     return;
                 }
             }
@@ -115,8 +115,8 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
         clone.setStatus(getStatus());
         clone.setWorkingDirectory(getWorkingDirectory());
         clone.setDescription(getDescription());
-        if (progressMessage != null) {
-            clone.setProgressMessage(progressMessage.clone());
+        if (progressInfo != null) {
+            clone.setProgressInfo(progressInfo.clone());
         }
         return clone;
     }

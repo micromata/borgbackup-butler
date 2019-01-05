@@ -172,7 +172,7 @@ public class BorgCommands {
                 .setParams("--json-lines")
                 .setDescription("Loading list of files of archive '" + archive.getName() + "' of repo '" + repoConfig.getDisplayName() + "'.");
         // The returned job might be an already queued or running one!
-        final ProgressMessage progressMessage = new ProgressMessage()
+        final ProgressInfo progressInfo = new ProgressInfo()
                 .setMessage("Getting file list...")
                 .setCurrent(0);
         BorgJob<List<BorgFilesystemItem>> job = BorgQueueExecutor.getInstance().execute(new BorgJob<List<BorgFilesystemItem>>(command) {
@@ -181,7 +181,7 @@ public class BorgCommands {
                 BorgFilesystemItem item = JsonUtils.fromJson(BorgFilesystemItem.class, line);
                 item.setMtime(DateUtils.format(item.getMtime()));
                 payload.add(item);
-                setProgressMessage(progressMessage.incrementCurrent());
+                setProgressInfo(progressInfo.incrementCurrent());
             }
         });
         job.payload = new ArrayList<>();

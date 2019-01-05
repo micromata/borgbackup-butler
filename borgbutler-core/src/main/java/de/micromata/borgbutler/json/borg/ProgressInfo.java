@@ -7,7 +7,7 @@ import lombok.Setter;
  * Output of borg option <tt>--progress</tt>.
  * See https://borgbackup.readthedocs.io/en/stable/internals/frontends.html,
  */
-public class ProgressMessage implements Cloneable {
+public class ProgressInfo implements Cloneable {
     // {"message": "Calculating statistics...   0%", "current": 1, "total": 2497, "info": null, "operation": 1, "msgid": null, "type": "progress_percent", "finished": false, "time": 1546640510.116256}
     /**
      * e. g. Calculating statistics...   5%
@@ -22,6 +22,7 @@ public class ProgressMessage implements Cloneable {
     @Setter
     private long current;
     @Getter
+    @Setter
     private long total;
     /**
      * Array that describes the current item, may be null, contents depend on msgid.
@@ -48,16 +49,16 @@ public class ProgressMessage implements Cloneable {
     @Getter
     private double time;
 
-    public ProgressMessage incrementCurrent() {
+    public ProgressInfo incrementCurrent() {
         ++current;
         return this;
     }
 
     @Override
-    public ProgressMessage clone() {
-        ProgressMessage clone = null;
+    public ProgressInfo clone() {
+        ProgressInfo clone = null;
         try {
-            clone = (ProgressMessage) super.clone();
+            clone = (ProgressInfo) super.clone();
         } catch (CloneNotSupportedException ex) {
             throw new UnsupportedOperationException(this.getClass().getCanonicalName() + " isn't cloneable: " + ex.getMessage(), ex);
         }

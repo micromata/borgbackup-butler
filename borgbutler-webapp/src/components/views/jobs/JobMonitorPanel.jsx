@@ -1,24 +1,38 @@
 import React from 'react';
-import {getRestServiceUrl} from "../../../utilities/global";
+import {Button} from 'reactstrap';
+import {getRestServiceUrl, isDevelopmentMode} from "../../../utilities/global";
 import JobQueue from "./JobQueue";
 import ErrorAlert from "../archives/ArchiveView";
 
 class JobMonitorPanel extends React.Component {
     state = {
-        isFetching: false
+        isFetching: false,
+        testMode: false
     };
 
     componentDidMount = () => {
         this.fetchArchive();
+        this.interval = setInterval(() => this.fetchArchive(), 2000);
     };
 
+    componentWillUnmount() {
+        clearInterval(this.interval);
+    }
 
-    fetchArchive = (force) => {
+    toggleTestMode() {
+        this.setState({
+            testMode: !this.state.testMode
+        });
+    }
+
+    fetchArchive = () => {
         this.setState({
             isFetching: true,
             failed: false
         });
-        fetch(getRestServiceUrl('jobs'), {
+        fetch(getRestServiceUrl('jobs', {
+            testMode: this.state.testMode
+        }), {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -32,7 +46,7 @@ class JobMonitorPanel extends React.Component {
                 this.setState({
                     isFetching: false,
                     queues
-                })
+                });
             })
             .catch(() => this.setState({isFetching: false, failed: true}));
     };
@@ -52,13 +66,21 @@ class JobMonitorPanel extends React.Component {
                 }}
             />;
         } else if (this.state.queues) {
-            content = <React.Fragment>
-                {this.state.queues
-                    .map((queue) => <JobQueue
-                        queue={queue}
-                        key={queue.repo}
-                    />)}
-            </React.Fragment>;
+            if (this.state.queues.length > 0) {
+                content = <React.Fragment>
+                    {this.state.queues
+                        .map((queue) => <JobQueue
+                            queue={queue}
+                            key={queue.repo}
+                        />)}
+                </React.Fragment>;
+            } else if (isDevelopmentMode()) {
+                content = <React.Fragment>No jobs are running or queued.<br/><br/>
+                    <Button color="primary" onClick={this.toggleTestMode}>Test mode</Button>
+                </React.Fragment>
+            } else {
+                content = <React.Fragment>No jobs are running or queued.</React.Fragment>
+            }
 
         }
         return <React.Fragment>
@@ -70,6 +92,7 @@ class JobMonitorPanel extends React.Component {
         super(props);
 
         this.fetchArchive = this.fetchArchive.bind(this);
+        this.toggleTestMode = this.toggleTestMode.bind(this);
     }
 }
 
