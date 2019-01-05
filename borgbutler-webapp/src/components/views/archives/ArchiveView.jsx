@@ -13,7 +13,7 @@ class ArchiveView extends React.Component {
         repoId: this.props.match.params.repoId,
         archiveId: this.props.match.params.archiveId,
         isFetching: false,
-        activeTab: '1',
+        activeTab: '1'
     };
 
     componentDidMount = () => {
