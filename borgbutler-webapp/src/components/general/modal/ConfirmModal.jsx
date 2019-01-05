@@ -17,18 +17,16 @@ class ConfirmModal extends React.Component {
 
     render() {
         return (
-            <div>
-                <Modal isOpen={this.props.open} toggle={this.props.toggle}>
-                    <ModalHeader toggle={this.props.toggle}>Modal title</ModalHeader>
-                    <ModalBody>
-                        {this.props.children}
-                    </ModalBody>
-                    <ModalFooter>
-                        <Button color={'primary'} onClick={this.confirm}>{this.props.confirmButton}</Button>
-                        <Button color={'secondary'} onClick={this.props.toggle}>{this.props.cancelButton}</Button>
-                    </ModalFooter>
-                </Modal>
-            </div>
+            <Modal isOpen={this.props.open} toggle={this.props.toggle}>
+                <ModalHeader toggle={this.props.toggle}>Modal title</ModalHeader>
+                <ModalBody>
+                    {this.props.children}
+                </ModalBody>
+                <ModalFooter>
+                    <Button color={'primary'} onClick={this.confirm}>{this.props.confirmButton}</Button>
+                    <Button color={'secondary'} onClick={this.props.toggle}>{this.props.cancelButton}</Button>
+                </ModalFooter>
+            </Modal>
         );
     }
 }
