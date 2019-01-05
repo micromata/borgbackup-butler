@@ -202,7 +202,7 @@ ul.nav-tabs .nav-link:hover {
 /* Cards */
 
 
-.template.card {
+.repo.card {
     color: #50555F;
     max-width: 390px;
     min-width: 390px;
@@ -210,22 +210,22 @@ ul.nav-tabs .nav-link:hover {
     margin-bottom: 20px;
 }
 
-.template.card:hover {
+.repo.card:hover {
     text-decoration: none;
     transform: scale(1.01);
     transition: 0.1s ease-in-out;
 }
 
-.template.card .card-header {
+.repo.card .card-header {
     font-weight: bold;
     color: #50555F;
 }
 
-.template.card .card-body {
+.repo.card .card-body {
     padding: 0;
 }
 
-.template.card .card-footer {
+.repo.card .card-footer {
 }
 
 .card.border-secondary {
