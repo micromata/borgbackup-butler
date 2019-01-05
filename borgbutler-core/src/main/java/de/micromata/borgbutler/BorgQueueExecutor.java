@@ -42,7 +42,9 @@ public class BorgQueueExecutor {
     public List<BorgJob<?>> getJobListCopy(String repo) {
         JobQueue<String> origQueue = getQueue(repo);
         List<BorgJob<?>> jobList = new ArrayList<>();
-        for (AbstractJob<String> origJob : origQueue.getQueue()) {
+        Iterator<AbstractJob<String>> it = origQueue.getQueueIterator();
+        while (it.hasNext()) {
+            AbstractJob<String> origJob = it.next();
             if (!(origJob instanceof BorgJob)) {
                 log.error("Oups, only BorgJobs are supported. Ignoring unexpected job: " + origJob.getClass());
                 continue;

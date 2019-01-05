@@ -1,6 +1,5 @@
 package de.micromata.borgbutler.jobs;
 
-import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,20 +10,22 @@ import java.util.concurrent.Executors;
 
 public class JobQueue<T> {
     private static final int MAX_DONE_JOBS_SIZE = 50;
+    private static long jobSequence = 0;
     private Logger log = LoggerFactory.getLogger(JobQueue.class);
-    @Getter
     private List<AbstractJob<T>> queue = new ArrayList<>();
     private List<AbstractJob<T>> doneJobs = new LinkedList<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    private  static synchronized void setNextJobId(AbstractJob<?> job) {
+        job.setUniqueJobNumber(jobSequence++);
+    }
 
     public int getQueueSize() {
         return queue.size();
     }
 
-    public List<AbstractJob<T>> getDoneJobs() {
-        synchronized (doneJobs) {
-            return Collections.unmodifiableList(doneJobs);
-        }
+    public Iterator<AbstractJob<T>> getQueueIterator() {
+        return Collections.unmodifiableList(queue).iterator();
     }
 
     /**
@@ -41,6 +42,7 @@ public class JobQueue<T> {
                     return queuedJob;
                 }
             }
+            setNextJobId(job);
             queue.add(job.setStatus(AbstractJob.Status.QUEUED));
         }
         job.setFuture(executorService.submit(new CallableTask(job)));
@@ -79,8 +81,6 @@ public class JobQueue<T> {
                 }
             }
         }
-
-
     }
 
     private class CallableTask implements Callable<JobResult<T>> {
