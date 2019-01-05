@@ -215,6 +215,7 @@ public class BorgCommands {
                 .setWorkingDir(restoreDir)
                 .setRepoConfig(repoConfig)
                 .setCommand("extract")
+                .setParams("--log-json", "--progress")
                 .setArchive(archive.getName())
                 .setArgs(path)
                 .setDescription("Extract content of archive '" + archive.getName()
