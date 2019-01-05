@@ -10,6 +10,7 @@ import de.micromata.borgbutler.json.borg.ProgressInfo;
 import de.micromata.borgbutler.server.rest.queue.JsonJob;
 import de.micromata.borgbutler.server.rest.queue.JsonJobQueue;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +78,13 @@ public class JobsRest {
                     if (job.getStatus() != AbstractJob.Status.RUNNING) continue;
                     long current = job.getProgressInfo().getCurrent();
                     long total = job.getProgressInfo().getTotal();
-                    current += Math.random() * total / 30;
+                    if (StringUtils.startsWith(job.getProgressInfo().getMessage(), "Calculating")) {
+                        // Info is a faster operation:
+                        current += Math.random() * total / 5;
+                    } else {
+                        // than get the complete archive file list:
+                        current += Math.random() * total / 30;
+                    }
                     if (current > total) {
                         current = 0; // Reset to beginning.
                     }
@@ -94,19 +101,20 @@ public class JobsRest {
 
 
     private JsonJob addTestJob(JsonJobQueue queue, String operation, String host, long current, long total) {
-        ProgressInfo msg = new ProgressInfo()
+        ProgressInfo progressInfo = new ProgressInfo()
                 .setCurrent(current)
                 .setTotal(total);
         JsonJob job = new JsonJob()
-                .setProgressInfo(msg)
+                .setProgressInfo(progressInfo)
                 .setStatus(AbstractJob.Status.QUEUED);
         if ("info".equals(operation)) {
-            msg.setMessage("Calculating statistics... ");
+            progressInfo.setMessage("Calculating statistics... ");
             job.setDescription("Loading info of archive '" + host + "-2018-12-05T23:10:33' of repo '" + queue.getRepo() + "'.")
                     .setCommandLineAsString("borg info --json --log-json --progress ssh://...:23/./backups/" + host + "::" + host + "-2018-12-05T23:10:33");
         } else {
-            msg.setMessage("Getting file list... ");
-            job.setCommandLineAsString("borg list --json-lines ssh://...:23/./backups/" + host + "::" + host + "-2018-12-05T17:30:38");
+            progressInfo.setMessage("Getting file list... ");
+            job.setDescription("Loading list of files of archive '" + host + "-2018-12-05T17:30:38' of repo '" + queue.getRepo() + "'.")
+                    .setCommandLineAsString("borg list --json-lines ssh://...:23/./backups/" + host + "::" + host + "-2018-12-05T17:30:38");
         }
         job.buildProgressText();
         if (current >= 0) {
