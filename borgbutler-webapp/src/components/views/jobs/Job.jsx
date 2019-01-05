@@ -34,7 +34,7 @@ class Job extends React.Component {
             content = <Progress color={'info'} value={100}>{job.status}</Progress>
         }
         let cancelDisabled = undefined;
-        if (job.status !== 'RUNNING' && job.status !== 'QUEUED') {
+        if ((job.status !== 'RUNNING' && job.status !== 'QUEUED') || job.cancellationRequested) {
             cancelDisabled = true;
         }
         return (
