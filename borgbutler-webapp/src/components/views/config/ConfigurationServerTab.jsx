@@ -119,6 +119,8 @@ class ConfigServerTab extends React.Component {
                 >
                     Do you really want to clear all caches? All Archive file lists and caches for repo and archive
                     information will be cleared.
+                    <br/>
+                    This is a safe option but it may take some time to re-fill the caches (on demand) again.
                 </ConfirmModal>
                 <form>
                     <FormLabelField>
