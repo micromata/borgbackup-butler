@@ -89,7 +89,8 @@ class JobMonitorPanel extends React.Component {
                     <h2>To-do</h2>
                     Zum Testen den Button "Test-Mode" drücken.
                     <ol>
-                        <li>Kein Geflackere.</li>
+                        <li>Kein Geflackere: Nach einem fetch (alle 2 Sekunden) wird der das ganze DOM neu gerendert, obwohl sich eigentlich nix
+                        geändert hat. Schön wäre, wenn sich nur die Komponenten neu rendern, die auch in den REST-Daten von fetch sich geändert haben.</li>
                         <li>Toggle-Status z. B. von My Computer merken (zum Reproduzieren: Klick auf "My Computer"..</li>
                         <li>Cancel-Button soll rechts neben die Progressbar.</li>
                     </ol>
