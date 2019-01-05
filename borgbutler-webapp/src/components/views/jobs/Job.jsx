@@ -1,5 +1,6 @@
 import React from 'react';
 import {Progress} from 'reactstrap';
+import {IconCancelJob} from '../../general/IconComponents'
 
 function Job({job}) {
     let content = undefined;
@@ -11,7 +12,7 @@ function Job({job}) {
     return (
         <div>
             <div>{job.description}</div>
-            {content}
+            <div>{content}<IconCancelJob /></div>
         </div>
     )
 }

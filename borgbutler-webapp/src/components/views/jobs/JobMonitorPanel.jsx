@@ -85,6 +85,16 @@ class JobMonitorPanel extends React.Component {
         }
         return <React.Fragment>
             {content}
+            <br/>
+            <code>
+                <h2>To-do</h2>
+                Zum Testen den Button "Test-Mode" drücken.
+                <ol>
+                    <li>Kein Geflackere.</li>
+                    <li>Toggle-Status z. B. von My Computer merken (zum Reproduzieren: Klick auf "My Computer"..</li>
+                    <li>Cancel-Button soll rechts neben die Progressbar.</li>
+                </ol>
+            </code>
         </React.Fragment>;
     }
 
