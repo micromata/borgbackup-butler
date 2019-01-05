@@ -1,11 +1,13 @@
 package de.micromata.borgbutler.server.rest.queue;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.micromata.borgbutler.BorgJob;
 import de.micromata.borgbutler.jobs.AbstractJob;
 import de.micromata.borgbutler.json.borg.ProgressInfo;
 import de.micromata.borgbutler.server.user.UserUtils;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 public class JsonJob {
     @Getter
@@ -48,6 +50,7 @@ public class JsonJob {
 
     /**
      * Builds and sets progressText from the progressInfo object if given.
+     *
      * @return progressText
      */
     public String buildProgressText() {
@@ -59,6 +62,13 @@ public class JsonJob {
             sb.append(progressInfo.getMessage());
         }
         if (progressInfo.getCurrent() > 0) {
+            if (StringUtils.indexOf(progressInfo.getMessage(), '%') < 0) {
+                // No percentage given by borg, try to create an own one:
+                short percentage = getProgressPercent();
+                if (percentage >= 0) {
+                    sb.append(" ").append(percentage).append("%");
+                }
+            }
             sb.append(" (").append(UserUtils.formatNumber(progressInfo.getCurrent()));
             if (progressInfo.getTotal() > 0) {
                 sb.append("/").append(UserUtils.formatNumber(progressInfo.getTotal()));
@@ -68,9 +78,25 @@ public class JsonJob {
         if (progressInfo.isFinished()) {
             sb.append(" (finished)");
         }
-        sb.append(".");
         progressText = sb.toString();
         return progressText;
     }
 
+    /**
+     * If current and total of {@link ProgressInfo} is available, this value is given, otherwise this value is -1.
+     */
+    @JsonProperty
+    public short getProgressPercent() {
+        if (progressInfo == null || progressInfo.getTotal() <= 0) {
+            return -1;
+        }
+        long value = 100 * progressInfo.getCurrent() / progressInfo.getTotal();
+        if (value < 0) {
+            return 0;
+        }
+        if (value >= 100) {
+            return 100;
+        }
+        return (short) value;
+    }
 }

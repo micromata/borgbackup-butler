@@ -63,34 +63,27 @@ public class JobsRest {
         if (testList == null) {
             testList = new ArrayList<>();
             JsonJobQueue queue = new JsonJobQueue().setRepo("My Computer");
-            addTestJob(queue, "Calculating statistics... ",
-                    "Loading info of archive 'my-computer-2018-12-05T23:10:33' of repo 'My-Computer-Cloud'.", 0, 1000);
-            addTestJob(queue, null,
-                    "Loading list of files of archive 'my-computer-2018-12-05T23:10:33' of repo 'My-Computer-Cloud'.", 0, 0);
+            addTestJob(queue, "info", "my-macbook", 0, 2342);
+            addTestJob(queue, "list", "my-macbook", -1, -1);
             testList.add(queue);
 
             queue = new JsonJobQueue().setRepo("My Server");
-            addTestJob(queue, "Getting file list...",
-                    "Loading list of files of archive 'my-server-2018-12-05T23:10:33' of repo 'My-Server-Cloud'.", 0, 0);
-            addTestJob(queue, null,
-                    "Loading info of archive 'my-server-2018-12-05T23:10:33' of repo 'My-Server-Cloud'.", 0, 1000);
+            addTestJob(queue, "list", "my-server", 0, 1135821);
+            addTestJob(queue, "info", "my-server", -1, -1);
             testList.add(queue);
         } else {
             for (JsonJobQueue jobQueue : testList) {
                 for (JsonJob job : jobQueue.getJobs()) {
                     if (job.getStatus() != AbstractJob.Status.RUNNING) continue;
+                    long current = job.getProgressInfo().getCurrent();
+                    long total = job.getProgressInfo().getTotal();
+                    current += Math.random() * total / 30;
+                    if (current > total) {
+                        current = 0; // Reset to beginning.
+                    }
+                    job.getProgressInfo().setCurrent(current);
                     if (job.getProgressText().startsWith("Calculating")) {
-                        long current = job.getProgressInfo().getCurrent();
-                        current += Math.random() * 100;
-                        if (current > 1000) {
-                            current = 0; // Reset to beginning.
-                        }
-                        job.getProgressInfo().setCurrent(current);
-                        job.getProgressInfo().setMessage("Calculating statistics...  " + Math.round(current / 10) + "%");
-                    } else {
-                        long current = job.getProgressInfo().getCurrent();
-                        current += Math.random() * 10000;
-                        job.getProgressInfo().setCurrent(current);
+                        job.getProgressInfo().setMessage("Calculating statistics...  " + Math.round(100 * current / total) + "%");
                     }
                     job.buildProgressText();
                 }
@@ -100,20 +93,24 @@ public class JobsRest {
     }
 
 
-    private JsonJob addTestJob(JsonJobQueue queue, String message, String description, long current, long total) {
+    private JsonJob addTestJob(JsonJobQueue queue, String operation, String host, long current, long total) {
         ProgressInfo msg = new ProgressInfo()
-                .setMessage(message)
                 .setCurrent(current)
                 .setTotal(total);
         JsonJob job = new JsonJob()
                 .setProgressInfo(msg)
-                .setDescription(description)
-                .setStatus(AbstractJob.Status.QUEUED)
-                .setCommandLineAsString("borg info --json --log-json --progress ssh://...:23/./backups/my-computer::my-computer-2018-12-05T23:10:33");
+                .setStatus(AbstractJob.Status.QUEUED);
+        if ("info".equals(operation)) {
+            msg.setMessage("Calculating statistics... ");
+            job.setDescription("Loading info of archive '" + host + "-2018-12-05T23:10:33' of repo '" + queue.getRepo() + "'.")
+                    .setCommandLineAsString("borg info --json --log-json --progress ssh://...:23/./backups/" + host + "::" + host + "-2018-12-05T23:10:33");
+        } else {
+            msg.setMessage("Getting file list... ");
+            job.setCommandLineAsString("borg list --json-lines ssh://...:23/./backups/" + host + "::" + host + "-2018-12-05T17:30:38");
+        }
         job.buildProgressText();
-        if (message != null) {
+        if (current >= 0) {
             job.setStatus(AbstractJob.Status.RUNNING);
-
         } else {
             job.setStatus(AbstractJob.Status.QUEUED);
         }

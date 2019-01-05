@@ -174,14 +174,18 @@ public class BorgCommands {
         // The returned job might be an already queued or running one!
         final ProgressInfo progressInfo = new ProgressInfo()
                 .setMessage("Getting file list...")
-                .setCurrent(0);
+                .setCurrent(0)
+                .setTotal(archive.getStats().getNfiles());
         BorgJob<List<BorgFilesystemItem>> job = BorgQueueExecutor.getInstance().execute(new BorgJob<List<BorgFilesystemItem>>(command) {
             @Override
             protected void processStdOutLine(String line, int level) {
                 BorgFilesystemItem item = JsonUtils.fromJson(BorgFilesystemItem.class, line);
                 item.setMtime(DateUtils.format(item.getMtime()));
                 payload.add(item);
-                setProgressInfo(progressInfo.incrementCurrent());
+                if ("-".equals(item.getType())) {
+                    // Only increment for files, because number of files is the total.
+                    setProgressInfo(progressInfo.incrementCurrent());
+                }
             }
         });
         job.payload = new ArrayList<>();

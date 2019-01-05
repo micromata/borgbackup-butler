@@ -17,9 +17,13 @@ class Job extends React.Component {
         let content = undefined;
         let job = this.props.job;
         if (job.status === 'RUNNING') {
-            content = <Progress animated color={'success'} value="100">{job.progressText}</Progress>;
+            let progressPercent = 100;
+            if (job.progressPercent >= 0 && job.progressPercent <= 100) {
+                progressPercent = job.progressPercent;
+            }
+            content = <Progress animated color={'success'} value={progressPercent}>{job.progressText}</Progress>;
         } else {
-            content = <Progress color={'info'} value="100">{job.status}</Progress>
+            content = <Progress color={'info'} value={100}>{job.status}</Progress>
         }
         return (
             <div>
@@ -28,8 +32,8 @@ class Job extends React.Component {
                 <Collapse isOpen={this.state.collapse}>
                     <Card>
                         <CardBody>
-                            <table><tr><th>Status</th><td>{job.status}</td></tr>
-                            <tr><th>Command line</th><td>{job.commandLineAsString}</td></tr></table>
+                            <table><tbody><tr><th>Status</th><td>{job.status}</td></tr>
+                            <tr><th>Command line</th><td>{job.commandLineAsString}</td></tr></tbody></table>
                         </CardBody>
                     </Card>
                 </Collapse>
