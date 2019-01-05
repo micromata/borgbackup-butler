@@ -16,7 +16,7 @@ public class JobQueue<T> {
     private List<AbstractJob<T>> doneJobs = new LinkedList<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private  static synchronized void setNextJobId(AbstractJob<?> job) {
+    private static synchronized void setNextJobId(AbstractJob<?> job) {
         job.setUniqueJobNumber(jobSequence++);
     }
 
@@ -30,6 +30,7 @@ public class JobQueue<T> {
 
     /**
      * Searches only for queued jobs (not done jobs).
+     *
      * @param uniqueJobNumber
      * @return The job if any job with the given unique job number is queued, otherwise null.
      */
@@ -76,7 +77,13 @@ public class JobQueue<T> {
         return null;
     }
 
-    private void organizeQueue() {
+    /**
+     * Removes all finished or cancelled jobs from the queued list and adds them to the list of done jobs.
+     * Will be called automatically after finishing a job.
+     * <br>
+     * You should call this method after cancelling a job.
+     */
+    public void refreshQueue() {
         synchronized (queue) {
             if (queue.isEmpty()) {
                 return;
@@ -120,7 +127,11 @@ public class JobQueue<T> {
                     // Don't overwrite status failed set by job.
                     job.setStatus(AbstractJob.Status.DONE);
                 }
-                organizeQueue();
+                if (job.isCancellationRequested() && job.getStatus() != AbstractJob.Status.CANCELLED) {
+                    log.info("Job #" + job.getUniqueJobNumber() + " cancelled: " + job.getId());
+                    job.setCancelled();
+                }
+                refreshQueue();
                 return result;
             } catch (Exception ex) {
                 log.error("Error while executing job '" + job.getId() + "': " + ex.getMessage(), ex);

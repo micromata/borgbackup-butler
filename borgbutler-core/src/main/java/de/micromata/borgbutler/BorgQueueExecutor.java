@@ -36,25 +36,24 @@ public class BorgQueueExecutor {
     }
 
     public void cancelJob(long uniqueJobNumber) {
-        AbstractJob<?> job = getQueuedJobByUniqueJobNumber(uniqueJobNumber);
+        AbstractJob<?> job = null;
+        JobQueue<?> queue = null;
+        Iterator<JobQueue<String>> it = queueMap.values().iterator();
+        while (it.hasNext()) {
+            queue = it.next();
+            job = queue.getQueuedJobByUniqueJobNumber(uniqueJobNumber);
+            if (job != null) {
+                break;
+            }
+        }
         if (job == null) {
             log.info("Can't cancel job #" + uniqueJobNumber + ". Not found as queued job (may-be already cancelled or finished). Nothing to do.");
             return;
         }
         job.cancel();
+        queue.refreshQueue();
     }
-
-    private AbstractJob<?> getQueuedJobByUniqueJobNumber(long uniqueJobNumber) {
-        Iterator<JobQueue<String>> it = queueMap.values().iterator();
-        while (it.hasNext()) {
-            AbstractJob<?> job = it.next().getQueuedJobByUniqueJobNumber(uniqueJobNumber);
-            if (job != null) {
-                return job;
-            }
-        }
-        return null;
-    }
-
+    
     /**
      * For displaying purposes.
      *

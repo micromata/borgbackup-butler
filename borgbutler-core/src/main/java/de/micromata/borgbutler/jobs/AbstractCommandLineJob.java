@@ -127,7 +127,6 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
             log.info("Cancelling job #" + getUniqueJobNumber() + ": " + getId());
             watchdog.destroyProcess();
             watchdog = null;
-            setCancelled();
         }
     }
 
