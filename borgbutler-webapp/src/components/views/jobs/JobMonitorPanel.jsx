@@ -52,7 +52,8 @@ class JobMonitorPanel extends React.Component {
     };
 
     render() {
-        let content = undefined;
+        let content = '';
+        let todo = '';
 
         if (this.state.isFetching) {
             content = <i>Loading...</i>;
@@ -81,20 +82,22 @@ class JobMonitorPanel extends React.Component {
             } else {
                 content = <React.Fragment>No jobs are running or queued.</React.Fragment>
             }
-
+        }
+        if (isDevelopmentMode()) {
+            todo = <React.Fragment><br/>
+                <code>
+                    <h2>To-do</h2>
+                    Zum Testen den Button "Test-Mode" drücken.
+                    <ol>
+                        <li>Kein Geflackere.</li>
+                        <li>Toggle-Status z. B. von My Computer merken (zum Reproduzieren: Klick auf "My Computer"..</li>
+                        <li>Cancel-Button soll rechts neben die Progressbar.</li>
+                    </ol>
+                </code></React.Fragment>
         }
         return <React.Fragment>
             {content}
-            <br/>
-            <code>
-                <h2>To-do</h2>
-                Zum Testen den Button "Test-Mode" drücken.
-                <ol>
-                    <li>Kein Geflackere.</li>
-                    <li>Toggle-Status z. B. von My Computer merken (zum Reproduzieren: Klick auf "My Computer"..</li>
-                    <li>Cancel-Button soll rechts neben die Progressbar.</li>
-                </ol>
-            </code>
+            {todo}
         </React.Fragment>;
     }
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import {FormButton, FormCheckbox, FormLabelField, FormLabelInputField} from "../../general/forms/FormComponents";
-import {getRestServiceUrl} from "../../../utilities/global";
+import {getRestServiceUrl, isDevelopmentMode} from "../../../utilities/global";
 import I18n from "../../general/translation/I18n";
 import ErrorAlertGenericRestFailure from '../../general/ErrorAlertGenericRestFailure';
 import Loading from "../../general/Loading";
@@ -95,6 +95,7 @@ class ConfigServerTab extends React.Component {
     }
 
     render() {
+        let todo = '';
         if (this.state.loading) {
             return <Loading/>;
         }
@@ -102,6 +103,14 @@ class ConfigServerTab extends React.Component {
         if (this.state.failed) {
             return <ErrorAlertGenericRestFailure handleClick={this.loadConfig}/>;
         }
+        if (isDevelopmentMode()) {
+            todo = <code>
+                    <h2>To-do</h2>
+                    Statt dem windows.confirm-Dialog nach Klicken auf 'Clear all caches' einen Modaldialog nehmen (in der Art
+                    von ConfirmReloadDialog.jsx). Am besten als Komponente verwendbar.
+                </code>
+        }
+
         return (
             <form>
                 <FormLabelField>
@@ -125,6 +134,7 @@ class ConfigServerTab extends React.Component {
                                   name="webDevelopmentMode"
                                   onChange={this.handleCheckboxChange}/>
                 </FormLabelField>
+                {todo}
             </form>
         );
     }
