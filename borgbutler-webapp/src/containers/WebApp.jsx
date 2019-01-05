@@ -10,6 +10,7 @@ import RepoArchiveListView from '../components/views/repos/RepoArchiveListView';
 import ArchiveView from '../components/views/archives/ArchiveView';
 import ConfigurationPage from '../components/views/config/ConfigurationPage';
 import RestServices from '../components/views/develop/RestServices';
+import JobMonitorView from '../components/views/jobs/JobMonitorView';
 import {isDevelopmentMode} from '../utilities/global';
 import LogPage from '../components/views/logging/LogPage';
 import Footer from '../components/views/footer/Footer';
@@ -28,6 +29,7 @@ class WebApp extends React.Component {
         let routes = [
             ['Start', '/', Start],
             ['Repositories', '/repos', RepoListView],
+            ['Job monitor', '/jobmonitor', JobMonitorView],
             [getTranslation('logviewer'), '/logging', LogPage],
             [getTranslation('configuration'), '/config', ConfigurationPage]
         ];
