@@ -9,19 +9,32 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class JobQueue<T> {
-    private static final int MAX_DONE_JOBS_SIZE = 50;
+    private static final int MAX_OLD_JOBS_SIZE = 50;
     private static long jobSequence = 0;
     private Logger log = LoggerFactory.getLogger(JobQueue.class);
     private List<AbstractJob<T>> queue = new ArrayList<>();
-    private List<AbstractJob<T>> doneJobs = new LinkedList<>();
+    /**
+     * Finished, failed and cancelled jobs.
+     */
+    private List<AbstractJob<T>> oldJobs = new LinkedList<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private static synchronized void setNextJobId(AbstractJob<?> job) {
         job.setUniqueJobNumber(jobSequence++);
     }
 
+    /**
+     * @return the number of running and queued jobs of this queue or 0 if no job is in the queue.
+     */
     public int getQueueSize() {
         return queue.size();
+    }
+
+    /**
+     * @return the number of old jobs (done, failed or cancelled) stored. The size of stored old jobs is limited.
+     */
+    public int getOldJobsSize() {
+        return oldJobs.size();
     }
 
     public Iterator<AbstractJob<T>> getQueueIterator() {
@@ -93,13 +106,13 @@ public class JobQueue<T> {
                 AbstractJob<T> job = it.next();
                 if (job.isFinished()) {
                     it.remove();
-                    synchronized (doneJobs) {
-                        doneJobs.add(0, job);
+                    synchronized (oldJobs) {
+                        oldJobs.add(0, job);
                     }
                 }
-                synchronized (doneJobs) {
-                    while (doneJobs.size() > MAX_DONE_JOBS_SIZE) {
-                        doneJobs.remove(doneJobs.size() - 1);
+                synchronized (oldJobs) {
+                    while (oldJobs.size() > MAX_OLD_JOBS_SIZE) {
+                        oldJobs.remove(oldJobs.size() - 1);
                     }
                 }
             }

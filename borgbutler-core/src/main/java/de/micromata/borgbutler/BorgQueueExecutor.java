@@ -15,6 +15,7 @@ import java.util.*;
 public class BorgQueueExecutor {
     private Logger log = LoggerFactory.getLogger(BorgQueueExecutor.class);
     private static final BorgQueueExecutor instance = new BorgQueueExecutor();
+    private static final String NONE_REPO_QUEUE = "--NO_REPO--";
 
     public static BorgQueueExecutor getInstance() {
         return instance;
@@ -22,6 +23,25 @@ public class BorgQueueExecutor {
 
     // key is the repo name.
     private Map<String, JobQueue<String>> queueMap = new HashMap<>();
+
+    public BorgQueueStatistics getStatistics() {
+        BorgQueueStatistics statistics = new BorgQueueStatistics();
+        Iterator<JobQueue<String>> it = queueMap.values().iterator();
+        while (it.hasNext()) {
+            JobQueue<?> queue = it.next();
+            statistics.totalNumberOfQueues++;
+            int queueSize = queue.getQueueSize();
+            if (queueSize > 0) {
+                statistics.numberOfActiveQueues++;
+                statistics.numberOfRunningAndQueuedJobs += queueSize;
+            }
+            int oldJobsSize = queue.getOldJobsSize();
+            if (oldJobsSize > 0) {
+                statistics.numberOfOldJobs += oldJobsSize;
+            }
+        }
+        return statistics;
+    }
 
     /**
      * @return A list of all repos with queues.
@@ -98,7 +118,7 @@ public class BorgQueueExecutor {
     }
 
     private String getQueueName(BorgRepoConfig repoConfig) {
-        return repoConfig != null ? repoConfig.getId() : "--NO_REPO--";
+        return repoConfig != null ? repoConfig.getId() : NONE_REPO_QUEUE;
     }
 
     public BorgJob<Void> execute(BorgCommand command) {

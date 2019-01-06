@@ -66,6 +66,17 @@ public class JobsRest {
         return JsonUtils.toJson(queueList, prettyPrinter);
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/statistics")
+    /**
+     * @return The total number of jobs queued or running (and other statistics): {@link de.micromata.borgbutler.BorgQueueStatistics}.
+     * @see JsonUtils#toJson(Object, boolean)
+     */
+    public String getStatistics() {
+        return JsonUtils.toJson(BorgQueueExecutor.getInstance().getStatistics());
+    }
+
     private JsonJobQueue getQueue(String repo) {
         BorgQueueExecutor borgQueueExecutor = BorgQueueExecutor.getInstance();
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repo);
