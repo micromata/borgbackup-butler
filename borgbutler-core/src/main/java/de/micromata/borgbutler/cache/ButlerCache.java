@@ -294,7 +294,7 @@ public class ButlerCache {
                 }
             }
             if (items == null && forceLoad) {
-                log.warn("Repo::archiv with name '" + archive.getBorgIdentifier() + "' not found.");
+                log.warn("Repo::archiv with name '" + archive.getBorgIdentifier() + "' not found or job was cancelled.");
             }
             return items;
         }
