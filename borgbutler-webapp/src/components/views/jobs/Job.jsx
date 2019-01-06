@@ -1,6 +1,6 @@
 import React from 'react';
 import {Redirect} from 'react-router-dom';
-import {Button, Card, CardBody, Collapse, Progress} from 'reactstrap';
+import {Button, Card, CardBody, Collapse, ListGroupItem, Progress} from 'reactstrap';
 import {IconCancel} from '../../general/IconComponents'
 import {getRestServiceUrl} from "../../../utilities/global";
 import PropTypes from "prop-types";
@@ -56,7 +56,7 @@ class Job extends React.Component {
             cancelDisabled = true;
         }
         return (
-            <div>
+            <ListGroupItem>
                 {this.renderRedirect()}
                 <Button color="link" onClick={this.toggle}>{job.description}</Button>
                 <div>{content}
@@ -81,7 +81,7 @@ class Job extends React.Component {
                         </CardBody>
                     </Card>
                 </Collapse>
-            </div>
+            </ListGroupItem>
         )
     }
 }

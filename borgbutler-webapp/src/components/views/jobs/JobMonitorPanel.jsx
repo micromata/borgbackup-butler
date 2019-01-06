@@ -97,11 +97,10 @@ class JobMonitorPanel extends React.Component {
                             geändert hat. Schön wäre, wenn sich nur die Komponenten neu rendern, die auch in den
                             REST-Daten von fetch sich geändert haben.
                         </li>
-                        <li>Toggle-Status z. B. von My Computer und von einem einzelnen Job merken (zum Reproduzieren:
-                            Klick auf "My Computer" bzw. "Loading info of ...".
+                        <li>Toggle-Status einzelner Jobs merken (zum Reproduzieren:
+                            Klick auf "Loading info of ...".
                             <br/>Es wäre
-                            auch OK, wenn genau nur ein Job aufgeklappt wäre. Auf das Auf- und Zuklappen von "My
-                            Computer" kann ich verzichten, wenn es einfacher werden würde.
+                            auch OK, wenn genau nur ein Job aufgeklappt wäre.
                         </li>
                         <li>Cancel-Button soll rechts neben die Progressbar.</li>
                     </ol>
