@@ -26,10 +26,14 @@ class Job extends React.Component {
         let job = this.props.job;
         if (job.status === 'RUNNING') {
             let progressPercent = 100;
+            let color = 'success';
+            if (job.cancellationRequested) {
+                color = 'warning';
+            }
             if (job.progressPercent >= 0 && job.progressPercent <= 100) {
                 progressPercent = job.progressPercent;
             }
-            content = <Progress animated color={'success'} value={progressPercent}>{job.progressText}</Progress>;
+            content = <Progress animated color={color} value={progressPercent}>{job.progressText}</Progress>;
         } else {
             content = <Progress color={'info'} value={100}>{job.status}</Progress>
         }
@@ -41,7 +45,8 @@ class Job extends React.Component {
             <div>
                 <Button color="link" onClick={this.toggle}>{job.description}</Button>
                 <div>{content}
-                    <Button color={'danger'} onClick={() => this.cancelJob(job.uniqueJobNumber)} disabled={cancelDisabled}><IconCancel/></Button>
+                    <Button color={'danger'} onClick={() => this.cancelJob(job.uniqueJobNumber)}
+                            disabled={cancelDisabled}><IconCancel/></Button>
                 </div>
                 <Collapse isOpen={this.state.collapse}>
                     <Card>
