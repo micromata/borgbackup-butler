@@ -190,8 +190,8 @@ public class BorgCommands {
         });
         job.payload = new ArrayList<>();
         JobResult<String> jobResult = job.getResult();
-        if (jobResult.getStatus() != JobResult.Status.OK) {
-            return job.getPayload();
+        if (jobResult == null ||jobResult.getStatus() != JobResult.Status.OK) {
+            return null;
         }
         return job.payload;
     }
