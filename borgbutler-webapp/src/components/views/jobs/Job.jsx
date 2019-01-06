@@ -60,11 +60,11 @@ class Job extends React.Component {
             <ListGroupItem>
                 {this.renderRedirect()}
                 <div class="row">
-                    <div class="col col-11 job-progress">
+                    <div class="job-progress">
                         <Button color="link" onClick={this.toggle}>{job.description}</Button>
                         {content}
                     </div>
-                    <div class="col col-1 job-cancel"><Button color={'danger'} onClick={() => this.cancelJob(job.uniqueJobNumber)}
+                    <div class="job-cancel"><Button color={'danger'} onClick={() => this.cancelJob(job.uniqueJobNumber)}
                                              disabled={cancelDisabled}><IconCancel/></Button>
                     </div>
                 </div>
