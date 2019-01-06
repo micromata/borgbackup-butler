@@ -1,9 +1,9 @@
 import React from 'react';
 import {Button} from 'reactstrap';
-import {getRestServiceUrl, isDevelopmentMode} from "../../../utilities/global";
-import JobQueue from "./JobQueue";
-import ErrorAlert from "../archives/ArchiveView";
-import PropTypes from "prop-types";
+import {getRestServiceUrl, isDevelopmentMode} from '../../../utilities/global';
+import JobQueue from './JobQueue';
+import ErrorAlert from '../archives/ArchiveView';
+import PropTypes from 'prop-types';
 
 class JobMonitorPanel extends React.Component {
     state = {
@@ -57,7 +57,7 @@ class JobMonitorPanel extends React.Component {
         let content = '';
         let todo = '';
 
-        if (this.state.isFetching) {
+        if (this.state.isFetching && !this.state.queues) {
             content = <i>Loading...</i>;
         } else if (this.state.failed) {
             content = <ErrorAlert
