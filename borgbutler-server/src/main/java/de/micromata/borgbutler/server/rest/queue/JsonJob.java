@@ -7,6 +7,7 @@ import de.micromata.borgbutler.json.borg.ProgressInfo;
 import de.micromata.borgbutler.server.user.UserUtils;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class JsonJob {
@@ -62,22 +63,33 @@ public class JsonJob {
             return "";
         }
         StringBuilder sb = new StringBuilder();
-        if (progressInfo.getMessage() != null) {
-            sb.append(progressInfo.getMessage());
-        }
         if (progressInfo.getCurrent() > 0) {
             if (StringUtils.indexOf(progressInfo.getMessage(), '%') < 0) {
                 // No percentage given by borg, try to create an own one:
                 short percentage = getProgressPercent();
                 if (percentage >= 0) {
-                    sb.append(" ").append(percentage).append("%");
+                    sb.append(percentage).append("%");
                 }
             }
-            sb.append(" (").append(UserUtils.formatNumber(progressInfo.getCurrent()));
-            if (progressInfo.getTotal() > 0) {
-                sb.append("/").append(UserUtils.formatNumber(progressInfo.getTotal()));
+            sb.append(" (");
+            if ("extract".equals(progressInfo.getMsgid())) {
+                sb.append(FileUtils.byteCountToDisplaySize(progressInfo.getCurrent()));
+            } else {
+                sb.append(UserUtils.formatNumber(progressInfo.getCurrent()));
             }
-            sb.append(")");
+            if (progressInfo.getTotal() > 0) {
+                sb.append("/");
+                if ("extract".equals(progressInfo.getMsgid())) {
+                    sb.append(FileUtils.byteCountToDisplaySize(progressInfo.getTotal()));
+                } else {
+
+                    sb.append(UserUtils.formatNumber(progressInfo.getTotal()));
+                }
+            }
+            sb.append("): ");
+        }
+        if (progressInfo.getMessage() != null) {
+            sb.append(progressInfo.getMessage());
         }
         if (progressInfo.isFinished()) {
             sb.append(" (finished)");
