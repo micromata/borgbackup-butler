@@ -53,7 +53,9 @@ class ArchiveFilelistCache {
             log.info("Saving archive content as file list: " + file.getAbsolutePath());
             try (ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(file))))) {
                 outputStream.writeObject(filesystemItems.size());
-                for (BorgFilesystemItem item : filesystemItems) {
+                Iterator<BorgFilesystemItem> it = filesystemItems.iterator();
+                while(it.hasNext()) {
+                    BorgFilesystemItem item = it.next();
                     outputStream.writeObject(item);
                 }
                 outputStream.writeObject("EOF");
@@ -118,13 +120,13 @@ class ArchiveFilelistCache {
             return null;
         }
         log.info("Loading archive content as file list from: " + file.getAbsolutePath());
-        List<BorgFilesystemItem> list = null;
         try {
             // Set last modified time of file:
             Files.setAttribute(file.toPath(), "lastModifiedTime", FileTime.fromMillis(System.currentTimeMillis()));
         } catch (IOException ex) {
             log.error("Can't set lastModifiedTime on file '" + file.getAbsolutePath() + "'. Pruning old cache files may not work.");
         }
+        List<BorgFilesystemItem> list =  new ArrayList<>();
         try (ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(new GzipCompressorInputStream(new FileInputStream(file))))) {
             Object obj = inputStream.readObject();
             if (!(obj instanceof Integer)) {
@@ -132,7 +134,6 @@ class ArchiveFilelistCache {
                 return null;
             }
             int size = (Integer) obj;
-            list = new ArrayList<>();
             int fileNumber = -1;
             for (int i = 0; i < size; i++) {
                 ++fileNumber;

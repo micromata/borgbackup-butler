@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -269,30 +270,34 @@ public class ButlerCache {
         if (archive == null || StringUtils.isBlank(archive.getName())) {
             return null;
         }
-        List<BorgFilesystemItem> items = archiveFilelistCache.load(repoConfig, archive, filter);
-        if (items == null && forceLoad) {
-            List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive);
-            if (CollectionUtils.isNotEmpty(list)) {
-                archiveFilelistCache.save(repoConfig, archive, list);
-                items = new ArrayList<>();
-                int fileNumber = -1;
-                for (BorgFilesystemItem item : list) {
-                    ++fileNumber;
-                    item.setFileNumber(fileNumber);
-                    if (filter == null || filter.matches(item)) {
-                        items.add(item);
-                        if (filter != null && filter.isFinished()) break;
+        synchronized (archive) {
+            List<BorgFilesystemItem> items = archiveFilelistCache.load(repoConfig, archive, filter);
+            if (items == null && forceLoad) {
+                List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive);
+                if (CollectionUtils.isNotEmpty(list)) {
+                    archiveFilelistCache.save(repoConfig, archive, list);
+                    items = new ArrayList<>();
+                    int fileNumber = -1;
+                    Iterator<BorgFilesystemItem> it = list.iterator(); // Don't use for-each (ConcurrentModificationException)
+                    while (it.hasNext()) {
+                        BorgFilesystemItem item = it.next();
+                        ++fileNumber;
+                        item.setFileNumber(fileNumber);
+                        if (filter == null || filter.matches(item)) {
+                            items.add(item);
+                            if (filter != null && filter.isFinished()) break;
+                        }
+                    }
+                    if (filter != null) {
+                        items = filter.reduce(items);
                     }
                 }
-                if (filter != null) {
-                    items = filter.reduce(items);
-                }
             }
+            if (items == null && forceLoad) {
+                log.warn("Repo::archiv with name '" + archive.getBorgIdentifier() + "' not found.");
+            }
+            return items;
         }
-        if (items == null && forceLoad) {
-            log.warn("Repo::archiv with name '" + archive.getBorgIdentifier() + "' not found.");
-        }
-        return items;
     }
 
     public List<BorgFilesystemItem> getArchiveContent(File file) {
