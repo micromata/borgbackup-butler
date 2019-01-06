@@ -381,6 +381,11 @@ div.progress-bar {
     font-weight: bold;
 }
 
+div.progress-bar.bg-success {
+    text-align: left;
+    padding-left: 5px;
+}
+
 div.progress {
     background-color: #bbbbbb;
 }
