@@ -5,7 +5,8 @@ import classNames from 'classnames';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {getRestServiceUrl, humanFileSize} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
-import {IconCheck, IconRefresh} from "../../general/IconComponents";
+import {IconCheck, IconRefresh} from '../../general/IconComponents';
+import JobMonitorPanel from '../jobs/JobMonitorPanel';
 
 class RepoArchiveListView extends React.Component {
 
@@ -64,7 +65,7 @@ class RepoArchiveListView extends React.Component {
         let pageHeader = '';
 
         if (this.state.isFetching) {
-            content = <i>Loading...</i>;
+            content = <JobMonitorPanel />;
         } else if (this.state.failed) {
             content = <ErrorAlert
                 title={'Cannot load Repositories'}

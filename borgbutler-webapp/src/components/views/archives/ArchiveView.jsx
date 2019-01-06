@@ -3,9 +3,10 @@ import {Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {getRestServiceUrl, humanFileSize, humanSeconds} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
-import {IconRefresh} from "../../general/IconComponents";
-import classNames from "classnames";
-import FileListPanel from "./FileListPanel";
+import {IconRefresh} from '../../general/IconComponents';
+import classNames from 'classnames';
+import FileListPanel from './FileListPanel';
+import JobMonitorPanel from '../jobs/JobMonitorPanel';
 
 class ArchiveView extends React.Component {
 
@@ -62,7 +63,7 @@ class ArchiveView extends React.Component {
         let pageHeader = '';
 
         if (this.state.isFetching) {
-            content = <i>Loading...</i>;
+            content = <JobMonitorPanel/>;
         } else if (this.state.failed) {
             content = <ErrorAlert
                 title={'Cannot load Repositories'}

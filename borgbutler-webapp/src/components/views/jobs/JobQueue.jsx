@@ -1,6 +1,7 @@
 import React from 'react';
 import {Button, Card, CardBody, Collapse} from 'reactstrap';
 import Job from "./Job";
+import PropTypes from "prop-types";
 
 class JobQueue extends React.Component {
     constructor(props) {
@@ -22,6 +23,7 @@ class JobQueue extends React.Component {
                         <CardBody>
                             {this.props.queue.jobs
                                 .map((job, index) => <Job
+                                    embedded={this.props.embedded}
                                     job={job}
                                     key={job.commandLineAsString}
                                 />)}
@@ -32,5 +34,9 @@ class JobQueue extends React.Component {
         );
     }
 }
+
+JobQueue.propTypes = {
+    embedded: PropTypes.bool
+};
 
 export default JobQueue;

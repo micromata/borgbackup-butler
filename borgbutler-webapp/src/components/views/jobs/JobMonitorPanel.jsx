@@ -3,6 +3,7 @@ import {Button} from 'reactstrap';
 import {getRestServiceUrl, isDevelopmentMode} from "../../../utilities/global";
 import JobQueue from "./JobQueue";
 import ErrorAlert from "../archives/ArchiveView";
+import PropTypes from "prop-types";
 
 class JobMonitorPanel extends React.Component {
     state = {
@@ -71,11 +72,12 @@ class JobMonitorPanel extends React.Component {
                 content = <React.Fragment>
                     {this.state.queues
                         .map((queue) => <JobQueue
+                            embedded={this.props.embedded}
                             queue={queue}
                             key={queue.repo}
                         />)}
                 </React.Fragment>;
-            } else if (isDevelopmentMode()) {
+            } else if (isDevelopmentMode() && !this.props.embedded) {
                 content = <React.Fragment>No jobs are running or queued.<br/><br/>
                     <Button color="primary" onClick={this.toggleTestMode}>Test mode</Button>
                 </React.Fragment>
@@ -83,7 +85,7 @@ class JobMonitorPanel extends React.Component {
                 content = <React.Fragment>No jobs are running or queued.</React.Fragment>
             }
         }
-        if (isDevelopmentMode()) {
+        if (isDevelopmentMode() && !this.props.embedded) {
             todo = <React.Fragment><br/>
                 <code>
                     <h2>To-do</h2>
@@ -117,5 +119,14 @@ class JobMonitorPanel extends React.Component {
         this.toggleTestMode = this.toggleTestMode.bind(this);
     }
 }
+
+JobMonitorPanel.propTypes = {
+    embedded: PropTypes.bool
+};
+
+JobMonitorPanel.defaultProps = {
+    embedded: true
+};
+
 
 export default JobMonitorPanel;

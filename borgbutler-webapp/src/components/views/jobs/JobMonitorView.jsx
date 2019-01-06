@@ -9,7 +9,7 @@ class JobMonitorView extends React.Component {
             <PageHeader>
                 Job monitor
             </PageHeader>
-            <JobMonitorPanel/>
+            <JobMonitorPanel embedded={false}/>
         </React.Fragment>;
     };
 }

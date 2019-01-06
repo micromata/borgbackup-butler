@@ -1,24 +1,38 @@
 import React from 'react';
+import {Redirect} from 'react-router-dom';
 import {Button, Card, CardBody, Collapse, Progress} from 'reactstrap';
 import {IconCancel} from '../../general/IconComponents'
 import {getRestServiceUrl} from "../../../utilities/global";
+import PropTypes from "prop-types";
 
 class Job extends React.Component {
     constructor(props) {
         super(props);
         this.toggle = this.toggle.bind(this);
         this.cacnelJob = this.cancelJob.bind(this);
-        this.state = {collapse: false};
+        this.state = {
+            collapse: false,
+            redirect: false
+        };
     }
 
     cancelJob = (jobId) => {
         fetch(getRestServiceUrl('jobs/cancel', {
             uniqueJobNumber: jobId
         }));
+        this.setState({
+            redirect: true
+        })
     };
 
     toggle() {
         this.setState({collapse: !this.state.collapse});
+    }
+
+    renderRedirect = () => {
+        if (this.props.embedded && this.state.redirect) {
+            return <Redirect to='/jobmonitor'/>
+        }
     }
 
     render() {
@@ -43,6 +57,7 @@ class Job extends React.Component {
         }
         return (
             <div>
+                {this.renderRedirect()}
                 <Button color="link" onClick={this.toggle}>{job.description}</Button>
                 <div>{content}
                     <Button color={'danger'} onClick={() => this.cancelJob(job.uniqueJobNumber)}
@@ -70,5 +85,9 @@ class Job extends React.Component {
         )
     }
 }
+
+Job.propTypes = {
+    embedded: PropTypes.bool
+};
 
 export default Job;
