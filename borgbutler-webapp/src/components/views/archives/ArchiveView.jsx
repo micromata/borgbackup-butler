@@ -63,7 +63,7 @@ class ArchiveView extends React.Component {
         let pageHeader = '';
 
         if (this.state.isFetching) {
-            content = <JobMonitorPanel/>;
+            content = <JobMonitorPanel repo={this.state.repoId} />;
         } else if (this.state.failed) {
             content = <ErrorAlert
                 title={'Cannot load Repositories'}
@@ -101,6 +101,7 @@ class ArchiveView extends React.Component {
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId={'1'}>
                         <FileListPanel
+                            repoId={this.state.repoId}
                             archiveId={archive.id}
                             archiveShortInfoList={archive.archiveShortInfoList}
                         />

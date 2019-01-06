@@ -65,7 +65,7 @@ class RepoArchiveListView extends React.Component {
         let pageHeader = '';
 
         if (this.state.isFetching) {
-            content = <JobMonitorPanel />;
+            content = <JobMonitorPanel repo={this.state.id} />;
         } else if (this.state.failed) {
             content = <ErrorAlert
                 title={'Cannot load Repositories'}

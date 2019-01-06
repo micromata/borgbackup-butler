@@ -80,7 +80,7 @@ class FileListPanel extends React.Component {
         let breadcrumb = undefined;
 
         if (this.state.isFetching) {
-            content = <JobMonitorPanel />;
+            content = <JobMonitorPanel repo={this.props.repoId} />;
         } else if (this.state.failed) {
             content = <ErrorAlert
                 title={'Cannot load Archive file list'}

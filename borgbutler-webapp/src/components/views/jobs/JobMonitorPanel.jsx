@@ -32,6 +32,7 @@ class JobMonitorPanel extends React.Component {
             failed: false
         });
         fetch(getRestServiceUrl('jobs', {
+            repo: this.props.repo,
             testMode: this.state.testMode
         }), {
             method: 'GET',
@@ -121,11 +122,13 @@ class JobMonitorPanel extends React.Component {
 }
 
 JobMonitorPanel.propTypes = {
-    embedded: PropTypes.bool
+    embedded: PropTypes.bool,
+    repo: PropTypes.string
 };
 
 JobMonitorPanel.defaultProps = {
-    embedded: true
+    embedded: true,
+    repo: null
 };
 
 
