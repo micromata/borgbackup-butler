@@ -86,28 +86,8 @@ class JobMonitorPanel extends React.Component {
                 content = <React.Fragment>No jobs are running or queued.</React.Fragment>
             }
         }
-        if (isDevelopmentMode() && !this.props.embedded) {
-            todo = <React.Fragment><br/>
-                <code>
-                    <h2>To-do</h2>
-                    Zum Testen den Button "Test-Mode" drücken.
-                    <ol>
-                        <li>Kein Geflackere: Nach einem fetch (alle 2 Sekunden) wird der das ganze DOM neu gerendert,
-                            obwohl sich eigentlich nix
-                            geändert hat. Schön wäre, wenn sich nur die Komponenten neu rendern, die auch in den
-                            REST-Daten von fetch sich geändert haben.
-                        </li>
-                        <li>Toggle-Status einzelner Jobs merken (zum Reproduzieren:
-                            Klick auf "Loading info of ...".
-                            <br/>Es wäre
-                            auch OK, wenn genau nur ein Job aufgeklappt wäre.
-                        </li>
-                    </ol>
-                </code></React.Fragment>
-        }
         return <React.Fragment>
             {content}
-            {todo}
         </React.Fragment>;
     }
 
