@@ -86,7 +86,7 @@ class FileListPanel extends React.Component {
                 title={'Cannot load Archive file list'}
                 description={'Something went wrong during contacting the rest api.'}
                 action={{
-                    handleClick: this.fetchArchive,
+                    handleClick: this.fetchQueues,
                     title: 'Try again'
                 }}
             />;

@@ -12,8 +12,8 @@ class JobMonitorPanel extends React.Component {
     };
 
     componentDidMount = () => {
-        this.fetchArchive();
-        this.interval = setInterval(() => this.fetchArchive(), 2000);
+        this.fetchQueues();
+        this.interval = setInterval(() => this.fetchQueues(), 2000);
     };
 
     componentWillUnmount() {
@@ -26,7 +26,7 @@ class JobMonitorPanel extends React.Component {
         });
     }
 
-    fetchArchive = () => {
+    fetchQueues = () => {
         this.setState({
             isFetching: true,
             failed: false
@@ -55,7 +55,6 @@ class JobMonitorPanel extends React.Component {
 
     render() {
         let content = '';
-        let todo = '';
 
         if (this.state.isFetching && !this.state.queues) {
             content = <i>Loading...</i>;
@@ -64,7 +63,7 @@ class JobMonitorPanel extends React.Component {
                 title={'Cannot load Repositories'}
                 description={'Something went wrong during contacting the rest api.'}
                 action={{
-                    handleClick: this.fetchArchive,
+                    handleClick: this.fetchQueues,
                     title: 'Try again'
                 }}
             />;
@@ -94,7 +93,7 @@ class JobMonitorPanel extends React.Component {
     constructor(props) {
         super(props);
 
-        this.fetchArchive = this.fetchArchive.bind(this);
+        this.fetchQueues = this.fetchQueues.bind(this);
         this.toggleTestMode = this.toggleTestMode.bind(this);
     }
 }
