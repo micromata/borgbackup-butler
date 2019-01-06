@@ -121,4 +121,10 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
         }
         return clone;
     }
+
+    @Override
+    public void cleanUp() {
+        super.cleanUp();
+        payload = null;
+    }
 }

@@ -34,7 +34,7 @@ public class BorgCommands {
         BorgCommand command = new BorgCommand()
                 .setParams("--version")
                 .setDescription("Getting borg version.");
-        JobResult<String> jobResult = execute(command).getResult();
+        JobResult<String> jobResult = getResult(command);
         if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             return null;
         }
@@ -55,7 +55,7 @@ public class BorgCommands {
                 .setCommand("info")
                 .setParams("--json") // --progress has no effect.
                 .setDescription("Loading info of repo '" + repoConfig.getDisplayName() + "'.");
-        JobResult<String> jobResult = execute(command).getResult();
+        JobResult<String> jobResult = getResult(command);
         if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             return null;
         }
@@ -88,7 +88,7 @@ public class BorgCommands {
                 .setCommand("list")
                 .setParams("--json") // --progress has no effect.
                 .setDescription("Loading list of archives of repo '" + repoConfig.getDisplayName() + "'.");
-        JobResult<String> jobResult = execute(command).getResult();
+        JobResult<String> jobResult = getResult(command);
         if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             log.error("Can't load archives from repo '" + repository.getName() + "'.");
             return;
@@ -130,7 +130,7 @@ public class BorgCommands {
                 .setArchive(archive.getName())
                 .setParams("--json", "--log-json", "--progress")
                 .setDescription("Loading info of archive '" + archive.getName() + "' of repo '" + repoConfig.getDisplayName() + "'.");
-        JobResult<String> jobResult = execute(command).getResult();
+        JobResult<String> jobResult = getResult(command);
         if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             return;
         }
@@ -193,7 +193,9 @@ public class BorgCommands {
         if (jobResult == null ||jobResult.getStatus() != JobResult.Status.OK) {
             return null;
         }
-        return job.payload;
+        List<BorgFilesystemItem> items = job.payload;
+        job.cleanUp(); // payload will be released.
+        return items;
     }
 
     /**
@@ -221,8 +223,15 @@ public class BorgCommands {
                 .setDescription("Extract content of archive '" + archive.getName()
                         + "' of repo '" + repoConfig.getDisplayName() + "': "
                         + path);
-        JobResult<String> jobResult = execute(command).getResult();
+        JobResult<String> jobResult = getResult(command);
         return restoreDir;
+    }
+
+    private static JobResult<String> getResult(BorgCommand command) {
+        BorgJob<Void> job = execute(command);
+        JobResult<String> jobResult = job.getResult();
+        job.cleanUp();
+        return jobResult;
     }
 
     private static BorgJob<Void> execute(BorgCommand command) {
