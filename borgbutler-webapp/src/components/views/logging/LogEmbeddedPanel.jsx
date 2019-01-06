@@ -32,9 +32,7 @@ class LogEmbeddedPanel extends React.Component {
             search: this.state.search,
             treshold: this.props.treshold,
             maxSize: this.props.maxSize,
-            ascendingOrder: this.state.ascendingOrder,
-            mdcTemplatePk: this.props.mdcTemplatePk,
-            mdcTemplateDefinitionPk: this.props.mdcTemplateDefinitionPk
+            ascendingOrder: this.state.ascendingOrder
         }), {
             method: 'GET',
             headers: {
@@ -88,8 +86,6 @@ LogEmbeddedPanel.propTypes = {
     showStackTrace: PropTypes.oneOf(['true', 'false']),
     threshold: PropTypes.oneOf(['error', 'warn', 'info', 'debug', 'trace']),
     maxSize: PropTypes.oneOf(['50', '100', '500', '1000', '10000']),
-    mdcTemplatePk: PropTypes.string,
-    mdcTemplateDefinitionPk: PropTypes.string,
     search: PropTypes.string
 };
 
@@ -98,8 +94,6 @@ LogEmbeddedPanel.defaultProps = {
     showStackTrace: 'false',
     treshold: 'info',
     maxSize: '50',
-    mdcTemplatePk: null,
-    mdcTemplateDefinitionPk: null,
     search: ''
 };
 
