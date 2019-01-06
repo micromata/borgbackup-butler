@@ -2,8 +2,9 @@ import React from 'react'
 import {Button, Breadcrumb, BreadcrumbItem} from 'reactstrap';
 import {getRestServiceUrl} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
-import FileListTable from "./FileListTable";
-import FileListFilter from "./FileListFilter";
+import FileListTable from './FileListTable';
+import FileListFilter from './FileListFilter';
+import JobMonitorPanel from '../jobs/JobMonitorPanel';
 
 class FileListPanel extends React.Component {
 
@@ -45,10 +46,6 @@ class FileListPanel extends React.Component {
     };
 
     fetchArchiveFileList = (force) => {
-        let forceReload = false;
-        if (force && window.confirm('Are you sure you want to reload the archive file list? This may take a long time...')) {
-            forceReload = true;
-        }
         this.setState({
             isFetching: true,
             failed: false
@@ -56,7 +53,7 @@ class FileListPanel extends React.Component {
         fetch(getRestServiceUrl('archives/filelist', {
             archiveId: this.props.archiveId,
             diffArchiveId: this.state.filter.diffArchiveId,
-            force: forceReload,
+            force: force,
             searchString: this.state.filter.search,
             mode: this.state.filter.mode,
             currentDirectory: this.state.filter.currentDirectory,
@@ -83,7 +80,7 @@ class FileListPanel extends React.Component {
         let breadcrumb = undefined;
 
         if (this.state.isFetching) {
-            content = <i>Loading...</i>;
+            content = <JobMonitorPanel />;
         } else if (this.state.failed) {
             content = <ErrorAlert
                 title={'Cannot load Archive file list'}
