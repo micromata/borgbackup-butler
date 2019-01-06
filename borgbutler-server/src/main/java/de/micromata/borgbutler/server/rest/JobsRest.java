@@ -14,7 +14,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,34 +31,57 @@ public class JobsRest {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     /**
+     * @param repo If given, only the job queue of the given repo will be returned.
      * @param testMode If true, then a test job list is created.
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @return Job queues as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
-    public String getJobs(@QueryParam("testMode") boolean testMode, @QueryParam("prettyPrinter") boolean prettyPrinter) {
+    public String getJobs(@QueryParam("repo") String repo,
+                          @QueryParam("testMode") boolean testMode,
+                          @QueryParam("prettyPrinter") boolean prettyPrinter) {
         if (testMode) {
             // Return dynamic test queue:
             return returnTestList(prettyPrinter);
         }
+        boolean validRepo = false;
+        if (StringUtils.isNotBlank(repo) && !"null".equals(repo) && !"undefined".equals(repo)) {
+            validRepo = true;
+        }
         BorgQueueExecutor borgQueueExecutor = BorgQueueExecutor.getInstance();
         List<JsonJobQueue> queueList = new ArrayList<>();
-        for (String repo : borgQueueExecutor.getRepos()) {
-            BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repo);
-            String title = repoConfig != null ? repoConfig.getDisplayName() : repo;
-            List<BorgJob<?>> borgJobList = borgQueueExecutor.getJobListCopy(repo);
-            if (CollectionUtils.isEmpty(borgJobList))
-                continue;
-            JsonJobQueue queue = new JsonJobQueue()
-                    .setRepo(title);
-            queueList.add(queue);
-            queue.setJobs(new ArrayList<>(borgJobList.size()));
-            for (BorgJob<?> borgJob : borgJobList) {
-                JsonJob job = new JsonJob(borgJob);
-                queue.getJobs().add(job);
+        if (validRepo) { // Get only the queue of the given repo:
+            JsonJobQueue queue = getQueue(repo);
+            if (queue != null) {
+                queueList.add(queue);
+            }
+        } else { // Get all the queues (of all repos).
+            for (String rep : borgQueueExecutor.getRepos()) {
+                JsonJobQueue queue = getQueue(rep);
+                if (queue != null) {
+                    queueList.add(queue);
+                }
             }
         }
         return JsonUtils.toJson(queueList, prettyPrinter);
+    }
+
+    private JsonJobQueue getQueue(String repo) {
+        BorgQueueExecutor borgQueueExecutor = BorgQueueExecutor.getInstance();
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repo);
+        if (repoConfig == null) {
+            return null;
+        }
+        List<BorgJob<?>> borgJobList = borgQueueExecutor.getJobListCopy(repoConfig);
+        if (CollectionUtils.isEmpty(borgJobList))
+            return null;
+        JsonJobQueue queue = new JsonJobQueue().setRepo(repoConfig.getDisplayName());
+        queue.setJobs(new ArrayList<>(borgJobList.size()));
+        for (BorgJob<?> borgJob : borgJobList) {
+            JsonJob job = new JsonJob(borgJob);
+            queue.getJobs().add(job);
+        }
+        return queue;
     }
 
     @Path("/cancel")

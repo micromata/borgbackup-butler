@@ -57,12 +57,15 @@ public class BorgQueueExecutor {
     /**
      * For displaying purposes.
      *
-     * @param repo
+     * @param repoConfig
      * @return A list of all jobs of the queue (as copies).
      */
-    public List<BorgJob<?>> getJobListCopy(String repo) {
-        JobQueue<String> origQueue = getQueue(repo);
+    public List<BorgJob<?>> getJobListCopy(BorgRepoConfig repoConfig) {
+        JobQueue<String> origQueue = getQueue(repoConfig);
         List<BorgJob<?>> jobList = new ArrayList<>();
+        if (origQueue == null) {
+            return jobList;
+        }
         Iterator<AbstractJob<String>> it = origQueue.getQueueIterator();
         while (it.hasNext()) {
             AbstractJob<String> origJob = it.next();
@@ -76,16 +79,16 @@ public class BorgQueueExecutor {
         return jobList;
     }
 
-    private JobQueue<String> getQueue(String repo) {
+    private JobQueue<String> getQueue(BorgRepoConfig repoConfig) {
         synchronized (queueMap) {
-            return queueMap.get(getQueueName(repo));
+            return queueMap.get(getQueueName(repoConfig));
         }
     }
 
-    private JobQueue<String> ensureAndGetQueue(String repo) {
+    private JobQueue<String> ensureAndGetQueue(BorgRepoConfig repoConfig) {
         synchronized (queueMap) {
-            String queueName = getQueueName(repo);
-            JobQueue<String> queue = getQueue(queueName);
+            String queueName = getQueueName(repoConfig);
+            JobQueue<String> queue = getQueue(repoConfig);
             if (queue == null) {
                 queue = new JobQueue<>();
                 queueMap.put(queueName, queue);
@@ -94,12 +97,8 @@ public class BorgQueueExecutor {
         }
     }
 
-    private JobQueue<String> ensureAndGetQueue(BorgRepoConfig config) {
-        return ensureAndGetQueue(config != null ? config.getRepo() : null);
-    }
-
-    private String getQueueName(String repo) {
-        return repo != null ? repo : "--NO_REPO--";
+    private String getQueueName(BorgRepoConfig repoConfig) {
+        return repoConfig != null ? repoConfig.getId() : "--NO_REPO--";
     }
 
     public BorgJob<Void> execute(BorgCommand command) {
