@@ -4,6 +4,7 @@ import {Button, Card, CardBody, Collapse, ListGroupItem, Progress} from 'reactst
 import {IconCancel} from '../../general/IconComponents'
 import {getRestServiceUrl} from "../../../utilities/global";
 import PropTypes from "prop-types";
+import './Job.css';
 
 class Job extends React.Component {
     constructor(props) {
@@ -58,10 +59,14 @@ class Job extends React.Component {
         return (
             <ListGroupItem>
                 {this.renderRedirect()}
-                <Button color="link" onClick={this.toggle}>{job.description}</Button>
-                <div>{content}
-                    <Button color={'danger'} onClick={() => this.cancelJob(job.uniqueJobNumber)}
-                            disabled={cancelDisabled}><IconCancel/></Button>
+                <div class="row">
+                    <div class="col col-11 job-progress">
+                        <Button color="link" onClick={this.toggle}>{job.description}</Button>
+                        {content}
+                    </div>
+                    <div class="col col-1 job-cancel"><Button color={'danger'} onClick={() => this.cancelJob(job.uniqueJobNumber)}
+                                             disabled={cancelDisabled}><IconCancel/></Button>
+                    </div>
                 </div>
                 <Collapse isOpen={this.state.collapse}>
                     <Card>

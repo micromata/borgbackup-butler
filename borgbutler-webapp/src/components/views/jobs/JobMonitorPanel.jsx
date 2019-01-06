@@ -102,7 +102,6 @@ class JobMonitorPanel extends React.Component {
                             <br/>Es wäre
                             auch OK, wenn genau nur ein Job aufgeklappt wäre.
                         </li>
-                        <li>Cancel-Button soll rechts neben die Progressbar.</li>
                     </ol>
                 </code></React.Fragment>
         }

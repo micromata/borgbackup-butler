@@ -6,7 +6,7 @@ function JobQueue({queue, embedded}) {
     return (
         <div>
             <Card>
-                <CardHeader>{queue.repo}</CardHeader>
+                <CardHeader>Job queue: {queue.repo}</CardHeader>
                 <CardBody>
                     <ListGroup>
                         {queue.jobs
