@@ -56,6 +56,12 @@ class Job extends React.Component {
         if ((job.status !== 'RUNNING' && job.status !== 'QUEUED') || job.cancellationRequested) {
             cancelDisabled = true;
         }
+        let environmentVariables = '';
+        if (job.environmentVariables && Array.isArray(job.environmentVariables)) {
+            environmentVariables = job.environmentVariables.map((variable, index) => <React.Fragment>
+                export &quot;{variable}&quot;;<br/>
+            </React.Fragment>)
+        }
         return (
             <ListGroupItem>
                 {this.renderRedirect()}
@@ -64,8 +70,9 @@ class Job extends React.Component {
                         <Button color="link" onClick={this.toggle}>{job.description}</Button>
                         {content}
                     </div>
-                    <div className="job-cancel"><Button color={'danger'} onClick={() => this.cancelJob(job.uniqueJobNumber)}
-                                             disabled={cancelDisabled}><IconCancel/></Button>
+                    <div className="job-cancel"><Button color={'danger'}
+                                                        onClick={() => this.cancelJob(job.uniqueJobNumber)}
+                                                        disabled={cancelDisabled}><IconCancel/></Button>
                     </div>
                 </div>
                 <Collapse isOpen={this.state.collapse}>
@@ -80,6 +87,10 @@ class Job extends React.Component {
                                 <tr>
                                     <th>Command line</th>
                                     <td>{job.commandLineAsString}</td>
+                                </tr>
+                                <tr>
+                                    <th>Environment</th>
+                                    <td>{environmentVariables}</td>
                                 </tr>
                                 </tbody>
                             </table>

@@ -35,6 +35,9 @@ public class JsonJob {
     @Getter
     @Setter
     private long uniqueJobNumber;
+    @Getter
+    @Setter
+    private String[] environmentVariables;
 
     public JsonJob() {
     }
@@ -51,6 +54,7 @@ public class JsonJob {
         }
         this.commandLineAsString = borgJob.getCommandLineAsString();
         this.description = borgJob.getDescription();
+        environmentVariables = borgJob.getCommand().getRepoConfig().getEnvironmentVariables();
     }
 
     /**
