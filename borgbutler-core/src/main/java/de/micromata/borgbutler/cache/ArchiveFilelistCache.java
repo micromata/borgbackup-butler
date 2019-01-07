@@ -9,6 +9,9 @@ import de.micromata.borgbutler.utils.ReplaceUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +32,13 @@ class ArchiveFilelistCache {
     private static Logger log = LoggerFactory.getLogger(ArchiveFilelistCache.class);
     private static final String CACHE_ARCHIVE_LISTS_BASENAME = "archive-content-";
     private static final String CACHE_FILE_GZIP_EXTENSION = ".gz";
+    private static final int MAX_NUMBER_OF_RECENT_ENTRIES = 2;
     private File cacheDir;
     private int cacheArchiveContentMaxDiscSizeMB;
     private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
     // For avoiding concurrent writing of same files (e. g. after the user has pressed a button twice).
     private Set<File> savingFiles = new HashSet<>();
+    private Recents recents = new Recents(MAX_NUMBER_OF_RECENT_ENTRIES);
 
     public void save(BorgRepoConfig repoConfig, Archive archive, List<BorgFilesystemItem> filesystemItems) {
         if (CollectionUtils.isEmpty(filesystemItems)) {
@@ -54,7 +59,7 @@ class ArchiveFilelistCache {
             try (ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(file))))) {
                 outputStream.writeObject(filesystemItems.size());
                 Iterator<BorgFilesystemItem> it = filesystemItems.iterator();
-                while(it.hasNext()) {
+                while (it.hasNext()) {
                     BorgFilesystemItem item = it.next();
                     outputStream.writeObject(item);
                 }
@@ -67,6 +72,8 @@ class ArchiveFilelistCache {
                 savingFiles.remove(file);
             }
         }
+        compactPathes(filesystemItems);
+        recents.add(new RecentEntry(archive, filesystemItems));
         log.info("Saving done.");
     }
 
@@ -102,11 +109,15 @@ class ArchiveFilelistCache {
      * @return
      */
     public List<BorgFilesystemItem> load(BorgRepoConfig repoConfig, Archive archive, FileSystemFilter filter) {
+        RecentEntry recent = recents.getRecent(archive);
+        if (recent != null) {
+            return filter(recent.filesystemItems, filter);
+        }
         File file = getFile(repoConfig, archive);
         if (!file.exists()) {
             return null;
         }
-        return load(file, filter);
+        return load(file, archive, filter);
     }
 
     /**
@@ -115,9 +126,22 @@ class ArchiveFilelistCache {
      * @return
      */
     public List<BorgFilesystemItem> load(File file, FileSystemFilter filter) {
+        return load(file, null, filter);
+    }
+
+    /**
+     * @param file
+     * @param archive Only for storing file system items as recent (may-be null)
+     * @param filter  If given, only file items matching this filter are returned.
+     * @return
+     */
+    public List<BorgFilesystemItem> load(File file, Archive archive, FileSystemFilter filter) {
         if (!file.exists()) {
             log.error("File '" + file.getAbsolutePath() + "' doesn't exist. Can't get archive content files.");
             return null;
+        }
+        if (archive != null) {
+            recents.removeOldestEntry();
         }
         log.info("Loading archive content as file list from: " + file.getAbsolutePath());
         try {
@@ -126,7 +150,7 @@ class ArchiveFilelistCache {
         } catch (IOException ex) {
             log.error("Can't set lastModifiedTime on file '" + file.getAbsolutePath() + "'. Pruning old cache files may not work.");
         }
-        List<BorgFilesystemItem> list =  new ArrayList<>();
+        List<BorgFilesystemItem> list = new ArrayList<>();
         try (ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(new GzipCompressorInputStream(new FileInputStream(file))))) {
             Object obj = inputStream.readObject();
             if (!(obj instanceof Integer)) {
@@ -156,11 +180,18 @@ class ArchiveFilelistCache {
             log.error("Error while reading file list '" + file.getAbsolutePath() + "': " + ex.getMessage(), ex);
         }
         Collections.sort(list); // Sort by path (if archive list order wasn't correct).
-        log.info("Loading done.");
-        if (filter != null) {
-            return filter.reduce(list);
+        if (archive != null) {
+            recents.add(new RecentEntry(archive, list));
         }
-        return list;
+        log.info("Loading done.");
+        return filter(list, filter);
+    }
+
+    private List<BorgFilesystemItem> filter(List<BorgFilesystemItem> filesystemItems, FileSystemFilter filter) {
+        if (filter != null) {
+            return filter.reduce(filesystemItems);
+        }
+        return filesystemItems;
     }
 
     /**
@@ -262,6 +293,98 @@ class ArchiveFilelistCache {
 
     private boolean isCacheFile(File file) {
         return file.getName().startsWith(CACHE_ARCHIVE_LISTS_BASENAME);
+    }
+
+    private class Recents {
+        private RecentEntry[] recents;
+        private int pos = 0;
+        private int size;
+
+        private Recents(int size) {
+            this.size = size;
+            recents = new RecentEntry[size];
+        }
+
+        private void add(RecentEntry entry) {
+            synchronized (this) {
+                log.info("Add recent at position #" + pos + ": " + entry.archive.getName());
+                recents[pos++] = entry;
+                if (pos >= size) pos = 0;
+            }
+        }
+
+        private RecentEntry getRecent(Archive archive) {
+            synchronized (this) {
+                for (RecentEntry entry : recents) {
+                    if (entry != null && entry.matches(archive)) {
+                        return entry;
+                    }
+                }
+            }
+            log.info("No recent entry found for archive: " + archive.getName());
+            return null;
+        }
+
+        private void removeOldestEntry() {
+            int oldestEntry = pos + 1 >= size ? 0 : pos + 1;
+            recents[oldestEntry] = null;
+            log.info("Remove oldest entry #" + oldestEntry + ": " + recents[oldestEntry]);
+        }
+    }
+
+    private class RecentEntry {
+        private Archive archive;
+        private List<BorgFilesystemItem> filesystemItems;
+
+        private boolean matches(Archive archive) {
+            if (this.archive == null || archive == null) {
+                return false;
+            }
+            return StringUtils.equals(this.archive.getId(), archive.getId());
+        }
+
+        private RecentEntry(Archive archive, List<BorgFilesystemItem> filesystemItems) {
+            this.archive = archive;
+            this.filesystemItems = filesystemItems;
+        }
+    }
+
+    static void compactPathes(List<BorgFilesystemItem> items) {
+        long origSize = 0;
+        long compactSize = 0;
+        String currentDir = null;
+        for (BorgFilesystemItem item : items) {
+            String path = item.getPath();
+            origSize += path.length();
+            if (currentDir != null && path.startsWith(currentDir)) {
+                String compactPath = "#" + path.substring(currentDir.length());
+                item.setPath(compactPath);
+            }
+            if ("d".equals(item.getType())) {
+                currentDir = path;
+            } else {
+                currentDir = FilenameUtils.getPath(path);
+            }
+            compactSize += item.getPath().length();
+            //log.info(StringUtils.rightPad(path, 40) + " -> " + item.getPath());
+        }
+        log.info("Compact pathes: " + FileUtils.byteCountToDisplaySize(origSize) + " -> " + FileUtils.byteCountToDisplaySize(compactSize));
+    }
+
+    static void expandPathes(List<BorgFilesystemItem> items) {
+        String currentDir = null;
+        for (BorgFilesystemItem item : items) {
+            String path = item.getPath();
+            if (path.startsWith("#")) {
+                item.setPath(currentDir + path.substring(1));
+            }
+            if ("d".equals(item.getType())) {
+                currentDir = item.getPath();
+            } else {
+                currentDir = FilenameUtils.getPath(item.getPath());
+            }
+            log.info(StringUtils.rightPad(path, 40) + " -> " + item.getPath());
+        }
     }
 }
 

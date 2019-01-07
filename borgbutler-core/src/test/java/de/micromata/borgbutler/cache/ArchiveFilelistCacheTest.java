@@ -125,6 +125,45 @@ public class ArchiveFilelistCacheTest {
         cache.removeAllCacheFiles();
     }
 
+    @Test
+    void reducePath() {
+        List<BorgFilesystemItem> list = new ArrayList<>();
+        String[] items = {
+                "d home",
+                "d home/kai",
+                "- home/kai/abc.txt",
+                "d home/kai/Documents",
+                "- home/kai/Documents/test1.doc",
+                "- home/kai/Documents/test2.doc",
+                "- home/kai/image.doc",
+                "- home/kai/Files/tmp/a.txt",
+                "- home/kai/Files/tmp/b.txt",
+                "- home/kai/Java.pdf",
+                "- home/kai/Movies/a.mov",
+                "- home/pete/txt.mov",
+                "- home/steve/1/2/3/4/5/6/7/test.txt",
+                "- home/test.txt",
+                "- home/xaver/1/2/3/4/5/6/7/test.txt",
+                "- opt/local/test.txt",
+                "- opt/local/test2.txt",
+        };
+        for (String path : items) {
+            BorgFilesystemItem item = new BorgFilesystemItem().setPath(path.substring(2));
+            if (path.startsWith("d")) {
+                item.setType("d");
+            } else {
+                item.setType("-");
+            }
+            list.add(item);
+        }
+        ArchiveFilelistCache.compactPathes(list);
+        ArchiveFilelistCache.expandPathes(list);
+        for (int i = 0; i < list.size(); i++) {
+            assertEquals(items[i].substring(2), list.get(i).getPath());
+        }
+
+    }
+
     private List<BorgFilesystemItem> createList(int number) throws Exception {
         List<BorgFilesystemItem> list = new ArrayList<>();
         for (int i = 0; i < 1000000; i++) {
