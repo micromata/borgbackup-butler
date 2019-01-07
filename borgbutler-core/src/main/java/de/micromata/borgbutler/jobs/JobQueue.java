@@ -38,7 +38,9 @@ public class JobQueue<T> {
     }
 
     public Iterator<AbstractJob<T>> getQueueIterator() {
-        return Collections.unmodifiableList(queue).iterator();
+        synchronized (queue) {
+            return Collections.unmodifiableList(queue).iterator();
+        }
     }
 
     /**
@@ -48,11 +50,13 @@ public class JobQueue<T> {
      * @return The job if any job with the given unique job number is queued, otherwise null.
      */
     public AbstractJob<T> getQueuedJobByUniqueJobNumber(long uniqueJobNumber) {
-        Iterator<AbstractJob<T>> it = queue.iterator();
-        while (it.hasNext()) {
-            AbstractJob<T> job = it.next();
-            if (job.getUniqueJobNumber() == uniqueJobNumber) {
-                return job;
+        synchronized (queue) {
+            Iterator<AbstractJob<T>> it = queue.iterator();
+            while (it.hasNext()) {
+                AbstractJob<T> job = it.next();
+                if (job.getUniqueJobNumber() == uniqueJobNumber) {
+                    return job;
+                }
             }
         }
         return null;
