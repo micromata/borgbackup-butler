@@ -1,7 +1,5 @@
 package de.micromata.borgbutler.cache;
 
-import de.micromata.borgbutler.cache.memory.MemoryCache;
-import de.micromata.borgbutler.cache.memory.MemoryCacheObject;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.FileSystemFilter;
@@ -11,9 +9,6 @@ import de.micromata.borgbutler.utils.ReplaceUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.commons.lang3.StringUtils;
 import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
@@ -37,13 +32,11 @@ class ArchiveFilelistCache {
     private static Logger log = LoggerFactory.getLogger(ArchiveFilelistCache.class);
     private static final String CACHE_ARCHIVE_LISTS_BASENAME = "archive-content-";
     private static final String CACHE_FILE_GZIP_EXTENSION = ".gz";
-    private static final int MAX_SIZE_MEMORY_CACHE = 30 * 1024 * 1024; // 50 MB
     private File cacheDir;
     private int cacheArchiveContentMaxDiscSizeMB;
     private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
     // For avoiding concurrent writing of same files (e. g. after the user has pressed a button twice).
     private Set<File> savingFiles = new HashSet<>();
-    private MemoryCache<Archive, RecentEntry> recents = new MemoryCache<>(MAX_SIZE_MEMORY_CACHE);
     final FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
 
     ArchiveFilelistCache(File cacheDir, int cacheArchiveContentMaxDiscSizeMB) {
@@ -69,7 +62,6 @@ class ArchiveFilelistCache {
                 Collections.sort(filesystemItems); // Sort by path.
             }
             log.info("Saving archive content as file list: " + file.getAbsolutePath());
-            boolean ok = false;
 
             int fileNumber = -1;
             try (FSTObjectOutput outputStream
@@ -82,19 +74,8 @@ class ArchiveFilelistCache {
                     outputStream.writeObject(item, BorgFilesystemItem.class);
                 }
                 outputStream.writeObject("EOF");
-                ok = true;
             } catch (IOException ex) {
                 log.error("Error while writing file list '" + file.getAbsolutePath() + "': " + ex.getMessage(), ex);
-            }
-            if (ok) {
-                // Storing current read gz archive in memory cache (recents):
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                try {
-                    FileUtils.copyFile(file, baos);
-                    recents.add(new RecentEntry(archive, baos.toByteArray()));
-                } catch (IOException ex) {
-                    log.error("Error while writing gz archive to memory cache: " + ex.getMessage(), ex);
-                }
             }
         } finally {
             synchronized (savingFiles) {
@@ -170,23 +151,10 @@ class ArchiveFilelistCache {
         } catch (IOException ex) {
             log.error("Can't set lastModifiedTime on file '" + file.getAbsolutePath() + "'. Pruning old cache files may not work.");
         }
-        RecentEntry recentEntry = recents.getRecent(archive);
-        byte[] bytes = null;
-        if (recentEntry != null) {
-            bytes = recentEntry.serializedGz;
-        } else {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            try {
-                FileUtils.copyFile(file, baos);
-                bytes = baos.toByteArray();
-                recents.add(new RecentEntry(archive, bytes));
-            } catch (IOException ex) {
-                log.error("Error while restoring file: " + file.getAbsolutePath() + ": " + ex.getMessage(), ex);
-                return null;
-            }
-        }
         List<BorgFilesystemItem> list = new ArrayList<>();
-        try (FSTObjectInput inputStream = new FSTObjectInput(new BufferedInputStream(new GzipCompressorInputStream(new ByteArrayInputStream(bytes))), conf)) {
+        long millis = System.currentTimeMillis();
+        // GZipCompressorInputStream buffers already, no BufferedInputReader needed.
+        try (FSTObjectInput inputStream = new FSTObjectInput(new GzipCompressorInputStream(new FileInputStream(file)), conf)) {
             int size = (Integer) inputStream.readObject(Integer.class);
             for (int i = 0; i < size; i++) {
                 BorgFilesystemItem item = (BorgFilesystemItem) inputStream.readObject(BorgFilesystemItem.class);
@@ -199,7 +167,7 @@ class ArchiveFilelistCache {
             log.error("Error while reading file list '" + file.getAbsolutePath() + "': " + ex.getMessage(), ex);
         }
 
-        log.info("Loading done.");
+        log.info("Loading done in " + (System.currentTimeMillis() - millis) + " seconds.");
         return filter(list, filter);
     }
 
@@ -304,25 +272,6 @@ class ArchiveFilelistCache {
 
     private boolean isCacheFile(File file) {
         return file.getName().startsWith(CACHE_ARCHIVE_LISTS_BASENAME);
-    }
-
-    private class RecentEntry extends MemoryCacheObject<Archive> {
-        private byte[] serializedGz;
-
-        @Override
-        protected boolean matches(Archive identifier) {
-            return StringUtils.equals(this.getIdentifier().getId(), identifier.getId());
-        }
-
-        @Override
-        protected int getSize() {
-            return serializedGz != null ? serializedGz.length : 0;
-        }
-
-        private RecentEntry(Archive archive, byte[] serializedGz) {
-            super(archive);
-            this.serializedGz = serializedGz;
-        }
     }
 }
 
