@@ -141,11 +141,22 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
     }
 
     /**
+     *
+     * @param env
+     * @param variable Variable in format "variable=value".
+     */
+    protected void addEnvironmentVariable(Map<String, String> env, String variable) {
+        if (StringUtils.isNotBlank(variable)) {
+            EnvironmentUtils.addVariableToEnvironment(env, variable);
+        }
+    }
+
+    /**
      * Frees the output streams.
      * Should be called after a job was done, failed or cancelled while running.
      */
     public void cleanUp() {
-        log.info("Freeing resources of job: " + commandLineAsString);
+        log.debug("Freeing resources of job: " + commandLineAsString);
         outputStream = null;
         errorOutputStream = null;
     }

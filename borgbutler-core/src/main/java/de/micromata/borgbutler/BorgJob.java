@@ -93,14 +93,11 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
             return null;
         }
         Map<String, String> env = EnvironmentUtils.getProcEnvironment();
-        addEnvironmentVariable(env, "BORG_REPO", repoConfig.getRepo());
-        addEnvironmentVariable(env, "BORG_RSH", repoConfig.getRsh());
-        addEnvironmentVariable(env, "BORG_PASSPHRASE", repoConfig.getPassphrase());
-        String passcommand = repoConfig.getPasswordCommand();
-        if (StringUtils.isNotBlank(passcommand)) {
+        String[] variables = repoConfig.getEnvironmentVariables(true);
+        for (String variable : variables) {
             // For MacOS BORG_PASSCOMMAND="security find-generic-password -a $USER -s borg-passphrase -w"
-            passcommand = passcommand.replace("$USER", System.getProperty("user.name"));
-            addEnvironmentVariable(env, "BORG_PASSCOMMAND", passcommand);
+            String environmentVariable = variable.replace("$USER", System.getProperty("user.name"));
+            addEnvironmentVariable(env, environmentVariable);
         }
         return env;
     }
@@ -108,6 +105,10 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
     @Override
     public BorgJob<?> clone() {
         BorgJob<?> clone = new BorgJob<>();
+        if (command != null) {
+            // Needed for getting environment variables: JsonJob of borgbutler-server.
+            clone.command = new BorgCommand().setRepoConfig(command.getRepoConfig());
+        }
         clone.setUniqueJobNumber(getUniqueJobNumber());
         clone.setTitle(getTitle());
         clone.setExecuteStarted(isExecuteStarted());

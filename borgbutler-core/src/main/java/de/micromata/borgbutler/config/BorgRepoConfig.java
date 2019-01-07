@@ -1,25 +1,54 @@
 package de.micromata.borgbutler.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BorgRepoConfig {
     /**
      * A name describing this config. Only used for displaying purposes.
      */
-    @Getter @Setter
+    @Getter
+    @Setter
     private String displayName;
-    @Getter @Setter
+    @Getter
+    @Setter
     private String repo;
-    @Getter @Setter
+    @Getter
+    @Setter
     private String rsh;
-    @Getter @Setter
+    @Getter
+    @Setter
     private String passphrase;
-    @Getter @Setter
+    @Getter
+    @Setter
     private String passwordCommand;
-    @Getter @Setter
+    @Getter
+    @Setter
     @JsonIgnore
     private String id;
+
+    public String[] getEnvironmentVariables() {
+        return getEnvironmentVariables(false);
+    }
+
+    public String[] getEnvironmentVariables(boolean showPassphrase) {
+        List<String> variables = new ArrayList<>();
+        addVariable(variables, "BORG_REPO", repo);
+        addVariable(variables, "BORG_RSH", rsh);
+        if (StringUtils.isNotBlank(passphrase)) {
+            addVariable(variables, "BORG_PASSPHRASE", showPassphrase ? passphrase : "******");
+        }
+        addVariable(variables, "BORG_PASSCOMMAND", passwordCommand);
+        return variables.toArray(new String[variables.size()]);
+    }
+
+    private void addVariable(List<String> list, String variable, String value) {
+        if (StringUtils.isBlank(value)) return;
+        list.add(variable + "=" + value);
+    }
 }
