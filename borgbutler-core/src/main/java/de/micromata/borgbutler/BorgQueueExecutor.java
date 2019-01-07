@@ -73,7 +73,7 @@ public class BorgQueueExecutor {
         job.cancel();
         queue.refreshQueue();
     }
-    
+
     /**
      * For displaying purposes.
      *
@@ -86,15 +86,17 @@ public class BorgQueueExecutor {
         if (origQueue == null) {
             return jobList;
         }
-        Iterator<AbstractJob<String>> it = origQueue.getQueueIterator();
-        while (it.hasNext()) {
-            AbstractJob<String> origJob = it.next();
-            if (!(origJob instanceof BorgJob)) {
-                log.error("Oups, only BorgJobs are supported. Ignoring unexpected job: " + origJob.getClass());
-                continue;
+        synchronized (origQueue) {
+            Iterator<AbstractJob<String>> it = origQueue.getQueueIterator();
+            while (it.hasNext()) {
+                AbstractJob<String> origJob = it.next();
+                if (!(origJob instanceof BorgJob)) {
+                    log.error("Oups, only BorgJobs are supported. Ignoring unexpected job: " + origJob.getClass());
+                    continue;
+                }
+                BorgJob<?> borgJob = ((BorgJob<?>) origJob).clone();
+                jobList.add(borgJob);
             }
-            BorgJob<?> borgJob = ((BorgJob<?>) origJob).clone();
-            jobList.add(borgJob);
         }
         return jobList;
     }
