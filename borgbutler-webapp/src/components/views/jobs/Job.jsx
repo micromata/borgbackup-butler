@@ -1,6 +1,6 @@
 import React from 'react';
 import {Redirect} from 'react-router-dom';
-import {Button, Card, CardBody, Collapse, ListGroupItem, Progress} from 'reactstrap';
+import {Button, Card, CardBody, Collapse, ListGroupItem, Progress, Table} from 'reactstrap';
 import {IconCancel} from '../../general/IconComponents'
 import {getRestServiceUrl} from "../../../utilities/global";
 import PropTypes from "prop-types";
@@ -78,7 +78,7 @@ class Job extends React.Component {
                 <Collapse isOpen={this.state.collapse}>
                     <Card>
                         <CardBody>
-                            <table>
+                            <Table striped bordered hover>
                                 <tbody>
                                 <tr>
                                     <th>Status</th>
@@ -93,7 +93,7 @@ class Job extends React.Component {
                                     <td>{environmentVariables}</td>
                                 </tr>
                                 </tbody>
-                            </table>
+                            </Table>
                         </CardBody>
                     </Card>
                 </Collapse>

@@ -1,5 +1,5 @@
 import React from 'react'
-import {Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
+import {CardBody, Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {getRestServiceUrl, humanFileSize, humanSeconds} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
@@ -107,7 +107,7 @@ class ArchiveView extends React.Component {
                         />
                     </TabPane>
                     <TabPane tabId={'2'}>
-                        <Table hover>
+                        <Table striped bordered hover>
                             <tbody>
                             <tr>
                                 <td>Archive</td>

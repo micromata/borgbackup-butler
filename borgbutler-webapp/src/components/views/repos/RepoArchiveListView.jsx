@@ -1,5 +1,5 @@
 import React from 'react'
-import {Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
+import {CardBody, Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
 import { Link } from "react-router-dom";
 import classNames from 'classnames';
 import {PageHeader} from '../../general/BootstrapComponents';
@@ -128,7 +128,7 @@ class RepoArchiveListView extends React.Component {
                         </Table>
                     </TabPane>
                     <TabPane tabId={'2'}>
-                        <Table hover>
+                        <Table striped bordered hover>
                             <tbody>
                             <tr>
                                 <td>Id</td>
