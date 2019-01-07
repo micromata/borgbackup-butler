@@ -153,4 +153,8 @@ public class JobQueue<T> {
             }
         }
     }
+
+    List<AbstractJob<T>> getOldJobs() {
+        return oldJobs;
+    }
 }
