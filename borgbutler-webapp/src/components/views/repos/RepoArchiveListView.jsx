@@ -1,5 +1,5 @@
 import React from 'react'
-import {CardBody, Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
+import {Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
 import { Link } from "react-router-dom";
 import classNames from 'classnames';
 import {PageHeader} from '../../general/BootstrapComponents';
