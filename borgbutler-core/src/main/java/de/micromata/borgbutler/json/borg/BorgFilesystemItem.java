@@ -218,6 +218,14 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
         }
     }
 
+    public String getFullPath() {
+        if (directory == null) {
+            return null;
+        }
+        if ("d".equals(type)) return directory;
+        return directory + path;
+    }
+
     /**
      * For preventing multiple calculations in {@link #getDirectory()}.
      */

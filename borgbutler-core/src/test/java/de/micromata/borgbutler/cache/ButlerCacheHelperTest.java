@@ -50,44 +50,51 @@ public class ButlerCacheHelperTest {
             list.add(item);
         }
         ButlerCacheHelper.proceedBorgFileList(list);
-        checkParent(list, "home", null);
-        checkParent(list, "home/kai", "home");
-        checkParent(list, "home/kai/Documents", "home/kai");
-        checkParent(list, "home/kai/Documents/test1.doc", "home/kai/Documents");
-        checkParent(list, "home/kai/Files/tmp/b.txt", "home/kai/Files/tmp");
-        checkParent(list, "home/kai/image.doc", "home/kai");
-        checkParent(list, "home/pete/Movies", "home/pete");
-        checkParent(list, "opt", null);
-        checkParent(list, "opt/local", "opt");
-        checkParent(list, "opt/local/test.txt", "opt/local");
-        checkParent(list, "test.txt", null);
+        check(list, "home", null, "home");
+        check(list, "home/kai", "home", "kai");
+        check(list, "home/kai/Documents", "home/kai", "Documents");
+        check(list, "home/kai/Documents/test1.doc", "home/kai/Documents", "test1.doc");
+        check(list, "home/kai/Files/tmp/b.txt", "home/kai/Files/tmp", "b.txt");
+        check(list, "home/kai/image.doc", "home/kai", "image.doc");
+        check(list, "home/pete/Movies", "home/pete", "Movies");
+        check(list, "opt", null, "opt");
+        check(list, "opt/local", "opt", "local");
+        check(list, "opt/local/test.txt", "opt/local", "test.txt");
+        check(list, "test.txt", null, "test.txt");
 
         String previousPath = null;
         for (int i = 0; i < list.size(); i++) {
             BorgFilesystemItem item = list.get(i);
             if (previousPath != null) {
                 // Check order:
-                assertTrue((previousPath.compareToIgnoreCase(item.getPath()) < 0),
+                assertTrue((previousPath.compareToIgnoreCase(item.getFullPath()) < 0),
                         "Order expected: " + previousPath + " < " + item.getPath());
             }
             assertEquals(i, (int) item.getFileNumber());
-            previousPath = item.getPath();
+            previousPath = item.getFullPath();
         }
 
     }
 
-    private void checkParent(List<BorgFilesystemItem> list, String path, String expectedPath) {
-        if (expectedPath == null) {
-            assertNull(getItem(list, path).getParentFileNumber());
+    private void check(List<BorgFilesystemItem> list, String path, String expectedParent, String expectedPath) {
+        BorgFilesystemItem item = getItem(list, path);
+        if (expectedParent == null) {
+            assertNull(item.getParentFileNumber());
         } else {
-            assertEquals((int) getItem(list, expectedPath).getFileNumber(), (int) getItem(list, path).getParentFileNumber());
+            assertEquals((int) getItem(list, expectedParent).getFileNumber(), (int) item.getParentFileNumber());
         }
+        assertEquals(expectedPath, item.getPath());
     }
 
     private BorgFilesystemItem getItem(List<BorgFilesystemItem> list, String path) {
         for (BorgFilesystemItem item : list) {
-            if (path.equals(item.getPath())) {
-                return item;
+            if (item.isDirectory()) {
+                if (path.equals(item.getDirectory())) return item;
+            } else {
+                String fullPath = item.getFullPath();
+                if (path.equals(fullPath)) {
+                    return item;
+                }
             }
         }
         fail("'" + path + "' not found.");
