@@ -2,6 +2,7 @@ package de.micromata.borgbutler.json.borg;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -67,6 +68,13 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
     @Getter
     @Setter
     private int fileNumber;
+    /**
+     * Represents the number of the file in the archive of the parent (for faster filterin). This field is created and only known by BorgButler.
+     */
+    @Getter
+    @Setter
+    private Integer parentFileNumber;
+
     /**
      * If created by diff tool, this flag represents the type of difference.
      */
@@ -194,5 +202,28 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
     @Override
     public String toString() {
         return path;
+    }
+
+    /**
+     * @return if this item is of type directory the path is returned, otherwise the directory where this item is in.
+     */
+    public String getDirectory() {
+        if (directory != null) {
+            return directory;
+        }
+        if ("d".equals(type)) {
+            return directory = path;
+        } else {
+            return directory = FilenameUtils.getPath(path);
+        }
+    }
+
+    /**
+     * For preventing multiple calculations in {@link #getDirectory()}.
+     */
+    private transient String directory;
+
+    public boolean isDirectory() {
+        return "d".equals(type);
     }
 }

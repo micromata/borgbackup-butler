@@ -17,9 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Caches all borg objects such as repository information, archive and archive content. Therefore a fluent work
@@ -278,12 +276,9 @@ public class ButlerCache {
                 if (CollectionUtils.isNotEmpty(list)) {
                     archiveFilelistCache.save(repoConfig, archive, list);
                     items = new ArrayList<>();
-                    int fileNumber = -1;
                     Iterator<BorgFilesystemItem> it = list.iterator(); // Don't use for-each (ConcurrentModificationException)
                     while (it.hasNext()) {
                         BorgFilesystemItem item = it.next();
-                        ++fileNumber;
-                        item.setFileNumber(fileNumber);
                         if (filter == null || filter.matches(item)) {
                             items.add(item);
                             if (filter != null && filter.isFinished()) break;

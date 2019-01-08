@@ -63,19 +63,17 @@ class ArchiveFilelistCache {
                     return;
                 }
                 savingFiles.add(file);
-                Collections.sort(filesystemItems); // Sort by path.
             }
             log.info("Saving archive content as file list: " + file.getAbsolutePath());
 
-            int fileNumber = -1;
             Kryo kryo = createKryo();
+            Deque<BorgFilesystemItem> stack = new ArrayDeque<>();
             try (Output outputStream = new Output(new GzipCompressorOutputStream(new FileOutputStream(file)))) {
                 kryo.writeObject(outputStream, SERIALIZATION_ID_STRING);
                 kryo.writeObject(outputStream, filesystemItems.size());
                 Iterator<BorgFilesystemItem> it = filesystemItems.iterator();
                 while (it.hasNext()) {
                     BorgFilesystemItem item = it.next();
-                    item.setFileNumber(++fileNumber);
                     kryo.writeObject(outputStream, item);
                 }
             } catch (IOException ex) {
@@ -163,7 +161,7 @@ class ArchiveFilelistCache {
             String serializationId = kryo.readObject(inputStream, String.class);
             if (!SERIALIZATION_ID_STRING.equals(serializationId)) {
                 log.info("Incompatible archive cache file format. Expected id '" + SERIALIZATION_ID_STRING + "', but received: '" + serializationId
-                + "'. OK, trying to get the data from Borg again.");
+                        + "'. OK, trying to get the data from Borg again.");
                 return null;
             }
             int size = kryo.readObject(inputStream, Integer.class);
