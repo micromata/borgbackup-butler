@@ -23,8 +23,8 @@ class ConfirmModal extends React.Component {
                     {this.props.children}
                 </ModalBody>
                 <ModalFooter>
-                    <Button color={'primary'} onClick={this.confirm}>{this.props.confirmButton}</Button>
                     <Button color={'secondary'} onClick={this.props.toggle}>{this.props.cancelButton}</Button>
+                    <Button color={'primary'} onClick={this.confirm}>{this.props.confirmButton}</Button>
                 </ModalFooter>
             </Modal>
         );
