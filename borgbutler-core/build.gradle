@@ -12,8 +12,9 @@ dependencies {
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.2'
     compile group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
     compile group: 'org.apache.commons', name: 'commons-jcs-core', version: '2.2.1'
-    // https://mvnrepository.com/artifact/de.ruedigermoeller/fst
-    compile group: 'de.ruedigermoeller', name: 'fst', version: '2.57' // Serialization (faster than Java built-in)
+    // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
+    compile group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC1'
+    // Serialization (faster than Java built-in)
 
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.6'

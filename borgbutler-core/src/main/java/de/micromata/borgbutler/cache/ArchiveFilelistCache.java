@@ -1,5 +1,8 @@
 package de.micromata.borgbutler.cache;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.FileSystemFilter;
@@ -9,13 +12,13 @@ import de.micromata.borgbutler.utils.ReplaceUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.nustaq.serialization.FSTConfiguration;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.file.Files;
@@ -31,6 +34,7 @@ import java.util.*;
  * The compression is also useful for faster reading from the filesystem.
  */
 class ArchiveFilelistCache {
+    private static final String SERIALIZATION_ID_STRING = "kryo 5.0.0-RC1";
     private static Logger log = LoggerFactory.getLogger(ArchiveFilelistCache.class);
     private static final String CACHE_ARCHIVE_LISTS_BASENAME = "archive-content-";
     private static final String CACHE_FILE_GZIP_EXTENSION = ".gz";
@@ -40,13 +44,10 @@ class ArchiveFilelistCache {
     private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
     // For avoiding concurrent writing of same files (e. g. after the user has pressed a button twice).
     private Set<File> savingFiles = new HashSet<>();
-    final FSTConfiguration conf = FSTConfiguration.createDefaultConfiguration();
 
     ArchiveFilelistCache(File cacheDir, int cacheArchiveContentMaxDiscSizeMB) {
         this.cacheDir = cacheDir;
         this.cacheArchiveContentMaxDiscSizeMB = cacheArchiveContentMaxDiscSizeMB;
-        conf.registerClass(Integer.class, BorgFilesystemItem.class);
-        conf.setShareReferences(false);
     }
 
     public void save(BorgRepoConfig repoConfig, Archive archive, List<BorgFilesystemItem> filesystemItems) {
@@ -67,16 +68,16 @@ class ArchiveFilelistCache {
             log.info("Saving archive content as file list: " + file.getAbsolutePath());
 
             int fileNumber = -1;
-            try (FSTObjectOutput outputStream
-                         = new FSTObjectOutput(new BufferedOutputStream(new GzipCompressorOutputStream(new FileOutputStream(file))), conf)) {
-                outputStream.writeObject(filesystemItems.size(), Integer.class);
+            Kryo kryo = createKryo();
+            try (Output outputStream = new Output(new GzipCompressorOutputStream(new FileOutputStream(file)))) {
+                kryo.writeObject(outputStream, SERIALIZATION_ID_STRING);
+                kryo.writeObject(outputStream, filesystemItems.size());
                 Iterator<BorgFilesystemItem> it = filesystemItems.iterator();
                 while (it.hasNext()) {
                     BorgFilesystemItem item = it.next();
                     item.setFileNumber(++fileNumber);
-                    outputStream.writeObject(item, BorgFilesystemItem.class);
+                    kryo.writeObject(outputStream, item);
                 }
-                outputStream.writeObject("EOF");
             } catch (IOException ex) {
                 log.error("Error while writing file list '" + file.getAbsolutePath() + "': " + ex.getMessage(), ex);
             }
@@ -142,7 +143,7 @@ class ArchiveFilelistCache {
      * @param filter  If given, only file items matching this filter are returned.
      * @return
      */
-    public List<BorgFilesystemItem> load(File file, Archive archive, FileSystemFilter filter) {
+    public List<BorgFilesystemItem> load(File file, Archive archive, FileSystemFilter filter) throws RuntimeException {
         if (!file.exists()) {
             log.error("File '" + file.getAbsolutePath() + "' doesn't exist. Can't get archive content files.");
             return null;
@@ -157,17 +158,25 @@ class ArchiveFilelistCache {
         List<BorgFilesystemItem> list = new ArrayList<>();
         long millis = System.currentTimeMillis();
         // GZipCompressorInputStream buffers already, no BufferedInputReader needed.
-        try (FSTObjectInput inputStream = new FSTObjectInput(new GzipCompressorInputStream(new FileInputStream(file)), conf)) {
-            int size = (Integer) inputStream.readObject(Integer.class);
+        Kryo kryo = createKryo();
+        try (Input inputStream = new Input(new GzipCompressorInputStream(new FileInputStream(file)))) {
+            String serializationId = kryo.readObject(inputStream, String.class);
+            if (!SERIALIZATION_ID_STRING.equals(serializationId)) {
+                log.info("Incompatible archive cache file format. Expected id '" + SERIALIZATION_ID_STRING + "', but received: '" + serializationId
+                + "'. OK, trying to get the data from Borg again.");
+                return null;
+            }
+            int size = kryo.readObject(inputStream, Integer.class);
             for (int i = 0; i < size; i++) {
-                BorgFilesystemItem item = (BorgFilesystemItem) inputStream.readObject(BorgFilesystemItem.class);
+                BorgFilesystemItem item = kryo.readObject(inputStream, BorgFilesystemItem.class);
                 if (filter == null || filter.matches(item)) {
                     list.add(item);
                     if (filter != null && filter.isFinished()) break;
                 }
             }
         } catch (Exception ex) {
-            log.error("Error while reading file list '" + file.getAbsolutePath() + "': " + ex.getMessage(), ex);
+            log.error("Error while reading file list '" + file.getAbsolutePath() + "': " + ex.getMessage() + ". OK, trying to get the data from Borg again.");
+            return null;
         }
         BigDecimal bd = new BigDecimal(System.currentTimeMillis() - millis).divide(THOUSAND, 1, RoundingMode.HALF_UP);
         log.info("Loading of " + String.format("%,d", list.size()) + " file system items done in " + bd + " seconds.");
@@ -285,6 +294,17 @@ class ArchiveFilelistCache {
 
     private boolean isCacheFile(File file) {
         return file.getName().startsWith(CACHE_ARCHIVE_LISTS_BASENAME);
+    }
+
+
+    private Kryo createKryo() {
+        Kryo kryo = new Kryo();
+        kryo.register(BorgFilesystemItem.class, 9);
+        kryo.register(BorgFilesystemItem.DiffStatus.class, 10);
+        kryo.setMaxDepth(10);
+        kryo.setWarnUnregisteredClasses(true);
+        kryo.setReferences(false);
+        return kryo;
     }
 }
 
