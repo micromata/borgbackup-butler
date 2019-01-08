@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
@@ -32,6 +34,7 @@ class ArchiveFilelistCache {
     private static Logger log = LoggerFactory.getLogger(ArchiveFilelistCache.class);
     private static final String CACHE_ARCHIVE_LISTS_BASENAME = "archive-content-";
     private static final String CACHE_FILE_GZIP_EXTENSION = ".gz";
+    private static final BigDecimal THOUSAND = new BigDecimal(1000);
     private File cacheDir;
     private int cacheArchiveContentMaxDiscSizeMB;
     private long FILES_EXPIRE_TIME = 7 * 24 * 3660 * 1000; // Expires after 7 days.
@@ -166,8 +169,8 @@ class ArchiveFilelistCache {
         } catch (Exception ex) {
             log.error("Error while reading file list '" + file.getAbsolutePath() + "': " + ex.getMessage(), ex);
         }
-
-        log.info("Loading done in " + (System.currentTimeMillis() - millis) + " seconds.");
+        BigDecimal bd = new BigDecimal(System.currentTimeMillis() - millis).divide(THOUSAND, 1, RoundingMode.HALF_UP);
+        log.info("Loading of " + String.format("%,d", list.size()) + " file system items done in " + bd + " seconds.");
         return filter(list, filter);
     }
 
