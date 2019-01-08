@@ -124,6 +124,11 @@ public class ButlerCache {
         this.repoCacheAccess.clear();
     }
 
+    public void clearRepoCacheAccess(Repository repository) {
+        log.info("Clearing repository cache '" + repository.getName() + "'...");
+        this.repoCacheAccess.remove(repository.getName());
+    }
+
     /**
      * @param idOrName
      * @return The repository (ensures that the list of archives is loaded).

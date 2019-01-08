@@ -65,7 +65,8 @@ public class ReposRest {
     public String getRepoArchiveList(@QueryParam("id") String id, @QueryParam("force") boolean force,
                                      @QueryParam("prettyPrinter") boolean prettyPrinter) {
         if (force) {
-            ButlerCache.getInstance().clearRepoCacheAccess();
+            Repository repo = ButlerCache.getInstance().getRepository(id);
+            ButlerCache.getInstance().clearRepoCacheAccess(repo);
         }
         Repository repository = ButlerCache.getInstance().getRepositoryArchives(id);
         return JsonUtils.toJson(repository, prettyPrinter);
