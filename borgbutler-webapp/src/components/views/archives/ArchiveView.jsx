@@ -1,5 +1,5 @@
 import React from 'react'
-import {CardBody, Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
+import {Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {getRestServiceUrl, humanFileSize, humanSeconds} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
@@ -7,15 +7,10 @@ import {IconRefresh} from '../../general/IconComponents';
 import classNames from 'classnames';
 import FileListPanel from './FileListPanel';
 import JobMonitorPanel from '../jobs/JobMonitorPanel';
+import {Link} from "react-router-dom";
+import ConfirmModal from '../../general/modal/ConfirmModal';
 
 class ArchiveView extends React.Component {
-
-    state = {
-        repoId: this.props.match.params.repoId,
-        archiveId: this.props.match.params.archiveId,
-        isFetching: false,
-        activeTab: '1'
-    };
 
     componentDidMount = () => {
         this.fetchArchive();
@@ -23,10 +18,6 @@ class ArchiveView extends React.Component {
 
 
     fetchArchive = (force) => {
-        let forceReload = false;
-        if (force && window.confirm('Are you sure you want to reload the archive info? This may take some time...')) {
-            forceReload = true;
-        }
         this.setState({
             isFetching: true,
             failed: false
@@ -34,7 +25,7 @@ class ArchiveView extends React.Component {
         fetch(getRestServiceUrl('archives', {
             repo: this.state.repoId,
             archiveId: this.state.archiveId,
-            force: forceReload
+            force: force
         }), {
             method: 'GET',
             headers: {
@@ -57,13 +48,19 @@ class ArchiveView extends React.Component {
         })
     };
 
+    toggleModal() {
+        this.setState({
+            confirmModal: !this.state.confirmModal
+        })
+    }
+
     render = () => {
         let content = undefined;
         let archive = this.state.archive;
         let pageHeader = '';
 
         if (this.state.isFetching) {
-            content = <JobMonitorPanel repo={this.state.repoId} />;
+            content = <JobMonitorPanel repo={this.state.repoId}/>;
         } else if (this.state.failed) {
             content = <ErrorAlert
                 title={'Cannot load Repositories'}
@@ -75,10 +72,10 @@ class ArchiveView extends React.Component {
             />;
         } else if (this.state.archive) {
             pageHeader = <React.Fragment>
-                {archive.repoDisplayName}
+                <Link to={`/repoArchives/${this.state.repoId}`}> {archive.repoDisplayName}</Link> - {archive.name}
                 <div
                     className={'btn btn-outline-primary refresh-button-right'}
-                    onClick={this.fetchArchive.bind(this, true)}
+                    onClick={this.toggleModal}
                 >
                     <IconRefresh/>
                 </div>
@@ -183,6 +180,16 @@ class ArchiveView extends React.Component {
                         </Table>
                     </TabPane>
                 </TabContent>
+                <ConfirmModal
+                    onConfirm={() => this.fetchArchive(true)}
+                    title={'Are you sure?'}
+                    toggle={this.toggleModal}
+                    open={this.state.confirmModal}
+                >
+                    Are you sure you want to reload the archive info and the file system list (if already cached)?
+                    <br/>
+                    This is a safe option but it may take some time to re-fill the caches (on demand) again.
+                </ConfirmModal>
             </React.Fragment>;
 
         }
@@ -197,7 +204,17 @@ class ArchiveView extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            repoId: this.props.match.params.repoId,
+            archiveId: this.props.match.params.archiveId,
+            isFetching: false,
+            activeTab: '1',
+            confirmModal: false
+        };
+
+
         this.fetchArchive = this.fetchArchive.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
     }
 }
 

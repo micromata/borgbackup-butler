@@ -256,6 +256,16 @@ class ArchiveFilelistCache {
         }
     }
 
+    public void deleteCachFile(Repository repository, Archive archive) {
+        File file = getFile(repository, archive);
+        if (file.exists()) {
+            log.info("Deleting cache file: " + file.getAbsolutePath());
+            file.delete();
+        } else {
+            log.info("Can't delete requested file because it doesn't exist (anymore): " + file.getAbsolutePath());
+        }
+    }
+
     File getFile(Repository repository, Archive archive) {
         return getFile(repository.getName(), archive);
     }

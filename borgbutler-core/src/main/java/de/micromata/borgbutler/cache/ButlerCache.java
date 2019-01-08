@@ -195,10 +195,6 @@ public class ButlerCache {
         return archive;
     }
 
-    public List<BorgFilesystemItem> getArchiveContent(String archiveId) {
-        return getArchiveContent(archiveId, true, null);
-    }
-
     public Archive getArchive(String archiveId) {
         for (Repository repository : getAllRepositories()) {
             if (repository.getArchives() != null) {
@@ -302,6 +298,20 @@ public class ButlerCache {
 
     public List<BorgFilesystemItem> getArchiveContent(File file) {
         return archiveFilelistCache.load(file, null);
+    }
+
+    public void deleteCachedArchiveContent(String repoIdOrName, String archiveIdOrName) {
+        Repository repository = getRepository(repoIdOrName);
+        if (repository == null) {
+            log.warn("Can't delete archive content cache file, repository not found: " + repoIdOrName);
+            return;
+        }
+        Archive archive = getArchive(repoIdOrName, archiveIdOrName);
+        if (archive == null) {
+            log.warn("Can't delete archive content cache file, archive not found: " + repoIdOrName);
+            return;
+        }
+        archiveFilelistCache.deleteCachFile(repository, archive);
     }
 
     public void shutdown() {

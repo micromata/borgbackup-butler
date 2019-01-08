@@ -47,6 +47,9 @@ public class ArchivesRest {
                              @QueryParam("archiveId") String archiveId, @QueryParam("force") boolean force,
                              @QueryParam("prettyPrinter") boolean prettyPrinter) {
         Archive archive = ButlerCache.getInstance().getArchive(repoName, archiveId, force);
+        if (force) {
+            ButlerCache.getInstance().deleteCachedArchiveContent(repoName, archiveId);
+        }
         return JsonUtils.toJson(archive, prettyPrinter);
     }
 
