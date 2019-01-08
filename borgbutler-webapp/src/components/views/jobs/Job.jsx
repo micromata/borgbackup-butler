@@ -58,7 +58,7 @@ class Job extends React.Component {
         }
         let environmentVariables = '';
         if (job.environmentVariables && Array.isArray(job.environmentVariables)) {
-            environmentVariables = job.environmentVariables.map((variable, index) => <React.Fragment>
+            environmentVariables = job.environmentVariables.map((variable, index) => <React.Fragment key={index}>
                 export &quot;{variable}&quot;;<br/>
             </React.Fragment>)
         }
