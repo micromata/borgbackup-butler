@@ -270,29 +270,19 @@ public class ButlerCache {
             return null;
         }
         synchronized (archive) {
-            List<BorgFilesystemItem> items = archiveFilelistCache.load(repoConfig, archive, filter);
-            if (items == null && forceLoad) {
-                List<BorgFilesystemItem> list = BorgCommands.listArchiveContent(repoConfig, archive);
-                if (CollectionUtils.isNotEmpty(list)) {
-                    archiveFilelistCache.save(repoConfig, archive, list);
-                    items = new ArrayList<>();
-                    Iterator<BorgFilesystemItem> it = list.iterator(); // Don't use for-each (ConcurrentModificationException)
-                    while (it.hasNext()) {
-                        BorgFilesystemItem item = it.next();
-                        if (filter == null || filter.matches(item)) {
-                            items.add(item);
-                            if (filter != null && filter.isFinished()) break;
-                        }
-                    }
-                    if (filter != null) {
-                        items = filter.reduce(items);
-                    }
+            List<BorgFilesystemItem> result = archiveFilelistCache.load(repoConfig, archive, filter);
+            if (result == null && forceLoad) {
+                List<BorgFilesystemItem> sourceList = BorgCommands.listArchiveContent(repoConfig, archive);
+                if (CollectionUtils.isNotEmpty(sourceList)) {
+                    ButlerCacheHelper.proceedBorgFileList(sourceList);
+                    archiveFilelistCache.save(repoConfig, archive, sourceList);
+                    result = ButlerCacheHelper.readAndMatchList(sourceList, filter);
                 }
             }
-            if (items == null && forceLoad) {
+            if (result == null && forceLoad) {
                 log.warn("Repo::archiv with name '" + archive.getBorgIdentifier() + "' not found or job was cancelled.");
             }
-            return items;
+            return result;
         }
     }
 

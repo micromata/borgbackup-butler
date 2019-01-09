@@ -207,29 +207,42 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
     /**
      * @return if this item is of type directory the path is returned, otherwise the directory where this item is in.
      */
-    public String getDirectory() {
-        if (directory != null) {
-            return directory;
+    public String _getInternalDirectory() {
+        if (_internalDirectory != null) {
+            return _internalDirectory;
         }
         if ("d".equals(type)) {
-            return directory = path;
+            return _internalDirectory = path;
         } else {
-            return directory = FilenameUtils.getPath(path);
+            return _internalDirectory = FilenameUtils.getPath(path);
         }
+    }
+
+    public boolean _isInternalDirectorySet() {
+        return _internalDirectory != null;
+    }
+
+    public void _setInternalDirectory(String directory) {
+        _internalDirectory = directory;
     }
 
     public String getFullPath() {
-        if (directory == null) {
-            return null;
+        if (_internalDirectory == null) {
+            if (parentFileNumber != null) {
+                System.err.println("**** Internal error: oups, shouldn't occur.");
+                return null;
+            } else {
+                return path;
+            }
         }
-        if ("d".equals(type)) return directory;
-        return directory + path;
+        if ("d".equals(type)) return _internalDirectory;
+        return _internalDirectory + path;
     }
 
     /**
-     * For preventing multiple calculations in {@link #getDirectory()}.
+     * For preventing multiple calculations in {@link #_getInternalDirectory()}.
      */
-    private transient String directory;
+    private transient String _internalDirectory;
 
     public boolean isDirectory() {
         return "d".equals(type);

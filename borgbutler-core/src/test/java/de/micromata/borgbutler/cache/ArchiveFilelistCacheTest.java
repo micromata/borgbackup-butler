@@ -3,6 +3,7 @@ package de.micromata.borgbutler.cache;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +138,7 @@ public class ArchiveFilelistCacheTest {
         BorgFilesystemItem item = new BorgFilesystemItem();
         set(item, "type", "-").set(item, "mode", "drwxr-xr-x")
                 .set(item, "user", "kai").set(item, "group", "user")
-                .set(item, "path", "/Users/kai/Test" + i + ".java").set(item, "size", 1000);
+                .set(item, "path", "/Users/kai/Test" + StringUtils.leftPad("" + i, 6, '0') + ".java").set(item, "size", 1000);
         return item;
     }
 

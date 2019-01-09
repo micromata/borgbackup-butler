@@ -153,10 +153,10 @@ class ArchiveFilelistCache {
         } catch (IOException ex) {
             log.error("Can't set lastModifiedTime on file '" + file.getAbsolutePath() + "'. Pruning old cache files may not work.");
         }
-        List<BorgFilesystemItem> list = new ArrayList<>();
         long millis = System.currentTimeMillis();
         // GZipCompressorInputStream buffers already, no BufferedInputReader needed.
         Kryo kryo = createKryo();
+        List<BorgFilesystemItem> list = null;
         try (Input inputStream = new Input(new GzipCompressorInputStream(new FileInputStream(file)))) {
             String serializationId = kryo.readObject(inputStream, String.class);
             if (!SERIALIZATION_ID_STRING.equals(serializationId)) {
@@ -164,28 +164,14 @@ class ArchiveFilelistCache {
                         + "'. OK, trying to get the data from Borg again.");
                 return null;
             }
-            int size = kryo.readObject(inputStream, Integer.class);
-            for (int i = 0; i < size; i++) {
-                BorgFilesystemItem item = kryo.readObject(inputStream, BorgFilesystemItem.class);
-                if (filter == null || filter.matches(item)) {
-                    list.add(item);
-                    if (filter != null && filter.isFinished()) break;
-                }
-            }
+            list = ButlerCacheHelper.readAndMatchInputStream(kryo, inputStream, filter);
         } catch (Exception ex) {
             log.error("Error while reading file list '" + file.getAbsolutePath() + "': " + ex.getMessage() + ". OK, trying to get the data from Borg again.");
             return null;
         }
         BigDecimal bd = new BigDecimal(System.currentTimeMillis() - millis).divide(THOUSAND, 1, RoundingMode.HALF_UP);
         log.info("Loading of " + String.format("%,d", list.size()) + " file system items done in " + bd + " seconds.");
-        return filter(list, filter);
-    }
-
-    private List<BorgFilesystemItem> filter(List<BorgFilesystemItem> filesystemItems, FileSystemFilter filter) {
-        if (filter != null) {
-            return filter.reduce(filesystemItems);
-        }
-        return filesystemItems;
+        return list;
     }
 
     /**

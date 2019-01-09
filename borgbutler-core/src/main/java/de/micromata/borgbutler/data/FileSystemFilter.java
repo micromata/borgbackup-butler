@@ -3,8 +3,6 @@ package de.micromata.borgbutler.data;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +20,7 @@ public class FileSystemFilter {
     private Mode mode;
     @Getter
     private String currentDirectory;
-    // For storing sub directories of the currentDirectory
-    private Map<String, BorgFilesystemItem> subDirectories;
+    private transient Integer currentDirectoryFileNumber;
     @Getter
     @Setter
     private int maxResultSize = -1;
@@ -58,14 +55,19 @@ public class FileSystemFilter {
             return false;
         }
         if (mode == Mode.TREE) {
-            // In this run only register all direct childs of currentDirectory.
-            String topLevelDir = getTopLevel(item.getPath());
-            if (topLevelDir == null) {
-                // item is not inside the current directory.
-                return false;
-            }
-            if (!subDirectories.containsKey(topLevelDir)) {
-                subDirectories.put(topLevelDir, item);
+            // Check if this item has the current directory as parent.
+            if (!StringUtils.isEmpty(currentDirectory)) {
+                if (!item.getFullPath().startsWith(currentDirectory)) {
+                    return false;
+                }
+                if (currentDirectoryFileNumber == null) {
+                    // Alphabetical order! Therefore the first matching entry is the top level directory:
+                    currentDirectoryFileNumber = item.getFileNumber();
+                    if (item.getFullPath().length() - currentDirectory.length() > 1) {
+                        log.error("Internal error. Not in alphabetical order?");
+                    }
+                    return false; // But do not add the current directory itself.
+                }
             }
         }
         if (searchKeyWords == null && blackListSearchKeyWords == null) {
@@ -92,40 +94,22 @@ public class FileSystemFilter {
         return true;
     }
 
-    /**
-     * After processing a list by using {@link #matches(BorgFilesystemItem)} you should call finally this method with
-     * your result list to reduce the files and directories for mode {@link Mode#TREE}. For the mode {@link Mode#FLAT}
-     * nothing is done.
-     * <br>
-     * Reorders the list (.files will be displayed after normal files).
-     *
-     * @param list
-     * @return The original list for mode {@link Mode#FLAT} or the reduced list for the tree view.
-     */
-    public List<BorgFilesystemItem> reduce(List<BorgFilesystemItem> list) {
+    public List<BorgFilesystemItem> reduce(Map<Integer, BorgFilesystemItem> directoryMap, List<BorgFilesystemItem> list) {
         if (mode == FileSystemFilter.Mode.TREE) {
-            if (MapUtils.isEmpty(subDirectories)) {
-                // If matches was not called before, do this now for getting all subdirectories.
-                subDirectories = new HashMap<>();
-                for (BorgFilesystemItem item : list) {
-                    // Needed for building subdirectories...
-                    this.matches(item);
-                }
-            }
-            Set<String> set = new HashSet<>();
+            Set<BorgFilesystemItem> set = new HashSet<>();
             List<BorgFilesystemItem> list2 = list;
             list = new ArrayList<>();
             for (BorgFilesystemItem item : list2) {
-                String topLevel = getTopLevel(item.getPath());
-                if (topLevel == null) {
+                BorgFilesystemItem topItem = findTopLevel(directoryMap, item, currentDirectoryFileNumber);
+                if (topItem == null) {
                     continue;
                 }
-                if (set.contains(topLevel) == false) {
-                    set.add(topLevel);
-                    BorgFilesystemItem topItem = subDirectories.get(topLevel);
-                    topItem.setDisplayPath(StringUtils.removeStart(topItem.getPath(), currentDirectory));
-                    list.add(topItem);
+                if (set.contains(topItem)) {
+                    // Already added.
+                    continue;
                 }
+                list.add(topItem);
+                set.add(topItem);
             }
             list2 = list;
             // Re-ordering (show dot files at last)
@@ -146,34 +130,24 @@ public class FileSystemFilter {
         return list;
     }
 
-    /**
-     * @param path The path of the current item.
-     * @return null if the item is not a child of the current directory otherwise the top level sub directory name of
-     * the current directory.
-     */
-    String getTopLevel(String path) {
-        if (StringUtils.isEmpty(currentDirectory)) {
-            int pos = path.indexOf('/');
-            if (pos < 0) {
-                return path;
-            }
-            return path.substring(0, pos);
+    private BorgFilesystemItem findTopLevel(Map<Integer, BorgFilesystemItem> directoryMap, BorgFilesystemItem item,
+                                            Integer currentDirectoryFileNumber) {
+        Integer parentFileNumber = item.getParentFileNumber();
+        if (Objects.equals(parentFileNumber, currentDirectoryFileNumber)) {
+            // parent object is the current directory, found.
+            return item;
         }
-        if (!path.startsWith(currentDirectory)) {
-            // item is not a child of currentDirectory.
+        if (parentFileNumber == null) {
+            log.error("Internal error: couldn't find current directory as parent directory! Ignoring: " + item.getFullPath());
+        }
+        BorgFilesystemItem parent = directoryMap.get(item.getParentFileNumber());
+        if (parent == null) {
+            log.error("Internal error: couldn't find current directory as parent directory! Ignoring: " + item.getFullPath());
             return null;
         }
-        if (path.length() <= currentDirectory.length() + 1) {
-            // Don't show the current directory itself.
-            return null;
-        }
-        path = StringUtils.removeStart(path, currentDirectory);
-        int pos = path.indexOf('/');
-        if (pos < 0) {
-            return path;
-        }
-        return path.substring(0, pos);
+        return findTopLevel(directoryMap, parent, currentDirectoryFileNumber);
     }
+
 
     /**
      * @param searchString The search string. If this string contains several key words separated by white chars,
@@ -227,9 +201,6 @@ public class FileSystemFilter {
      */
     public FileSystemFilter setMode(Mode mode) {
         this.mode = mode;
-        if (mode == Mode.TREE) {
-            this.subDirectories = new HashMap<>(); // needed only for tree view.
-        }
         return this;
     }
 
@@ -243,8 +214,8 @@ public class FileSystemFilter {
     }
 
     public FileSystemFilter setCurrentDirectory(String currentDirectory) {
-        if (currentDirectory != null && currentDirectory.length() > 0 && !currentDirectory.endsWith("/")) {
-            this.currentDirectory = currentDirectory + "/";
+        if (currentDirectory != null && currentDirectory.length() > 0 && currentDirectory.endsWith("/")) {
+            this.currentDirectory = currentDirectory.substring(0, currentDirectory.length() - 2);
         } else {
             this.currentDirectory = currentDirectory;
         }

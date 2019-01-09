@@ -1,9 +1,15 @@
 package de.micromata.borgbutler.cache;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import de.micromata.borgbutler.data.FileSystemFilter;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class ButlerCacheHelper {
@@ -11,6 +17,7 @@ public class ButlerCacheHelper {
 
     /**
      * Builds the tree of the file items and reduces the path of each item (dependent on the parent path).
+     *
      * @param filesystemItems
      */
     static void proceedBorgFileList(List<BorgFilesystemItem> filesystemItems) {
@@ -34,7 +41,7 @@ public class ButlerCacheHelper {
                 BorgFilesystemItem parent = null;
                 while (!stack.isEmpty()) {
                     BorgFilesystemItem stackObject = stack.peek();
-                    if (current.getDirectory().startsWith(stackObject.getDirectory())) {
+                    if (current._getInternalDirectory().startsWith(stackObject._getInternalDirectory())) {
                         parent = stackObject;
                         current.setParentFileNumber(parent.getFileNumber());
                         break;
@@ -42,7 +49,7 @@ public class ButlerCacheHelper {
                     stack.pop();
                 }
                 if (parent != null) {
-                    current.setPath(current.getPath().substring(parent.getDirectory().length() + 1));
+                    current.setPath(current.getPath().substring(parent._getInternalDirectory().length() + 1));
                 }
                 if (current.isDirectory()) {
                     stack.push(current);
@@ -51,4 +58,68 @@ public class ButlerCacheHelper {
         }
     }
 
+    static List<BorgFilesystemItem> readAndMatchList(List<BorgFilesystemItem> sourceList, FileSystemFilter filter) {
+        // For storing parent directories:
+        Map<Integer, BorgFilesystemItem> directoryMap = new HashMap<>();
+        List<BorgFilesystemItem> result = new ArrayList<>();
+        Iterator<BorgFilesystemItem> it = sourceList.iterator();
+        while (it.hasNext()) {
+            BorgFilesystemItem current = it.next();
+            setFullPath(directoryMap, current);
+            if (filter == null || filter.matches(current)) {
+                result.add(current);
+                if (filter != null && filter.isFinished()) break;
+            }
+            if (current.isDirectory()) {
+                directoryMap.put(current.getFileNumber(), current);
+            }
+        }
+        if (filter != null) {
+            result = filter.reduce(directoryMap, result);
+        }
+        return result;
+    }
+
+    static List<BorgFilesystemItem> readAndMatchInputStream(Kryo kryo, Input input, FileSystemFilter filter) throws IOException {
+        // For storing parent directories:
+        Map<Integer, BorgFilesystemItem> directoryMap = new HashMap<>();
+        List<BorgFilesystemItem> result = new ArrayList<>();
+        int size = kryo.readObject(input, Integer.class);
+        for (int i = 0; i < size; i++) {
+            BorgFilesystemItem current = kryo.readObject(input, BorgFilesystemItem.class);
+            setFullPath(directoryMap, current);
+            if (filter == null || filter.matches(current)) {
+                result.add(current);
+                if (filter != null && filter.isFinished()) break;
+            }
+            if (current.isDirectory()) {
+                directoryMap.put(current.getFileNumber(), current);
+            }
+        }
+        if (filter != null) {
+            result = filter.reduce(directoryMap, result);
+        }
+        return result;
+    }
+
+    private static void setFullPath(Map<Integer, BorgFilesystemItem> directoryMap, BorgFilesystemItem current) {
+        Integer parentFileNumber = current.getParentFileNumber();
+        if (parentFileNumber == null) {
+            // No parent, nothing to do.
+            return;
+        }
+        BorgFilesystemItem parent = directoryMap.get(parentFileNumber);
+        if (parent == null) {
+            log.error("Internal error: Oups, parent directory not found in map (wrong processing order?)");
+            return;
+        }
+        if (!parent._isInternalDirectorySet()) {
+            setFullPath(directoryMap, parent);
+        }
+        if (current.isDirectory()) {
+            current._setInternalDirectory(FilenameUtils.concat(parent.getFullPath(), current.getPath()));
+        } else {
+            current._setInternalDirectory(parent.getFullPath() + File.separatorChar);
+        }
+    }
 }
