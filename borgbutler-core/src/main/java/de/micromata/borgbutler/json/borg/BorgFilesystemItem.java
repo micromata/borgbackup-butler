@@ -66,7 +66,8 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
      */
     @Getter
     @Setter
-    private int fileNumber;
+    private int fileNumber = -1;
+
     /**
      * If created by diff tool, this flag represents the type of difference.
      */
