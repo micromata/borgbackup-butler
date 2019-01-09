@@ -1,11 +1,11 @@
 package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.BorgCommands;
-import de.micromata.borgbutler.DiffTool;
 import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Archive;
+import de.micromata.borgbutler.data.DiffFileSystemFilter;
 import de.micromata.borgbutler.data.FileSystemFilter;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
@@ -77,29 +77,30 @@ public class ArchivesRest {
                                      @QueryParam("diffArchiveId") String diffArchiveId,
                                      @QueryParam("force") boolean force,
                                      @QueryParam("prettyPrinter") boolean prettyPrinter) {
+        boolean diffMode = StringUtils.isNotBlank(diffArchiveId);
         int maxSize = NumberUtils.toInt(maxResultSize, 50);
-        FileSystemFilter filter = new FileSystemFilter()
-                .setSearchString(searchString)
-                .setMaxResultSize(maxSize)
-                .setMode(mode)
+        FileSystemFilter filter = diffMode ? new DiffFileSystemFilter() : new FileSystemFilter();
+        filter.setSearchString(searchString)
                 .setCurrentDirectory(currentDirectory);
         List<BorgFilesystemItem> items = null;
-        if (StringUtils.isBlank(diffArchiveId)) {
+        if (diffMode) {
+            filter.setMode(FileSystemFilter.Mode.FLAT);
+            items = ButlerCache.getInstance().getArchiveContent(archiveId, true, filter);
+            List<BorgFilesystemItem> diffItems = ButlerCache.getInstance().getArchiveContent(diffArchiveId, true,
+                    filter);
+            filter.setMaxResultSize(maxSize)
+                    .setMode(mode);
+            items = ((DiffFileSystemFilter) filter).extractDifferences(items, diffItems);
+            items = filter.reduce(items);
+        } else {
+            filter.setMode(mode)
+                    .setMaxResultSize(maxSize);
             // Get file list (without running diff).
             items = ButlerCache.getInstance().getArchiveContent(archiveId, force,
                     filter);
             if (items == null) {
                 return "[{\"mode\": \"notLoaded\"}]";
             }
-        } else {
-            filter.setMode(FileSystemFilter.Mode.FLAT).setMaxResultSize(-1);
-            items = ButlerCache.getInstance().getArchiveContent(archiveId, true, filter);
-            List<BorgFilesystemItem> diffItems = ButlerCache.getInstance().getArchiveContent(diffArchiveId, true,
-                    filter);
-            items = DiffTool.extractDifferences(items, diffItems);
-            filter.setMaxResultSize(maxSize)
-                    .setMode(mode);
-            items = filter.reduce(items);
         }
         return JsonUtils.toJson(items, prettyPrinter);
     }

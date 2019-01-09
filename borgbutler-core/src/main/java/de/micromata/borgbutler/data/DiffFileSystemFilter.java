@@ -1,4 +1,4 @@
-package de.micromata.borgbutler;
+package de.micromata.borgbutler.data;
 
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import org.slf4j.Logger;
@@ -11,15 +11,15 @@ import java.util.List;
 /**
  * Extracts the differences between two archives of one repo.
  */
-public class DiffTool {
-    private static Logger log = LoggerFactory.getLogger(DiffTool.class);
+public class DiffFileSystemFilter extends FileSystemFilter {
+    private Logger log = LoggerFactory.getLogger(DiffFileSystemFilter.class);
 
     /**
      * @param items      Sorted list of items from the current archive.
      * @param otherItems Sorted list of items of the archive to extract differences.
      * @return A list of differing items (new, removed and modified ones).
      */
-    public static List<BorgFilesystemItem> extractDifferences(List<BorgFilesystemItem> items, List<BorgFilesystemItem> otherItems) {
+    public List<BorgFilesystemItem> extractDifferences(List<BorgFilesystemItem> items, List<BorgFilesystemItem> otherItems) {
         List<BorgFilesystemItem> currentList = items != null ? items : new ArrayList<>();
         List<BorgFilesystemItem> otherList = otherItems != null ? otherItems : new ArrayList<>();
         List<BorgFilesystemItem> result = new ArrayList<>();
@@ -37,7 +37,8 @@ public class DiffTool {
             }
             int cmp = current.compareTo(other);
             if (cmp == 0) { // Items represents both the same file system item.
-                if (current.equals(other)) {
+                if (!checkDirectoryMatchAndRegisterSubDirectories(current) ||
+                        current.equals(other)) {
                     current = other = null; // increment both iterators.
                     continue;
                 }
@@ -48,10 +49,14 @@ public class DiffTool {
                 result.add(current);
                 current = other = null; // increment both iterators.
             } else if (cmp < 0) {
-                result.add(current.setDiffStatus(BorgFilesystemItem.DiffStatus.NEW));
+                if (checkDirectoryMatchAndRegisterSubDirectories(current)) {
+                    result.add(current.setDiffStatus(BorgFilesystemItem.DiffStatus.NEW));
+                }
                 current = currentIt.hasNext() ? currentIt.next() : null;
             } else {
-                result.add(other.setDiffStatus(BorgFilesystemItem.DiffStatus.REMOVED));
+                if (checkDirectoryMatchAndRegisterSubDirectories(other)) {
+                    result.add(other.setDiffStatus(BorgFilesystemItem.DiffStatus.REMOVED));
+                }
                 other = otherIt.hasNext() ? otherIt.next() : null;
             }
         }

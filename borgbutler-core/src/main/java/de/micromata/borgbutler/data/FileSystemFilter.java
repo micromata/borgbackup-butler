@@ -83,35 +83,6 @@ public class FileSystemFilter {
     }
 
     /**
-     * This method has only effect in FLAT view. This method has to be called for every item of the list before
-     * {@link #reduce(List)} may work, because this method registers sub directories of the current directory needed
-     * by {@link #reduce(List)}.
-     *
-     * @param item
-     * @return false, if the given item is not a sub item of the current directory. You may skip further checkings for this
-     * item. If true, this item might be part of the result.
-     */
-    boolean checkDirectoryMatchAndRegisterSubDirectories(BorgFilesystemItem item) {
-        if (mode != Mode.TREE) {
-            return true;
-        }
-        if (StringUtils.isNotEmpty(currentDirectory) && !item.getPath().startsWith(currentDirectory)) {
-            // item is not inside the current directory.
-            return false;
-        }
-        // In this run only register all direct childs of currentDirectory.
-        String topLevelDir = getTopLevel(item.getPath());
-        if (topLevelDir == null) {
-            // item is not inside the current directory.
-            return false;
-        }
-        if (!subDirectories.containsKey(topLevelDir)) {
-            subDirectories.put(topLevelDir, item);
-        }
-        return true;
-}
-
-    /**
      * After processing a list by using {@link #matches(BorgFilesystemItem)} you should call finally this method with
      * your result list to reduce the files and directories for mode {@link Mode#TREE}. For the mode {@link Mode#FLAT}
      * nothing is done.
@@ -136,8 +107,12 @@ public class FileSystemFilter {
             if (set.contains(topLevel) == false) {
                 set.add(topLevel);
                 BorgFilesystemItem topItem = subDirectories.get(topLevel);
-                topItem.setDisplayPath(StringUtils.removeStart(topItem.getPath(), currentDirectory));
-                list.add(topItem);
+                if (topItem == null) {
+                    log.error("Internal error, can't find subDirectory: " + topLevel);
+                } else {
+                    topItem.setDisplayPath(StringUtils.removeStart(topItem.getPath(), currentDirectory));
+                    list.add(topItem);
+                }
             }
         }
         list2 = list;
@@ -192,6 +167,36 @@ public class FileSystemFilter {
         }
         return this;
     }
+
+    /**
+     * This method has only effect in FLAT view. This method has to be called for every item of the list before
+     * {@link #reduce(List)} may work, because this method registers sub directories of the current directory needed
+     * by {@link #reduce(List)}.
+     *
+     * @param item
+     * @return false, if the given item is not a sub item of the current directory. You may skip further checkings for this
+     * item. If true, this item might be part of the result.
+     */
+    protected boolean checkDirectoryMatchAndRegisterSubDirectories(BorgFilesystemItem item) {
+        if (mode != Mode.TREE) {
+            return true;
+        }
+        if (StringUtils.isNotEmpty(currentDirectory) && !item.getPath().startsWith(currentDirectory)) {
+            // item is not inside the current directory.
+            return false;
+        }
+        // In this run only register all direct childs of currentDirectory.
+        String topLevelDir = getTopLevel(item.getPath());
+        if (topLevelDir == null) {
+            // item is not inside the current directory.
+            return false;
+        }
+        if (!subDirectories.containsKey(topLevelDir)) {
+            subDirectories.put(topLevelDir, item);
+        }
+        return true;
+    }
+
 
     /**
      * currentDirectory '': <tt>home</tt> -&gt; <tt>home</tt><br>
