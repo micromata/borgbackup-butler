@@ -4,11 +4,9 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import de.micromata.borgbutler.data.FileSystemFilter;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -16,7 +14,7 @@ public class ButlerCacheHelper {
     private static Logger log = LoggerFactory.getLogger(ButlerCacheHelper.class);
 
     /**
-     * Builds the tree of the file items and reduces the path of each item (dependent on the parent path).
+     * Builds the tree of the file items.
      *
      * @param filesystemItems
      */
@@ -41,15 +39,12 @@ public class ButlerCacheHelper {
                 BorgFilesystemItem parent = null;
                 while (!stack.isEmpty()) {
                     BorgFilesystemItem stackObject = stack.peek();
-                    if (current._getInternalDirectory().startsWith(stackObject._getInternalDirectory())) {
+                    if (current.getPath().startsWith(stackObject.getPath())) {
                         parent = stackObject;
                         current.setParentFileNumber(parent.getFileNumber());
                         break;
                     }
                     stack.pop();
-                }
-                if (parent != null) {
-                    current.setPath(current.getPath().substring(parent._getInternalDirectory().length() + 1));
                 }
                 if (current.isDirectory()) {
                     stack.push(current);
@@ -65,7 +60,6 @@ public class ButlerCacheHelper {
         Iterator<BorgFilesystemItem> it = sourceList.iterator();
         while (it.hasNext()) {
             BorgFilesystemItem current = it.next();
-            setFullPath(directoryMap, current);
             if (filter == null || filter.matches(current)) {
                 result.add(current);
                 if (filter != null && filter.isFinished()) break;
@@ -87,7 +81,6 @@ public class ButlerCacheHelper {
         int size = kryo.readObject(input, Integer.class);
         for (int i = 0; i < size; i++) {
             BorgFilesystemItem current = kryo.readObject(input, BorgFilesystemItem.class);
-            setFullPath(directoryMap, current);
             if (filter == null || filter.matches(current)) {
                 result.add(current);
                 if (filter != null && filter.isFinished()) break;
@@ -100,26 +93,5 @@ public class ButlerCacheHelper {
             result = filter.reduce(directoryMap, result);
         }
         return result;
-    }
-
-    private static void setFullPath(Map<Integer, BorgFilesystemItem> directoryMap, BorgFilesystemItem current) {
-        Integer parentFileNumber = current.getParentFileNumber();
-        if (parentFileNumber == null) {
-            // No parent, nothing to do.
-            return;
-        }
-        BorgFilesystemItem parent = directoryMap.get(parentFileNumber);
-        if (parent == null) {
-            log.error("Internal error: Oups, parent directory not found in map (wrong processing order?)");
-            return;
-        }
-        if (!parent._isInternalDirectorySet()) {
-            setFullPath(directoryMap, parent);
-        }
-        if (current.isDirectory()) {
-            current._setInternalDirectory(FilenameUtils.concat(parent.getFullPath(), current.getPath()));
-        } else {
-            current._setInternalDirectory(parent.getFullPath() + File.separatorChar);
-        }
     }
 }

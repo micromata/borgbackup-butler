@@ -2,7 +2,6 @@ package de.micromata.borgbutler.json.borg;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -203,46 +202,6 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
     public String toString() {
         return path;
     }
-
-    /**
-     * @return if this item is of type directory the path is returned, otherwise the directory where this item is in.
-     */
-    public String _getInternalDirectory() {
-        if (_internalDirectory != null) {
-            return _internalDirectory;
-        }
-        if ("d".equals(type)) {
-            return _internalDirectory = path;
-        } else {
-            return _internalDirectory = FilenameUtils.getPath(path);
-        }
-    }
-
-    public boolean _isInternalDirectorySet() {
-        return _internalDirectory != null;
-    }
-
-    public void _setInternalDirectory(String directory) {
-        _internalDirectory = directory;
-    }
-
-    public String getFullPath() {
-        if (_internalDirectory == null) {
-            if (parentFileNumber != null) {
-                System.err.println("**** Internal error: oups, shouldn't occur.");
-                return null;
-            } else {
-                return path;
-            }
-        }
-        if ("d".equals(type)) return _internalDirectory;
-        return _internalDirectory + path;
-    }
-
-    /**
-     * For preventing multiple calculations in {@link #_getInternalDirectory()}.
-     */
-    private transient String _internalDirectory;
 
     public boolean isDirectory() {
         return "d".equals(type);

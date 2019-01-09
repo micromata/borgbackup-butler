@@ -27,7 +27,9 @@ import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Path("/archives")
 public class ArchivesRest {
@@ -94,12 +96,16 @@ public class ArchivesRest {
         } else {
             filter.setMode(FileSystemFilter.Mode.FLAT).setMaxResultSize(-1);
             items = ButlerCache.getInstance().getArchiveContent(archiveId, true, filter);
+            Map<Integer, BorgFilesystemItem> directoryMap = new HashMap<>();
             List<BorgFilesystemItem> diffItems = ButlerCache.getInstance().getArchiveContent(diffArchiveId, true,
                     filter);
+            for (BorgFilesystemItem item : items) {
+                if (item.isDirectory()) directoryMap.put(item.getFileNumber(), item);
+            }
             items = DiffTool.extractDifferences(items, diffItems);
             filter.setMaxResultSize(maxSize)
                     .setMode(mode);
-            //items = filter.reduce(items);
+            items = filter.reduce(directoryMap, items);
         }
         return JsonUtils.toJson(items, prettyPrinter);
     }

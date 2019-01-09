@@ -24,12 +24,11 @@ public class ButlerCacheHelperTest {
             BorgFilesystemItem item = list.get(i);
             if (previousPath != null) {
                 // Check order:
-                assertTrue((previousPath.compareToIgnoreCase(item.getFullPath()) < 0),
+                assertTrue((previousPath.compareToIgnoreCase(item.getPath()) < 0),
                         "Order expected: " + previousPath + " < " + item.getPath());
             }
             assertEquals(i, (int) item.getFileNumber());
-            previousPath = item.getFullPath();
-            item._setInternalDirectory(null); // Delete for testing recovery below.
+            previousPath = item.getPath();
         }
         // Recover full path:
         ButlerCacheHelper.readAndMatchList(list, null);
@@ -41,27 +40,27 @@ public class ButlerCacheHelperTest {
         List<BorgFilesystemItem> list = createList();
         list = ButlerCacheHelper.readAndMatchList(list, new FileSystemFilter().setMode(FileSystemFilter.Mode.TREE));
         assertEquals(3, list.size());
-        assertEquals("home", list.get(0).getFullPath());
-        assertEquals("opt", list.get(1).getFullPath());
-        assertEquals("test.txt", list.get(2).getFullPath());
+        assertEquals("home", list.get(0).getPath());
+        assertEquals("opt", list.get(1).getPath());
+        assertEquals("test.txt", list.get(2).getPath());
         list = createList();
         list = ButlerCacheHelper.readAndMatchList(list, new FileSystemFilter().setCurrentDirectory("home").setMode(FileSystemFilter.Mode.TREE));
         assertEquals(5, list.size());
-        assertEquals("home/kai", list.get(0).getFullPath());
-        assertEquals("home/pete", list.get(1).getFullPath());
-        assertEquals("home/steve/1/2/3/4/5/6/7/test.txt", list.get(2).getFullPath());
-        assertEquals("home/test.txt", list.get(3).getFullPath());
-        assertEquals("home/xaver/1/2/3/4/5/6/7/test.txt", list.get(4).getFullPath());
+        assertEquals("home/kai", list.get(0).getPath());
+        assertEquals("home/pete", list.get(1).getPath());
+        assertEquals("home/steve/1/2/3/4/5/6/7/test.txt", list.get(2).getPath());
+        assertEquals("home/test.txt", list.get(3).getPath());
+        assertEquals("home/xaver/1/2/3/4/5/6/7/test.txt", list.get(4).getPath());
         list = createList();
         list = ButlerCacheHelper.readAndMatchList(list, new FileSystemFilter().setCurrentDirectory("home/kai/").setMode(FileSystemFilter.Mode.TREE));
         assertEquals(7, list.size());
-        assertEquals("home/kai/abc.txt", list.get(0).getFullPath());
-        assertEquals("home/kai/Documents", list.get(1).getFullPath());
-        assertEquals("home/kai/Files", list.get(2).getFullPath());
-        assertEquals("home/kai/image.doc", list.get(3).getFullPath());
-        assertEquals("home/kai/Java.pdf", list.get(4).getFullPath());
-        assertEquals("home/kai/Movies/a.mov", list.get(5).getFullPath());
-        assertEquals("home/kai/.borgbutler", list.get(6).getFullPath());
+        assertEquals("home/kai/abc.txt", list.get(0).getPath());
+        assertEquals("home/kai/Documents", list.get(1).getPath());
+        assertEquals("home/kai/Files", list.get(2).getPath());
+        assertEquals("home/kai/image.doc", list.get(3).getPath());
+        assertEquals("home/kai/Java.pdf", list.get(4).getPath());
+        assertEquals("home/kai/Movies/a.mov", list.get(5).getPath());
+        assertEquals("home/kai/.borgbutler", list.get(6).getPath());
     }
 
     private List<BorgFilesystemItem> createList() {
@@ -124,19 +123,12 @@ public class ButlerCacheHelperTest {
         } else {
             assertEquals((int) getItem(list, expectedParent).getFileNumber(), (int) item.getParentFileNumber());
         }
-        assertEquals(expectedPath, item.getPath());
+        assertEquals(path, item.getPath());
     }
 
     private BorgFilesystemItem getItem(List<BorgFilesystemItem> list, String path) {
         for (BorgFilesystemItem item : list) {
-            if (item.isDirectory()) {
-                if (path.equals(item._getInternalDirectory())) return item;
-            } else {
-                String fullPath = item.getFullPath();
-                if (path.equals(fullPath)) {
-                    return item;
-                }
-            }
+                if (path.equals(item.getPath())) return item;
         }
         fail("'" + path + "' not found.");
         return null;

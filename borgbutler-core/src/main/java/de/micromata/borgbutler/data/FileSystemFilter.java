@@ -20,6 +20,7 @@ public class FileSystemFilter {
     private Mode mode;
     @Getter
     private String currentDirectory;
+    private String currentDirectoryWithoutTrailingFileSeparator;
     private transient Integer currentDirectoryFileNumber;
     @Getter
     @Setter
@@ -46,7 +47,6 @@ public class FileSystemFilter {
      * @return true if the given item matches this filter.
      */
     public boolean matches(BorgFilesystemItem item) {
-        item.setDisplayPath(item.getPath());
         if (fileNumber != null) {
             if (item.getFileNumber() == fileNumber) {
                 finished = true; // Force finishing.
@@ -57,18 +57,12 @@ public class FileSystemFilter {
         if (mode == Mode.TREE) {
             // Check if this item has the current directory as parent.
             if (!StringUtils.isEmpty(currentDirectory)) {
-                if (!item.getFullPath().startsWith(currentDirectory)) {
+                if (!(item.getPath().startsWith(currentDirectoryWithoutTrailingFileSeparator))) {
                     return false;
                 }
-                if (currentDirectoryFileNumber == null) {
-                    // Alphabetical order! Therefore the first matching entry is the top level directory:
-                    currentDirectoryFileNumber = item.getFileNumber();
-                    if (item.getFullPath().length() - currentDirectory.length() > 1) {
-                        log.error("Internal error. Not in alphabetical order?");
-                    }
-                    return false; // But do not add the current directory itself.
-                }
             }
+        } else {
+            item.setDisplayPath(item.getPath());
         }
         if (searchKeyWords == null && blackListSearchKeyWords == null) {
             processFinishedFlag();
@@ -96,6 +90,14 @@ public class FileSystemFilter {
 
     public List<BorgFilesystemItem> reduce(Map<Integer, BorgFilesystemItem> directoryMap, List<BorgFilesystemItem> list) {
         if (mode == FileSystemFilter.Mode.TREE) {
+            if (currentDirectoryFileNumber == null && StringUtils.isNotEmpty(currentDirectoryWithoutTrailingFileSeparator)) {
+                for (BorgFilesystemItem item : list) {
+                    if (this.currentDirectoryWithoutTrailingFileSeparator.equals(item.getPath())) {
+                        currentDirectoryFileNumber = item.getFileNumber();
+                        break;
+                    }
+                }
+            }
             Set<BorgFilesystemItem> set = new HashSet<>();
             List<BorgFilesystemItem> list2 = list;
             list = new ArrayList<>();
@@ -135,14 +137,16 @@ public class FileSystemFilter {
         Integer parentFileNumber = item.getParentFileNumber();
         if (Objects.equals(parentFileNumber, currentDirectoryFileNumber)) {
             // parent object is the current directory, found.
+            item.setDisplayPath(StringUtils.removeStart(item.getPath(), currentDirectory));
             return item;
         }
         if (parentFileNumber == null) {
-            log.error("Internal error: couldn't find current directory as parent directory! Ignoring: " + item.getFullPath());
+            log.error("Internal error: couldn't find current directory as parent directory! Ignoring: " + item.getPath());
+            return null;
         }
         BorgFilesystemItem parent = directoryMap.get(item.getParentFileNumber());
         if (parent == null) {
-            log.error("Internal error: couldn't find current directory as parent directory! Ignoring: " + item.getFullPath());
+            log.error("Internal error: couldn't find current directory as parent directory! Ignoring: " + item.getPath());
             return null;
         }
         return findTopLevel(directoryMap, parent, currentDirectoryFileNumber);
@@ -214,10 +218,14 @@ public class FileSystemFilter {
     }
 
     public FileSystemFilter setCurrentDirectory(String currentDirectory) {
-        if (currentDirectory != null && currentDirectory.length() > 0 && currentDirectory.endsWith("/")) {
-            this.currentDirectory = currentDirectory.substring(0, currentDirectory.length() - 2);
+        if (currentDirectory != null && currentDirectory.length() > 0 && !currentDirectory.endsWith("/")) {
+            this.currentDirectory = currentDirectory + "/";
         } else {
             this.currentDirectory = currentDirectory;
+        }
+        this.currentDirectoryWithoutTrailingFileSeparator = this.currentDirectory;
+        if (StringUtils.isNotEmpty(this.currentDirectory)) {
+            this.currentDirectoryWithoutTrailingFileSeparator = this.currentDirectory.substring(0, this.currentDirectory.length() - 1);
         }
         return this;
     }
