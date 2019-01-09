@@ -2,19 +2,24 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Highlight from 'react-highlighter';
 import {Button, UncontrolledTooltip} from 'reactstrap';
-import {IconCheck, IconDownload} from '../../general/IconComponents';
+import {IconBan, IconCheck, IconDownload} from '../../general/IconComponents';
 import {getResponseHeaderFilename, getRestServiceUrl, humanFileSize} from '../../../utilities/global';
 import fileDownload from 'js-file-download';
 
 class FileListEntry extends React.Component {
 
     state = {
-        downloaded: false
+        thisDownloaded: false,
+        otherDownloaded: false
     };
 
-    download(archiveId, fileNumber) {
+    download(archiveId, fileNumber, thisDownload) {
         let filename;
-        this.setState({downloaded: true});
+        if (thisDownload) {
+            this.setState({thisDownloaded: true});
+        } else {
+            this.setState({otherDownloaded: true});
+        }
         fetch(getRestServiceUrl('archives/restore', {
             archiveId: archiveId,
             fileNumber: fileNumber
@@ -42,7 +47,6 @@ class FileListEntry extends React.Component {
 
     render = () => {
         const entry = this.props.entry;
-        let downloadArchiveId = this.props.archiveId;
         let displayPath = entry.displayPath;
         let pathCss = 'tt';
 
@@ -61,14 +65,46 @@ class FileListEntry extends React.Component {
         let mtimeCss = 'tt';
         let mtimeTooltip = undefined;
         let mtimeId = undefined;
+        let iconBan = <div className={'btn'}><IconBan/></div>;
+        let iconCheck = <div className={'btn'}><IconCheck/></div>;
+
+        let icon1 = iconCheck;
+        let icon1Tooltip = '';
+        if (!this.state.thisDownloaded) {
+            const icon1Id = `icon1-${entry.fileNumber}`;
+            icon1 = <div id={icon1Id} className={'btn'}
+                         onClick={() => this.download(this.props.archive.id, entry.fileNumber, true)}>
+                <IconDownload/></div>;
+            icon1Tooltip = <UncontrolledTooltip target={icon1Id}>
+                {this.props.archive.time}
+            </UncontrolledTooltip>;
+        }
+        let icon2 = '';
+        let icon2Tooltip = '';
+        if (this.props.diffArchiveId) {
+            icon2 = iconCheck;
+            if (!this.state.otherDownloaded) {
+                const icon2Id = `icon2-${entry.fileNumber}`;
+                icon2 =
+                    <div id={icon2Id} className={'btn'}
+                         onClick={() => this.download(this.props.diffArchiveId, entry.fileNumber, false)}>
+                        <IconDownload/></div>;
+                icon2Tooltip = <UncontrolledTooltip target={icon2Id}>
+                    other
+                </UncontrolledTooltip>;
+            }
+        }
         if (entry.diffStatus === 'NEW') {
             pathCss = 'tt file-new';
             pathtooltipText = 'NEW';
+            icon2 = iconBan;
+            icon2Tooltip = '';
         } else if (entry.diffStatus === 'REMOVED') {
             pathCss = 'tt file-removed';
             // Download removed files from other archive.
-            downloadArchiveId = this.props.diffArchiveId;
             pathtooltipText = 'REMOVED';
+            icon1 = iconBan;
+            icon1Tooltip = '';
         } else if (entry.diffStatus === 'MODIFIED') {
             if (entry.differences) {
                 pathCss = 'tt file-modified';
@@ -113,16 +149,13 @@ class FileListEntry extends React.Component {
         } else {
             path = <Highlight search={this.props.search} id={pathId}>{displayPath}</Highlight>;
         }
-        let icon = entry.fileNumber >= 0 ? (this.state.downloaded ? <IconCheck/> :
-            <div className={'btn'} onClick={() => this.download(downloadArchiveId, entry.fileNumber)}>
-                <IconDownload/></div>) : '';
         return (
             <tr>
                 <td className={pathCss}>
                     {path}{pathTooltip}
                 </td>
                 <td className={'tt'} style={{textAlign: 'center'}}>
-                    {icon}
+                    {icon1}{icon1Tooltip} {icon2}{icon2Tooltip}
                 </td>
                 <td className={sizeCss} style={{textAlign: 'center'}}>
                     <span id={sizeId}>{humanFileSize(entry.size, true, true)}</span>{sizeTooltip}
@@ -149,6 +182,7 @@ FileListEntry
     entry: PropTypes.shape({}).isRequired,
     search: PropTypes.string,
     mode: PropTypes.string,
+    diffArchiveId: PropTypes.string,
     changeCurrentDirectory: PropTypes.func.isRequired
 };
 

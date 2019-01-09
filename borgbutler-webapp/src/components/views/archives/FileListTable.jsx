@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {Table} from 'reactstrap';
 import FileListEntry from './FileListEntry';
 
-function FileListTable({archiveId, diffArchiveId, entries, search, mode, changeCurrentDirectory}) {
+function FileListTable({archive, diffArchiveId, entries, search, mode, changeCurrentDirectory}) {
     const lowercaseSearch = search.split(' ')[0].toLowerCase();
     return (
         <Table striped bordered hover size={'sm'} responsive>
@@ -19,7 +19,7 @@ function FileListTable({archiveId, diffArchiveId, entries, search, mode, changeC
             <tbody>
             {entries
                 .map((entry, index) => <FileListEntry
-                    archiveId={archiveId}
+                    archive={archive}
                     diffArchiveId={diffArchiveId}
                     entry={entry}
                     search={lowercaseSearch}
@@ -33,7 +33,6 @@ function FileListTable({archiveId, diffArchiveId, entries, search, mode, changeC
 }
 
 FileListTable.propTypes = {
-    archiveId: PropTypes.string,
     diffArchiveId: PropTypes.string,
     entries: PropTypes.array,
     search: PropTypes.string,

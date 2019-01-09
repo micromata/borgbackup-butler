@@ -51,7 +51,7 @@ class FileListPanel extends React.Component {
             failed: false
         });
         fetch(getRestServiceUrl('archives/filelist', {
-            archiveId: this.props.archiveId,
+            archiveId: this.props.archive.id,
             diffArchiveId: this.state.filter.diffArchiveId,
             force: force,
             searchString: this.state.filter.search,
@@ -128,12 +128,12 @@ class FileListPanel extends React.Component {
                             event.preventDefault();
                             this.fetchArchiveFileList();
                         }}
-                        currentArchiveId={this.props.archiveId}
+                        currentArchiveId={this.props.archive.id}
                         archiveShortInfoList={this.props.archiveShortInfoList}
                     />
                     {breadcrumb}
                     <FileListTable
-                        archiveId={this.props.archiveId}
+                        archive={this.props.archive}
                         diffArchiveId={this.state.filter.diffArchiveId}
                         entries={this.state.fileList}
                         search={this.state.filter.search}
