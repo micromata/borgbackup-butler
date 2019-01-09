@@ -113,9 +113,9 @@ class FileListEntry extends React.Component {
         } else {
             path = <Highlight search={this.props.search} id={pathId}>{displayPath}</Highlight>;
         }
-        let icon = this.state.downloaded ? <IconCheck/> :
+        let icon = entry.fileNumber >= 0 ? (this.state.downloaded ? <IconCheck/> :
             <div className={'btn'} onClick={() => this.download(downloadArchiveId, entry.fileNumber)}>
-                <IconDownload/></div>;
+                <IconDownload/></div>) : '';
         return (
             <tr>
                 <td className={pathCss}>
