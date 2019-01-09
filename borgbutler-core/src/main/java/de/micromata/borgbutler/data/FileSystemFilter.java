@@ -3,8 +3,6 @@ package de.micromata.borgbutler.data;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,16 +55,8 @@ public class FileSystemFilter {
             }
             return false;
         }
-        if (mode == Mode.TREE) {
-            // In this run only register all direct childs of currentDirectory.
-            String topLevelDir = getTopLevel(item.getPath());
-            if (topLevelDir == null) {
-                // item is not inside the current directory.
-                return false;
-            }
-            if (!subDirectories.containsKey(topLevelDir)) {
-                subDirectories.put(topLevelDir, item);
-            }
+        if (!checkDirectoryMatchAndRegisterSubDirectories(item)) {
+            return false;
         }
         if (searchKeyWords == null && blackListSearchKeyWords == null) {
             processFinishedFlag();
@@ -93,6 +83,35 @@ public class FileSystemFilter {
     }
 
     /**
+     * This method has only effect in FLAT view. This method has to be called for every item of the list before
+     * {@link #reduce(List)} may work, because this method registers sub directories of the current directory needed
+     * by {@link #reduce(List)}.
+     *
+     * @param item
+     * @return false, if the given item is not a sub item of the current directory. You may skip further checkings for this
+     * item. If true, this item might be part of the result.
+     */
+    boolean checkDirectoryMatchAndRegisterSubDirectories(BorgFilesystemItem item) {
+        if (mode != Mode.TREE) {
+            return true;
+        }
+        if (StringUtils.isNotEmpty(currentDirectory) && !item.getPath().startsWith(currentDirectory)) {
+            // item is not inside the current directory.
+            return false;
+        }
+        // In this run only register all direct childs of currentDirectory.
+        String topLevelDir = getTopLevel(item.getPath());
+        if (topLevelDir == null) {
+            // item is not inside the current directory.
+            return false;
+        }
+        if (!subDirectories.containsKey(topLevelDir)) {
+            subDirectories.put(topLevelDir, item);
+        }
+        return true;
+}
+
+    /**
      * After processing a list by using {@link #matches(BorgFilesystemItem)} you should call finally this method with
      * your result list to reduce the files and directories for mode {@link Mode#TREE}. For the mode {@link Mode#FLAT}
      * nothing is done.
@@ -103,76 +122,40 @@ public class FileSystemFilter {
      * @return The original list for mode {@link Mode#FLAT} or the reduced list for the tree view.
      */
     public List<BorgFilesystemItem> reduce(List<BorgFilesystemItem> list) {
-        if (mode == FileSystemFilter.Mode.TREE) {
-            if (MapUtils.isEmpty(subDirectories)) {
-                // If matches was not called before, do this now for getting all subdirectories.
-                subDirectories = new HashMap<>();
-                for (BorgFilesystemItem item : list) {
-                    // Needed for building subdirectories...
-                    this.matches(item);
-                }
+        if (mode != FileSystemFilter.Mode.TREE) {
+            return list;
+        }
+        Set<String> set = new HashSet<>();
+        List<BorgFilesystemItem> list2 = list;
+        list = new ArrayList<>();
+        for (BorgFilesystemItem item : list2) {
+            String topLevel = getTopLevel(item.getPath());
+            if (topLevel == null) {
+                continue;
             }
-            Set<String> set = new HashSet<>();
-            List<BorgFilesystemItem> list2 = list;
-            list = new ArrayList<>();
-            for (BorgFilesystemItem item : list2) {
-                String topLevel = getTopLevel(item.getPath());
-                if (topLevel == null) {
-                    continue;
-                }
-                if (set.contains(topLevel) == false) {
-                    set.add(topLevel);
-                    BorgFilesystemItem topItem = subDirectories.get(topLevel);
-                    topItem.setDisplayPath(StringUtils.removeStart(topItem.getPath(), currentDirectory));
-                    list.add(topItem);
-                }
+            if (set.contains(topLevel) == false) {
+                set.add(topLevel);
+                BorgFilesystemItem topItem = subDirectories.get(topLevel);
+                topItem.setDisplayPath(StringUtils.removeStart(topItem.getPath(), currentDirectory));
+                list.add(topItem);
             }
-            list2 = list;
-            // Re-ordering (show dot files at last)
-            list = new ArrayList<>();
-            // First add normal files:
-            for (BorgFilesystemItem item : list2) {
-                if (!item.getDisplayPath().startsWith(".")) {
-                    list.add(item);
-                }
+        }
+        list2 = list;
+        // Re-ordering (show dot files at last)
+        list = new ArrayList<>();
+        // First add normal files:
+        for (BorgFilesystemItem item : list2) {
+            if (!item.getDisplayPath().startsWith(".")) {
+                list.add(item);
             }
-            // Now add dot files:
-            for (BorgFilesystemItem item : list2) {
-                if (item.getDisplayPath().startsWith(".")) {
-                    list.add(item);
-                }
+        }
+        // Now add dot files:
+        for (BorgFilesystemItem item : list2) {
+            if (item.getDisplayPath().startsWith(".")) {
+                list.add(item);
             }
         }
         return list;
-    }
-
-    /**
-     * @param path The path of the current item.
-     * @return null if the item is not a child of the current directory otherwise the top level sub directory name of
-     * the current directory.
-     */
-    String getTopLevel(String path) {
-        if (StringUtils.isEmpty(currentDirectory)) {
-            int pos = path.indexOf('/');
-            if (pos < 0) {
-                return path;
-            }
-            return path.substring(0, pos);
-        }
-        if (!path.startsWith(currentDirectory)) {
-            // item is not a child of currentDirectory.
-            return null;
-        }
-        if (path.length() <= currentDirectory.length() + 1) {
-            // Don't show the current directory itself.
-            return null;
-        }
-        path = StringUtils.removeStart(path, currentDirectory);
-        int pos = path.indexOf('/');
-        if (pos < 0) {
-            return path;
-        }
-        return path.substring(0, pos);
     }
 
     /**
@@ -208,6 +191,41 @@ public class FileSystemFilter {
             }
         }
         return this;
+    }
+
+    /**
+     * currentDirectory '': <tt>home</tt> -&gt; <tt>home</tt><br>
+     * currentDirectory '': <tt>home/kai</tt> -&gt; <tt>home</tt><br>
+     * currentDirectory 'home': <tt>home</tt> -&gt; <tt>null</tt><br>
+     * currentDirectory 'home': <tt>home/kai</tt> -&gt; <tt>kai</tt><br>
+     * currentDirectory 'home': <tt>home/kai/test.java</tt> -&gt; <tt>kai</tt><br>
+     *
+     * @param path The path of the current item.
+     * @return null if the item is not a child of the current directory otherwise the top level sub directory name of
+     * the current directory.
+     */
+    String getTopLevel(String path) {
+        if (StringUtils.isEmpty(currentDirectory)) {
+            int pos = path.indexOf('/');
+            if (pos < 0) {
+                return path;
+            }
+            return path.substring(0, pos);
+        }
+        if (!path.startsWith(currentDirectory)) {
+            // item is not a child of currentDirectory.
+            return null;
+        }
+        if (path.length() <= currentDirectory.length() + 1) {
+            // Don't show the current directory itself.
+            return null;
+        }
+        path = StringUtils.removeStart(path, currentDirectory);
+        int pos = path.indexOf('/');
+        if (pos < 0) {
+            return path;
+        }
+        return path.substring(0, pos);
     }
 
     /**
