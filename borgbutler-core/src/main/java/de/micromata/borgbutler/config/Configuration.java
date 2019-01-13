@@ -2,6 +2,7 @@ package de.micromata.borgbutler.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.micromata.borgbutler.demo.DemoRepos;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,7 +46,6 @@ public class Configuration {
     @JsonIgnore
     private File restoreHomeDir;
 
-    @Getter
     private List<BorgRepoConfig> repoConfigs = new ArrayList<>();
 
     public void add(BorgRepoConfig repoConfig) {
@@ -56,7 +56,7 @@ public class Configuration {
         if (idOrName == null) {
             return null;
         }
-        for (BorgRepoConfig repoConfig : repoConfigs) {
+        for (BorgRepoConfig repoConfig : getRepoConfigs()) {
             if (StringUtils.equals(idOrName, repoConfig.getRepo()) || StringUtils.equals(idOrName, repoConfig.getId())) {
                 return repoConfig;
             }
@@ -82,5 +82,19 @@ public class Configuration {
         this.borgCommand = other.borgCommand;
         this.maxArchiveContentCacheCapacityMb = other.maxArchiveContentCacheCapacityMb;
         this.showDemoRepos = other.showDemoRepos;
+    }
+
+    public List<BorgRepoConfig> getRepoConfigs() {
+        if (!ConfigurationHandler.getConfiguration().isShowDemoRepos()) {
+            return repoConfigs;
+        }
+        List<BorgRepoConfig> result = new ArrayList<>();
+        result.addAll(repoConfigs);
+        DemoRepos.addDemoRepos(result);
+        return result;
+    }
+
+    List<BorgRepoConfig> _getRepoConfigs() {
+        return repoConfigs;
     }
 }

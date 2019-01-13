@@ -48,8 +48,8 @@ public class ConfigurationHandler {
                 }
             }
             this.configuration = JsonUtils.fromJson(configClazz, json);
-            if (this.configuration.getRepoConfigs() != null) {
-                for (BorgRepoConfig repoConfig : this.configuration.getRepoConfigs()) {
+            if (this.configuration._getRepoConfigs() != null) {
+                for (BorgRepoConfig repoConfig : this.configuration._getRepoConfigs()) {
                     if (StringUtils.isBlank(repoConfig.getDisplayName())) {
                         repoConfig.setDisplayName(repoConfig.getRepo());
                     }
