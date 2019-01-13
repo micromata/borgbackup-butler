@@ -178,7 +178,7 @@ public class BorgCommands {
                 .setTotal(archive.getStats().getNfiles());
         BorgJob<List<BorgFilesystemItem>> job = BorgQueueExecutor.getInstance().execute(new BorgJob<List<BorgFilesystemItem>>(command) {
             @Override
-            protected void processStdOutLine(String line, int level) {
+            public void processStdOutLine(String line, int level) {
                 BorgFilesystemItem item = JsonUtils.fromJson(BorgFilesystemItem.class, line);
                 item.setMtime(DateUtils.format(item.getMtime()));
                 payload.add(item);
@@ -190,7 +190,7 @@ public class BorgCommands {
         });
         job.payload = new ArrayList<>();
         JobResult<String> jobResult = job.getResult();
-        if (jobResult == null ||jobResult.getStatus() != JobResult.Status.OK) {
+        if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             return null;
         }
         List<BorgFilesystemItem> items = job.payload;

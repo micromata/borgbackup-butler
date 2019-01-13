@@ -101,7 +101,7 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
         return result;
     }
 
-    protected void processStdOutLine(String line, int level) {
+    public void processStdOutLine(String line, int level) {
         //log.info(line);
         try {
             outputStream.write(line.getBytes());

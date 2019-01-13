@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.demo;
 
 import de.micromata.borgbutler.BorgCommand;
+import de.micromata.borgbutler.BorgJob;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.config.Definitions;
@@ -16,6 +17,7 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class DemoRepos {
     private static Logger log = LoggerFactory.getLogger(DemoRepos.class);
@@ -43,23 +45,36 @@ public class DemoRepos {
         return StringUtils.startsWith(idOrName, DEMO_IDENTIFIER);
     }
 
-    public static JobResult<String> execute(BorgCommand command) {
+    public static JobResult<String> execute(BorgJob job) {
+        BorgCommand command = job.getCommand();
         StringBuilder sb = new StringBuilder();
-        if (command.getArchive() != null) {
+        boolean archive = command.getArchive() != null;
+        if (archive) {
             sb.append("archive-");
         } else {
             sb.append("repo-");
         }
         sb.append(command.getCommand());
-        if (command.getArchive() != null) {
+        if (archive) {
             sb.append("-").append(command.getArchive());
         }
         sb.append(".json.gz");
         String file = sb.toString();
+        log.info("Loading demo archive from '" + file + "'...");
         try (InputStream inputStream = new GzipCompressorInputStream(DemoRepos.class.getResourceAsStream("/demodata/" + file))) {
-            StringWriter writer = new StringWriter();
-            IOUtils.copy(inputStream, writer, Definitions.STD_CHARSET);
-            return new JobResult<String>().setResultObject(writer.toString()).setStatus(JobResult.Status.OK);
+            if (archive && "list".equals(command.getCommand())) {
+                try (Scanner scanner = new Scanner(inputStream)) {
+                    while (scanner.hasNextLine()) {
+                        String line = scanner.nextLine();
+                        job.processStdOutLine(line, 0);
+                    }
+                    return new JobResult<String>().setStatus(JobResult.Status.OK);
+                }
+            } else {
+                StringWriter writer = new StringWriter();
+                IOUtils.copy(inputStream, writer, Definitions.STD_CHARSET);
+                return new JobResult<String>().setResultObject(writer.toString()).setStatus(JobResult.Status.OK);
+            }
         } catch (IOException ex) {
             log.error("Error while reading demo file '" + file + "': " + ex.getMessage() + ".");
             return null;

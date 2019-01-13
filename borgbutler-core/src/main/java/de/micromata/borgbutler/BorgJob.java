@@ -107,7 +107,7 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
     @Override
     public JobResult<String> execute() {
         if (DemoRepos.isDemo(command.getRepoConfig().getRepo())) {
-            return DemoRepos.execute(command);
+            return DemoRepos.execute(this);
         }
         return super.execute();
     }
