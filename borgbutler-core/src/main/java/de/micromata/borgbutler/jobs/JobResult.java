@@ -7,7 +7,7 @@ import lombok.Setter;
 public class JobResult<T> {
     public enum Status {OK, ERROR}
     @Getter
-    @Setter(AccessLevel.PACKAGE)
+    @Setter
     private Status status;
     @Getter
     @Setter

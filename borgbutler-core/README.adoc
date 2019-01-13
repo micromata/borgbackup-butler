@@ -1,0 +1,16 @@
+Micromata BorgBackup-Butler
+===========================
+Micromata GmbH, Kai Reinhard
+:toc:
+:toclevels: 4
+
+Copyright (C) 2019
+
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+
+== Development
+=== Creating test data
+1. Install virtual debian system
+2. `apt install net-tools curl`
+3. Execute script `./createFiles.sh` on debian host (borg is installed automatically)
+4. See the result files in `out.tar`.

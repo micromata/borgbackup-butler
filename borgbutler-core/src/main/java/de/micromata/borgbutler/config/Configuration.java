@@ -32,6 +32,10 @@ public class Configuration {
     @Getter
     private int maxArchiveContentCacheCapacityMb = 100;
 
+    @Getter
+    @Setter
+    private boolean showDemoRepos = true;
+
     /**
      * Default is restore inside BorgButler's home dir (~/.borgbutler/restore).
      */
@@ -77,5 +81,6 @@ public class Configuration {
     public void copyFrom(Configuration other) {
         this.borgCommand = other.borgCommand;
         this.maxArchiveContentCacheCapacityMb = other.maxArchiveContentCacheCapacityMb;
+        this.showDemoRepos = other.showDemoRepos;
     }
 }

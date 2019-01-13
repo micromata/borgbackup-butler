@@ -4,6 +4,7 @@ import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.BorgRepository;
+import de.micromata.borgbutler.demo.DemoRepos;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ public class ReposRest {
      */
     public String getList(@QueryParam("prettyPrinter") boolean prettyPrinter) {
         List<Repository> repositories = ButlerCache.getInstance().getAllRepositories();
+        DemoRepos.addDemoRepos(repositories);
         if (CollectionUtils.isEmpty(repositories)) {
             return "[]";
         }

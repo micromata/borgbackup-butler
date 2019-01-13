@@ -8,6 +8,7 @@ import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.ArchiveShortInfo;
 import de.micromata.borgbutler.data.FileSystemFilter;
 import de.micromata.borgbutler.data.Repository;
+import de.micromata.borgbutler.demo.DemoRepos;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.jcs.JCS;
@@ -58,6 +59,9 @@ public class ButlerCache {
                     return repository;
                 }
             }
+        }
+        if (DemoRepos.isDemo(idOrName)) {
+            return DemoRepos.getRepo(idOrName);
         }
         log.warn("Repo with id or name '" + idOrName + "' not found.");
         return null;
@@ -143,6 +147,9 @@ public class ButlerCache {
             return repository;
         }
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repository.getName());
+        if (repoConfig == null && DemoRepos.isDemo(idOrName)) {
+            repoConfig = DemoRepos.getRepoConfig(idOrName);
+        }
         BorgCommands.list(repoConfig, repository);
         updateArchivesCacheStatusAndShortInfos(repository);
         return repository;

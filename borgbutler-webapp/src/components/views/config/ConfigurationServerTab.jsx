@@ -45,6 +45,7 @@ class ConfigServerTab extends React.Component {
             failed: false,
             port: 9042,
             webdevelopmentMode: false,
+            showDemoRepos: true,
             maxArchiveContentCacheCapacityMb: 100,
             redirect: false,
             confirmModal: false
@@ -73,7 +74,8 @@ class ConfigServerTab extends React.Component {
         var config = {
             port: this.state.port,
             maxArchiveContentCacheCapacityMb : this.state.maxArchiveContentCacheCapacityMb,
-            webDevelopmentMode: this.state.webDevelopmentMode
+            webDevelopmentMode: this.state.webDevelopmentMode,
+            showDemoRepos: this.state.showDemoRepos
         };
         return fetch(getRestServiceUrl("configuration/config"), {
             method: 'POST',
@@ -140,6 +142,12 @@ class ConfigServerTab extends React.Component {
                                          onChange={this.handleTextChange}
                                          placeholder="Enter maximum Capacity"
                                          hint={`Limits the cache size of archive file lists in the local cache directory: ${this.state.cacheDir}`} />
+                    <FormLabelField label={'Show demo repositories'} fieldLength={2}>
+                        <FormCheckbox checked={this.state.showDemoRepos}
+                                      hint={'If true, some demo repositories are shown for testing the functionality of BorgButler without any further configuration and running borg backups.'}
+                                      name="showDemoRepos"
+                                      onChange={this.handleCheckboxChange} />
+                    </FormLabelField>
                     <FormLabelField label={<I18n name={'configuration.webDevelopmentMode'} />} fieldLength={2}>
                         <FormCheckbox checked={this.state.webDevelopmentMode}
                                       hintKey={'configuration.webDevelopmentMode.hint'}
