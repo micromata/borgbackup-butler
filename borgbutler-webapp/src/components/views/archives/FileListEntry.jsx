@@ -136,7 +136,7 @@ class FileListEntry extends React.Component {
             }
         }
         if (pathtooltipText) {
-            pathId = `path-${entry.fileNumber}`;
+            pathId = `path-${entry.fileNumber}-${entry.diffStatus}`;
             pathTooltip =
                 <UncontrolledTooltip target={pathId}>
                     {pathtooltipText}
