@@ -91,6 +91,7 @@ public class Main {
             });
 
             JettyServer server = startUp();
+            BorgInstallation.getInstance().initialize();
             if (!line.hasOption('q')) {
 
                 try {
