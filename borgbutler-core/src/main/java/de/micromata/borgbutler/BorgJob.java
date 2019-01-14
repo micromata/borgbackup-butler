@@ -73,19 +73,14 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
     }
 
     public void processStdErrLine(String line, int level) {
-        try {
-            if (StringUtils.startsWith(line, "{\"message")) {
-                ProgressInfo message = JsonUtils.fromJson(ProgressInfo.class, line);
-                if (message != null) {
-                    progressInfo = message;
-                    return;
-                }
+        if (StringUtils.startsWith(line, "{\"message")) {
+            ProgressInfo message = JsonUtils.fromJson(ProgressInfo.class, line);
+            if (message != null) {
+                progressInfo = message;
+                return;
             }
-            errorOutputStream.write(line.getBytes());
-            errorOutputStream.write("\n".getBytes());
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
         }
+        super.processStdErrLine(line, level);
     }
 
     @Override
