@@ -368,7 +368,17 @@ td.file-removed {
     color: red;
 }
 
+td.file-removed .btn-link {
+    text-decoration: line-through;
+    color: red;
+}
+
 td.file-new {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+td.file-new .btn-link {
     text-decoration: underline;
     font-weight: bold;
 }
@@ -376,6 +386,11 @@ td.file-new {
 td.file-modified {
     color: red;
 }
+
+td.file-modified .btn-link {
+    color: red;
+}
+
 
 div.progress-bar {
     font-weight: bold;
