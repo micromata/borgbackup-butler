@@ -21,6 +21,13 @@ public class Configuration {
      */
     private static final String RESTORE_DIRNAME = "restore";
 
+    @Getter
+    private String[][] binaries = {
+            {"freebsd64", "FreeBSD 64"},
+            {"linux32", "Linux 32"},
+            {"linux64", "Linux 64"},
+            {"macosx64", "MacOS X 64"}};
+
     @JsonIgnore
     @Setter(AccessLevel.PACKAGE)
     private File workingDir;
