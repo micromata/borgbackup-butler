@@ -16,7 +16,7 @@ public class RunningMode {
 
     public enum UserManagement {SINGLE}
 
-    public enum OSType {MAC_OS, WINDOWS, LINUX, OTHER}
+    public enum OSType {MAC_OS, WINDOWS, LINUX, FREEBSD, OTHER}
 
     private static boolean running;
     private static File baseDir;
@@ -49,6 +49,8 @@ public class RunningMode {
                 osType = OSType.WINDOWS;
             } else if (osTypeString.toLowerCase().contains("linux")) {
                 osType = OSType.LINUX;
+            } else if (osTypeString.toLowerCase().contains("freebsd")) {
+                osType = OSType.FREEBSD;
             } else {
                 osType = OSType.OTHER;
             }

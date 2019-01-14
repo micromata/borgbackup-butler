@@ -124,9 +124,9 @@ class ConfigServerTab extends React.Component {
                                 value={this.state.binary}
                                 name={'binary'}
                                 onChange={this.handleTextChange}
-                                hint={'Choose your OS and BorgButler will download and use a ready to run borg binary from https://github.com/borgbackup/borg/releases or choose a manual installed version.'}
+                                hint={`Choose your OS and BorgButler will download and use a ready to run borg binary from ${this.state.binariesDownloadUrl} or choose a manual installed version.`}
                             >
-                                {this.state.binaries
+                                {this.state.borgBinaries
                                     .map((binary, index) => <FormOption label={binary[1]} value={binary[0]}
                                                                         key={index}/>)}
                                 <FormOption label={'Manual'} value={'manual'}/>

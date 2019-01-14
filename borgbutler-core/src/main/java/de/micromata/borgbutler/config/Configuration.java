@@ -22,7 +22,9 @@ public class Configuration {
     private static final String RESTORE_DIRNAME = "restore";
 
     @Getter
-    private String[][] binaries = {
+    private String binariesDownloadUrl = "https://github.com/borgbackup/borg/releases/download/1.1.8/";
+    @Getter
+    private String[][] borgBinaries = {
             {"freebsd64", "FreeBSD 64"},
             {"linux32", "Linux 32"},
             {"linux64", "Linux 64"},
@@ -32,7 +34,17 @@ public class Configuration {
     @Setter(AccessLevel.PACKAGE)
     private File workingDir;
 
+    /**
+     * One of the values "macosx64", "linux64" etc. for using a binary provided by BorgButler or null / "manual" for
+     * using a manual installed borg version.
+     */
     @Getter
+    private String borgBinary;
+    /**
+     * The path of the borg command to use.
+     */
+    @Getter
+    @Setter
     private String borgCommand = "borg";
     /**
      * Default is 100 MB (approximately).
