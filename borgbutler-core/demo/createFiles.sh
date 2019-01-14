@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export BORG_PASSPHRASE='borgbutler123'
-export BORG_COMMAND='/root/bin/borg-linux64.dms'
+export BORG_COMMAND='/root/bin/borg-linux64'
 export TEST_DIR='/root/borgbutler-demo'
 
 if [ -f $BORG_COMMAND ]; then
@@ -10,7 +10,7 @@ else
   echo Downloading borg;
   mkdir /root/bin
   cd /root/bin
-  curl -L https://sourceforge.net/projects/borgbutler/files/borg-binaries/borg-linux64.dms/download >$BORG_COMMAND
+  curl -LJO https://github.com/borgbackup/borg/releases/download/1.1.8/borg-linux64
   chmod 700 $BORG_COMMAND
 fi;
 
@@ -66,5 +66,5 @@ $BORG_COMMAND list --json-lines /backup-test::borgbutlerdemo-2019-01-12_01-00 >a
 $BORG_COMMAND list --json-lines /backup-test::borgbutlerdemo-2019-01-13_01-00 >archive-list-borgbuterldemo-2019-01-13_01-00.json
 
 gzip -9 *
+cd /root
 tar cvf out.tar out
-
