@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    faBan,
     faCaretDown,
     faCaretUp,
     faCheck,
@@ -8,12 +9,12 @@ import {
     faExclamationTriangle,
     faInfoCircle,
     faPlus,
+    faSkullCrossbones,
     faSortDown,
     faSortUp,
     faSync,
-    faTrash,
     faTimes,
-    faSkullCrossbones,
+    faTrash,
     faUpload
 } from '@fortawesome/free-solid-svg-icons'
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -21,6 +22,12 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 function IconAdd() {
     return (
         <FontAwesomeIcon icon={faPlus}/>
+    );
+}
+
+function IconBan() {
+    return (
+        <FontAwesomeIcon icon={faBan}/>
     );
 }
 
@@ -80,7 +87,7 @@ function IconRemove() {
 
 function IconSpinner() {
     return (
-        <FontAwesomeIcon icon={faCircleNotch} spin={true} size={'3x'} color={'#aaaaaa'} />
+        <FontAwesomeIcon icon={faCircleNotch} spin={true} size={'3x'} color={'#aaaaaa'}/>
     );
 }
 
@@ -110,6 +117,7 @@ function IconWarning() {
 
 export {
     IconAdd,
+    IconBan,
     IconCancel,
     IconCheck,
     IconCollapseClose,

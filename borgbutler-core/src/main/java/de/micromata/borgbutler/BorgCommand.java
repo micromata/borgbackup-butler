@@ -55,7 +55,7 @@ public class BorgCommand {
         return this;
     }
 
-    String getRepoArchive() {
+    public String getRepoArchive() {
         if (archive == null) {
             if (repoConfig == null) {
                 return null;

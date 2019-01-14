@@ -3,7 +3,9 @@ package de.micromata.borgbutler;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Archive;
+import de.micromata.borgbutler.demo.DemoRepos;
 import de.micromata.borgbutler.jobs.AbstractCommandLineJob;
+import de.micromata.borgbutler.jobs.JobResult;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.ProgressInfo;
 import lombok.AccessLevel;
@@ -70,7 +72,7 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
         return commandLine;
     }
 
-    protected void processStdErrLine(String line, int level) {
+    public void processStdErrLine(String line, int level) {
         try {
             if (StringUtils.startsWith(line, "{\"message")) {
                 ProgressInfo message = JsonUtils.fromJson(ProgressInfo.class, line);
@@ -100,6 +102,14 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
             addEnvironmentVariable(env, environmentVariable);
         }
         return env;
+    }
+
+    @Override
+    public JobResult<String> execute() {
+        if (DemoRepos.isDemo(command.getRepoConfig().getRepo())) {
+            return DemoRepos.execute(this);
+        }
+        return super.execute();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package de.micromata.borgbutler;
 
+import de.micromata.borgbutler.data.DiffFileSystemFilter;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DiffToolTest {
+public class DiffFileSystemFilterTest {
     @Test
     void differencesTest() {
         BorgFilesystemItem i1 = create("etc", true, "drwx------", 0, "2018-11-21");
@@ -28,33 +29,34 @@ public class DiffToolTest {
         List<BorgFilesystemItem> l1 = null;
         List<BorgFilesystemItem> l2 = null;
         List<BorgFilesystemItem> result;
-        assertEquals(0, DiffTool.extractDifferences(l1, l2).size());
+        DiffFileSystemFilter filter = new DiffFileSystemFilter();
+        assertEquals(0, filter.extractDifferences(l1, l2).size());
         l1 = create();
-        result = DiffTool.extractDifferences(l1, l2);
+        result = filter.extractDifferences(l1, l2);
         assertEquals(7, result.size());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(0).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(1).getDiffStatus());
-        result = DiffTool.extractDifferences(l2, l1);
+        result = filter.extractDifferences(l2, l1);
         assertEquals(7, result.size());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(0).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(1).getDiffStatus());
 
         l1 = create();
         l2 = create();
-        result = DiffTool.extractDifferences(l2, l1);
+        result = filter.extractDifferences(l2, l1);
         assertEquals(0, result.size());
         remove(l2, "etc"); // 0
         remove(l2, "etc/passwd"); // 1
         remove(l1, "home/kai/.borgbutler/borgbutler-config-bak.json"); // 2
         get(l1, "home/kai/.borgbutler/borgbutler-config.json").setSize(712).setMtime("2018-11-22"); // 3
-        result = DiffTool.extractDifferences(l1, l2);
+        result = filter.extractDifferences(l1, l2);
         assertEquals(4, result.size());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(0).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(1).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(2).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.MODIFIED, result.get(3).getDiffStatus());
 
-        result = DiffTool.extractDifferences(l2, l1);
+        result = filter.extractDifferences(l2, l1);
         assertEquals(4, result.size());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(0).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(1).getDiffStatus());
@@ -66,12 +68,12 @@ public class DiffToolTest {
         remove(l2, "etc"); // 0
         remove(l2, "etc/passwd"); // 1
         remove(l1, "home/kai/.borgbutler/borgbutler-config.json"); // 2
-        result = DiffTool.extractDifferences(l1, l2);
+        result = filter.extractDifferences(l1, l2);
         assertEquals(3, result.size());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(0).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(1).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(2).getDiffStatus());
-        result = DiffTool.extractDifferences(l2, l1);
+        result = filter.extractDifferences(l2, l1);
         assertEquals(3, result.size());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(0).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(1).getDiffStatus());
@@ -82,11 +84,11 @@ public class DiffToolTest {
         l2 = create();
         remove(l1, "home/kai/.borgbutler/borgbutler-config-bak.json");
         remove(l2, "home/kai/.borgbutler/borgbutler-config.json");
-        result = DiffTool.extractDifferences(l1, l2);
+        result = filter.extractDifferences(l1, l2);
         assertEquals(2, result.size());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(0).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(1).getDiffStatus());
-        result = DiffTool.extractDifferences(l2, l1);
+        result = filter.extractDifferences(l2, l1);
         assertEquals(2, result.size());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(0).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(1).getDiffStatus());
@@ -96,12 +98,12 @@ public class DiffToolTest {
         remove(l1, "home/kai");
         remove(l1, "home/kai/.borgbutler");
         remove(l2, "home/kai/.borgbutler/borgbutler-config-bak.json");
-        result = DiffTool.extractDifferences(l1, l2);
+        result = filter.extractDifferences(l1, l2);
         assertEquals(3, result.size());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(0).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.REMOVED, result.get(1).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(2).getDiffStatus());
-        result = DiffTool.extractDifferences(l2, l1);
+        result = filter.extractDifferences(l2, l1);
         assertEquals(3, result.size());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(0).getDiffStatus());
         assertEquals(BorgFilesystemItem.DiffStatus.NEW, result.get(1).getDiffStatus());

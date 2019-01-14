@@ -278,12 +278,9 @@ public class ButlerCache {
                 if (CollectionUtils.isNotEmpty(list)) {
                     archiveFilelistCache.save(repoConfig, archive, list);
                     items = new ArrayList<>();
-                    int fileNumber = -1;
                     Iterator<BorgFilesystemItem> it = list.iterator(); // Don't use for-each (ConcurrentModificationException)
                     while (it.hasNext()) {
                         BorgFilesystemItem item = it.next();
-                        ++fileNumber;
-                        item.setFileNumber(fileNumber);
                         if (filter == null || filter.matches(item)) {
                             items.add(item);
                             if (filter != null && filter.isFinished()) break;

@@ -77,6 +77,10 @@ For using hot code replacement of your web files, you should use `npm start` or 
 3. `npm start` (opens the web browser on port 3000)
 4. Start `de.micromata.borgbutler.server.Main` (ignore the opened browser window for port 9042)
 
+=== Profiling heap, cpu and everything using JProfiler
+JProfiler is an excellent tool for analysing your software. BorgButler was optimized regarding heap memory and CPU usage by
+using https://www.ej-technologies.com/products/jprofiler/overview.html[JProfiler from EJ Technologies^]
+
 == Ideas
 === 2 factor authentication
 https://github.com/j256/two-factor-auth

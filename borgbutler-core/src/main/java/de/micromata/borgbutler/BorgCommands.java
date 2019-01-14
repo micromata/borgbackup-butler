@@ -3,6 +3,7 @@ package de.micromata.borgbutler;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
+import de.micromata.borgbutler.demo.DemoRepos;
 import de.micromata.borgbutler.jobs.JobResult;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.*;
@@ -72,6 +73,7 @@ public class BorgCommands {
                 .setEncryption(repoInfo.getEncryption())
                 .setSecurityDir(repoInfo.getSecurityDir())
                 .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
+        DemoRepos.repoWasRead(repoConfig, repository);
         return repository;
     }
 
@@ -178,7 +180,7 @@ public class BorgCommands {
                 .setTotal(archive.getStats().getNfiles());
         BorgJob<List<BorgFilesystemItem>> job = BorgQueueExecutor.getInstance().execute(new BorgJob<List<BorgFilesystemItem>>(command) {
             @Override
-            protected void processStdOutLine(String line, int level) {
+            public void processStdOutLine(String line, int level) {
                 BorgFilesystemItem item = JsonUtils.fromJson(BorgFilesystemItem.class, line);
                 item.setMtime(DateUtils.format(item.getMtime()));
                 payload.add(item);
@@ -190,7 +192,7 @@ public class BorgCommands {
         });
         job.payload = new ArrayList<>();
         JobResult<String> jobResult = job.getResult();
-        if (jobResult == null ||jobResult.getStatus() != JobResult.Status.OK) {
+        if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             return null;
         }
         List<BorgFilesystemItem> items = job.payload;

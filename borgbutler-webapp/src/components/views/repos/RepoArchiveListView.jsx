@@ -77,6 +77,56 @@ class RepoArchiveListView extends React.Component {
                     <IconRefresh/>
                 </div>
             </React.Fragment>;
+            let stats = '';
+            if (repo.cache && repo.cache.stats) {
+                stats = <tr>
+                    <td>Stats</td>
+                    <td>
+                        <table className="inline">
+                            <tbody>
+                            <tr>
+                                <td>Total chunks</td>
+                                <td>{Number(repo.cache.stats.total_chunks).toLocaleString()}</td>
+                            </tr>
+                            <tr>
+                                <td>Total csize</td>
+                                <td>{humanFileSize(repo.cache.stats.total_csize)}</td>
+                            </tr>
+                            <tr>
+                                <td>Total size</td>
+                                <td>{humanFileSize(repo.cache.stats.total_size)}</td>
+                            </tr>
+                            <tr>
+                                <td>Total unique chunks</td>
+                                <td>{Number(repo.cache.stats.total_unique_chunks).toLocaleString()}</td>
+                            </tr>
+                            <tr>
+                                <td>Unique csize</td>
+                                <td>{humanFileSize(repo.cache.stats.unique_csize)}</td>
+                            </tr>
+                            <tr>
+                                <td>Unique size</td>
+                                <td>{humanFileSize(repo.cache.stats.unique_size)}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            }
+            let encryption = '';
+            if (repo.encryption) {
+                encryption = <tr>
+                    <td>Encryption</td>
+                    <td>{repo.encryption.mode}</td>
+                </tr>
+            }
+            let cachePath = '';
+            if (repo.cache) {
+                cachePath = <tr>
+                    <td>Cache</td>
+                    <td>{repo.cache.path}</td>
+                </tr>
+            }
             content = <React.Fragment>
                 <Nav tabs>
                     <NavLink
@@ -134,51 +184,13 @@ class RepoArchiveListView extends React.Component {
                                 <td>Location</td>
                                 <td>{repo.location}</td>
                             </tr>
-                            <tr>
-                                <td>Stats</td>
-                                <td>
-                                    <table className="inline">
-                                        <tbody>
-                                        <tr>
-                                            <td>Total chunks</td>
-                                            <td>{Number(repo.cache.stats.total_chunks).toLocaleString()}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Total csize</td>
-                                            <td>{humanFileSize(repo.cache.stats.total_csize)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Total size</td>
-                                            <td>{humanFileSize(repo.cache.stats.total_size)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Total unique chunks</td>
-                                            <td>{Number(repo.cache.stats.total_unique_chunks).toLocaleString()}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Unique csize</td>
-                                            <td>{humanFileSize(repo.cache.stats.unique_csize)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Unique size</td>
-                                            <td>{humanFileSize(repo.cache.stats.unique_size)}</td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
+                            {stats}
                             <tr>
                                 <td>Security dir</td>
                                 <td>{repo.securityDir}</td>
                             </tr>
-                            <tr>
-                                <td>Encryption</td>
-                                <td>{repo.encryption.mode}</td>
-                            </tr>
-                            <tr>
-                                <td>Cache</td>
-                                <td>{repo.cache.path}</td>
-                            </tr>
+                            {encryption}
+                            {cachePath}
                             </tbody>
                         </Table>
                     </TabPane>
