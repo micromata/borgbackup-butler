@@ -111,7 +111,7 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
         }
     }
 
-    protected void processStdErrLine(String line, int level) {
+    public void processStdErrLine(String line, int level) {
         //log.info(line);
         try {
             errorOutputStream.write(line.getBytes());

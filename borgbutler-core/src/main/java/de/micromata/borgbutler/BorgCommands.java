@@ -3,6 +3,7 @@ package de.micromata.borgbutler;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
+import de.micromata.borgbutler.demo.DemoRepos;
 import de.micromata.borgbutler.jobs.JobResult;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.*;
@@ -72,6 +73,7 @@ public class BorgCommands {
                 .setEncryption(repoInfo.getEncryption())
                 .setSecurityDir(repoInfo.getSecurityDir())
                 .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
+        DemoRepos.repoWasRead(repoConfig, repository);
         return repository;
     }
 
