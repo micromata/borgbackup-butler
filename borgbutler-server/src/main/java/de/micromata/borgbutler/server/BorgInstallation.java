@@ -27,13 +27,28 @@ public class BorgInstallation {
 
     public void initialize() {
         Configuration configuration = ConfigurationHandler.getConfiguration();
-        String version = BorgCommands.version();
-        if (version != null) {
-            log.info("Using borg '" + configuration.getBorgCommand() + "', version: " + version);
+        if (BorgCommands.version() != null) {
             return;
         }
         String[] binary = getBinary(RunningMode.getOSType());
-        download(binary);
+        File file = download(binary);
+        configuration.setBorgCommand(file.getAbsolutePath());
+        if (BorgCommands.version() != null) {
+            return;
+        }
+        log.warn("No working borg version found. Please configure a borg version with minimal version '" + configuration.getMinimumRequiredBorgVersion() + "'.");
+    }
+
+    private String version(Configuration configuration) {
+        String version = BorgCommands.version();
+        if (version != null) {
+            if (version.compareTo(configuration.getMinimumRequiredBorgVersion()) < 0) {
+                log.info("Found borg version '" + version + "' is less than minimum required version '" + configuration.getMinimumRequiredBorgVersion() + "'.");
+                return null;
+            }
+            log.info("Using borg '" + configuration.getBorgCommand() + "', version: " + version);
+        }
+        return version;
     }
 
     private String[] getBinary(RunningMode.OSType osType) {
@@ -70,7 +85,12 @@ public class BorgInstallation {
     }
 
     private File download(String[] binary) {
-        String url = ConfigurationHandler.getConfiguration().getBinariesDownloadUrl() + "borg-" + binary[0];
+        File file = getBinaryFile(binary);
+        if (file.exists()) {
+            // File already downloaded, nothing to do.
+            return file;
+        }
+        String url = ConfigurationHandler.getConfiguration().getBinariesDownloadUrl() + getDownloadFilename(binary);
         log.info("Trying to download borg binary '" + binary[0] + "' (" + binary[1] + ") from url: " + url + "...");
         HttpClientBuilder builder = HttpClients.custom()
                 .setDefaultRequestConfig(RequestConfig.custom()
@@ -84,7 +104,6 @@ public class BorgInstallation {
                 throw new RuntimeException("Failed : HTTP error code : "
                         + response.getStatusLine().getStatusCode());
             }
-            File file = new File(getBinaryDir(), "borg-" + binary[0]);
             FileUtils.copyInputStreamToFile(response.getEntity().getContent(), file);
             log.info("Downloaded: " + file.getAbsolutePath());
             file.setExecutable(true, false);
@@ -95,13 +114,17 @@ public class BorgInstallation {
         }
     }
 
-    private File getBinaryDir() {
+    private File getBinaryFile(String[] binary) {
         File dir = new File(ConfigurationHandler.getInstance().getWorkingDir(), "bin");
         if (!dir.exists()) {
             log.info("Creating binary directory: " + dir.getAbsolutePath());
             dir.mkdirs();
         }
-        return dir;
+        return new File(dir, getDownloadFilename(binary) + "-" + ConfigurationHandler.getConfiguration().getBinariesDownloadVersion());
+    }
+
+    private String getDownloadFilename(String[] binary) {
+        return "borg-" + binary[0];
     }
 
     private BorgInstallation() {

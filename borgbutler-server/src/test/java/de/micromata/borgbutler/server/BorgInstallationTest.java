@@ -21,9 +21,10 @@ public class BorgInstallationTest {
 
     @Test
     void downloadTest() {
-        checkDownload(RunningMode.OSType.LINUX, "borg-linux64");
-        checkDownload(RunningMode.OSType.MAC_OS, "borg-macosx64");
-        checkDownload(RunningMode.OSType.FREEBSD, "borg-freebsd64");
+        String version = ConfigurationHandler.getConfiguration().getBinariesDownloadVersion();
+        checkDownload(RunningMode.OSType.LINUX, "borg-linux64-" + version);
+        checkDownload(RunningMode.OSType.MAC_OS, "borg-macosx64-" + version);
+        checkDownload(RunningMode.OSType.FREEBSD, "borg-freebsd64-" + version);
         assertNull(BorgInstallation.getInstance().download(RunningMode.OSType.WINDOWS));
     }
 

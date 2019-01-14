@@ -22,13 +22,18 @@ public class Configuration {
     private static final String RESTORE_DIRNAME = "restore";
 
     @Getter
-    private String binariesDownloadUrl = "https://github.com/borgbackup/borg/releases/download/1.1.8/";
+    private String binariesDownloadVersion = "1.1.8";
+    @Getter
+    private String binariesDownloadUrl = "https://github.com/borgbackup/borg/releases/download/" + binariesDownloadVersion + "/";
     @Getter
     private String[][] borgBinaries = {
             {"freebsd64", "FreeBSD 64"},
             {"linux32", "Linux 32"},
             {"linux64", "Linux 64"},
             {"macosx64", "MacOS X 64"}};
+
+    @Getter
+    private String minimumRequiredBorgVersion = "1.1.8";
 
     @JsonIgnore
     @Setter(AccessLevel.PACKAGE)
