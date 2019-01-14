@@ -94,6 +94,9 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
             result.setStatus(JobResult.Status.ERROR);
             if (logError && !isCancellationRequested() && getStatus() != Status.CANCELLED) {
                 log.error("Execution failed for job: '" + commandLineAsString + "': " + ex.getMessage());
+                log.error("Error output of job '" + commandLineAsString + "': "
+                        + StringUtils.abbreviateMiddle(errorOutputStream.toString(Definitions.STD_CHARSET),
+                        "\n    [... ***** error log abbreviated ***** ...]\n", 2000));
             }
             failed();
         }
@@ -141,7 +144,6 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
     }
 
     /**
-     *
      * @param env
      * @param variable Variable in format "variable=value".
      */
