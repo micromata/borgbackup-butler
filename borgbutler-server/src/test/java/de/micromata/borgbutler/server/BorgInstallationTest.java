@@ -17,6 +17,8 @@ public class BorgInstallationTest {
         ConfigurationHandler.getConfiguration().setBorgCommand("hurzel");
         BorgInstallation borgInstallation = BorgInstallation.getInstance();
         borgInstallation.initialize();
+        ConfigurationHandler.getConfiguration().setBorgCommand("borg");
+        borgInstallation.initialize();
     }
 
     @Test

@@ -27,13 +27,13 @@ public class BorgInstallation {
 
     public void initialize() {
         Configuration configuration = ConfigurationHandler.getConfiguration();
-        if (BorgCommands.version() != null) {
+        if (version(configuration) != null) {
             return;
         }
         String[] binary = getBinary(RunningMode.getOSType());
         File file = download(binary);
         configuration.setBorgCommand(file.getAbsolutePath());
-        if (BorgCommands.version() != null) {
+        if (version(configuration) != null) {
             return;
         }
         log.warn("No working borg version found. Please configure a borg version with minimal version '" + configuration.getMinimumRequiredBorgVersion() + "'.");

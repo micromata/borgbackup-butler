@@ -10,6 +10,7 @@ import de.micromata.borgbutler.json.borg.*;
 import de.micromata.borgbutler.utils.DateUtils;
 import de.micromata.borgbutler.utils.ReplaceUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,10 @@ public class BorgCommands {
             return null;
         }
         String version = jobResult.getResultObject();
+        String[] strs = StringUtils.split(version);
+        if (strs != null) {
+            version = strs[strs.length - 1]; // Work arround: borg returns "borg-macosx64 1.1.8" as version string (command is included).
+        }
         log.info("Borg version: " + version);
         return version;
     }
