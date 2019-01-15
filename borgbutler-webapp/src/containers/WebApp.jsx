@@ -24,11 +24,11 @@ class WebApp extends React.Component {
 
     componentDidMount = () => {
         this.props.loadVersion();
-        this.interval = setInterval(() => this.fetchJobStatistics(), 5000);
+        this.interval = setInterval(() => this.fetchSystemInfo(), 5000);
     };
 
-    fetchJobStatistics = () => {
-        fetch(getRestServiceUrl('jobs/statistics'), {
+    fetchSystemInfo = () => {
+        fetch(getRestServiceUrl('system/info'), {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -37,7 +37,7 @@ class WebApp extends React.Component {
             .then(response => response.json())
             .then(json => {
                 this.setState({
-                    statistics: json
+                    systemInfo: json
                 });
             })
             .catch();
@@ -45,8 +45,9 @@ class WebApp extends React.Component {
 
     render() {
         let jobsBadge = '';
-        if (this.state && this.state.statistics && this.state.statistics.numberOfRunningAndQueuedJobs > 0) {
-            jobsBadge = <Badge color="danger" pill>{this.state.statistics.numberOfRunningAndQueuedJobs}</Badge>;
+        const statistics = (this.state && this.state.systemInfo) ? this.state.systemInfo.queueStatistics : null;
+        if (statistics && statistics.numberOfRunningAndQueuedJobs > 0) {
+            jobsBadge = <Badge color="danger" pill>{statistics.numberOfRunningAndQueuedJobs}</Badge>;
         }
         let routes = [
             ['Start', '/', Start],
