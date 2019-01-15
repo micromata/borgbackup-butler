@@ -52,6 +52,9 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
         if (commandLine == null) {
             commandLine = buildCommandLine();
         }
+        if (commandLine == null) {
+            return null;
+        }
         if (commandLineAsString == null) {
             commandLineAsString = commandLine.getExecutable() + " " + StringUtils.join(commandLine.getArguments(), " ");
         }
@@ -61,6 +64,9 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
     @Override
     public JobResult<String> execute() {
         getCommandLineAsString();
+        if (commandLine == null) {
+            return null;
+        }
         DefaultExecutor executor = new DefaultExecutor();
         if (workingDirectory != null) {
             executor.setWorkingDirectory(workingDirectory);

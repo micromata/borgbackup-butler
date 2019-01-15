@@ -55,6 +55,8 @@ public class BorgInstallation {
             if (borgCommandChanged) {
                 configuration.setBorgCommand(newVersion.getBorgCommand());
                 version(configuration);
+            } else {
+                newVersion.copyFrom(oldVersion); // Restore all old settings.
             }
         } else {
             if (borgBinaryChanged) {

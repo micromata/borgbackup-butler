@@ -36,14 +36,25 @@ public class BorgCommands {
         BorgCommand command = new BorgCommand()
                 .setParams("--version")
                 .setDescription("Getting borg version.");
-        JobResult<String> jobResult = getResult(command);
+
+        BorgJob<String> job = new BorgJob<>(command);
+        JobResult<String> jobResult = job.execute();
         if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             return null;
         }
-        String version = jobResult.getResultObject();
-        String[] strs = StringUtils.split(version);
+        String origVersion = jobResult.getResultObject();
+        String version = origVersion;
+        String[] strs = StringUtils.split(origVersion);
         if (strs != null) {
-            version = strs[strs.length - 1]; // Work arround: borg returns "borg-macosx64 1.1.8" as version string (command is included).
+            if (!StringUtils.containsIgnoreCase(origVersion, "borg")) {
+                version = "";
+            } else {
+                version = strs[strs.length - 1]; // Work arround: borg returns "borg-macosx64 1.1.8" as version string (command is included).
+            }
+        }
+        if (version.length() == 0 || !Character.isDigit(version.charAt(0))) {
+            log.error("Version string returned by '" + job.getCommandLineAsString() + "' not as expected (not borg?): " + origVersion);
+            return null;
         }
         log.info("Borg version: " + version);
         return version;
