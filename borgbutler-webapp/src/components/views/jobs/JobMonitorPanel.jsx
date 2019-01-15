@@ -102,7 +102,7 @@ class JobMonitorPanel extends React.Component {
                 content = <React.Fragment>No jobs are running or queued.</React.Fragment>
             }
         }
-        let oldJobs = 'Old jobs...';
+        let oldJobs = 'No old jobs yet to display...';
         if (this.state.oldJobsQueues && this.state.oldJobsQueues.length > 0) {
             oldJobs = <React.Fragment>
                 {this.state.oldJobsQueues

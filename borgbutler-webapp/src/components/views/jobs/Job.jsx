@@ -39,6 +39,14 @@ class Job extends React.Component {
     render() {
         let content = undefined;
         let job = this.props.job;
+        let cancelDisabled = undefined;
+        if ((job.status !== 'RUNNING' && job.status !== 'QUEUED') || job.cancellationRequested) {
+            cancelDisabled = true;
+        }
+        let cancelButton = <div className="job-cancel"><Button color={'danger'}
+                                                               onClick={() => this.cancelJob(job.uniqueJobNumber)}
+                                                               disabled={cancelDisabled}><IconCancel/></Button>
+        </div>;
         if (job.status === 'RUNNING') {
             let progressPercent = 100;
             let color = 'success';
@@ -49,12 +57,14 @@ class Job extends React.Component {
                 progressPercent = job.progressPercent;
             }
             content = <Progress animated color={color} value={progressPercent}>{job.progressText}</Progress>;
+        } else if (job.status === 'CANCELLED') {
+            content = <Progress color={'warning'} value={100}>{job.status}</Progress>
+            cancelButton = '';
+        } else if (job.status === 'DONE') {
+            content = <Progress color={'success'} value={100}>{job.status}</Progress>
+            cancelButton = '';
         } else {
             content = <Progress color={'info'} value={100}>{job.status}</Progress>
-        }
-        let cancelDisabled = undefined;
-        if ((job.status !== 'RUNNING' && job.status !== 'QUEUED') || job.cancellationRequested) {
-            cancelDisabled = true;
         }
         let environmentVariables = '';
         if (job.environmentVariables && Array.isArray(job.environmentVariables)) {
@@ -70,10 +80,7 @@ class Job extends React.Component {
                         <Button color="link" onClick={this.toggle}>{job.description}</Button>
                         {content}
                     </div>
-                    <div className="job-cancel"><Button color={'danger'}
-                                                        onClick={() => this.cancelJob(job.uniqueJobNumber)}
-                                                        disabled={cancelDisabled}><IconCancel/></Button>
-                    </div>
+                    {cancelButton}
                 </div>
                 <Collapse isOpen={this.state.collapse}>
                     <Card>

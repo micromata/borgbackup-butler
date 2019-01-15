@@ -26,7 +26,7 @@ import java.util.List;
 public class JobsRest {
     private static Logger log = LoggerFactory.getLogger(JobsRest.class);
 
-    private static List<JsonJobQueue> testList;
+    private static List<JsonJobQueue> testList, oldJobsTestList;
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -43,7 +43,7 @@ public class JobsRest {
                           @QueryParam("prettyPrinter") boolean prettyPrinter) {
         if (testMode) {
             // Return dynamic test queue:
-            return returnTestList(prettyPrinter);
+            return returnTestList(oldJobs, prettyPrinter);
         }
         boolean validRepo = false;
         if (StringUtils.isNotBlank(repo) && !"null".equals(repo) && !"undefined".equals(repo)) {
@@ -104,28 +104,31 @@ public class JobsRest {
     /**
      * Only for test purposes and development.
      *
+     * @param oldJobs
      * @param prettyPrinter
      * @return
      */
-    private String returnTestList(boolean prettyPrinter) {
-        if (testList == null) {
-            testList = new ArrayList<>();
+    private String returnTestList(boolean oldJobs, boolean prettyPrinter) {
+        List<JsonJobQueue> list = oldJobs ? oldJobsTestList : testList;
+        if (list == null) {
+            list = new ArrayList<>();
             long uniqueJobNumber = 100000;
             JsonJobQueue queue = new JsonJobQueue().setRepo("My Computer");
-            addTestJob(queue, "info", "my-macbook", 0, 2342)
-                    .setUniqueJobNumber(uniqueJobNumber++);
-            addTestJob(queue, "list", "my-macbook", -1, -1)
-                    .setUniqueJobNumber(uniqueJobNumber++);
-            testList.add(queue);
+            addTestJob(queue, "info", "my-macbook", 0, 2342, uniqueJobNumber++, oldJobs);
+            addTestJob(queue, "list", "my-macbook", -1, -1, uniqueJobNumber++, oldJobs);
+            list.add(queue);
 
             queue = new JsonJobQueue().setRepo("My Server");
-            addTestJob(queue, "list", "my-server", 0, 1135821)
-                    .setUniqueJobNumber(uniqueJobNumber++);
-            addTestJob(queue, "info", "my-server", -1, -1)
-                    .setUniqueJobNumber(uniqueJobNumber++);
-            testList.add(queue);
-        } else {
-            for (JsonJobQueue jobQueue : testList) {
+            addTestJob(queue, "list", "my-server", 0, 1135821, uniqueJobNumber++, oldJobs);
+            addTestJob(queue, "info", "my-server", -1, -1, uniqueJobNumber++, oldJobs);
+            list.add(queue);
+            if (oldJobs) {
+                oldJobsTestList = list;
+            } else {
+                testList = list;
+            }
+        } else if (!oldJobs) {
+            for (JsonJobQueue jobQueue : list) {
                 for (JsonJob job : jobQueue.getJobs()) {
                     if (job.getStatus() != AbstractJob.Status.RUNNING) continue;
                     long current = job.getProgressInfo().getCurrent();
@@ -148,7 +151,7 @@ public class JobsRest {
                 }
             }
         }
-        return JsonUtils.toJson(testList, prettyPrinter);
+        return JsonUtils.toJson(list, prettyPrinter);
     }
 
     /**
@@ -161,7 +164,7 @@ public class JobsRest {
      * @param total
      * @return
      */
-    private JsonJob addTestJob(JsonJobQueue queue, String operation, String host, long current, long total) {
+    private JsonJob addTestJob(JsonJobQueue queue, String operation, String host, long current, long total, long uniqueNumber, boolean oldJobs) {
         ProgressInfo progressInfo = new ProgressInfo()
                 .setCurrent(current)
                 .setTotal(total);
@@ -185,6 +188,10 @@ public class JobsRest {
         }
         if (queue.getJobs() == null) {
             queue.setJobs(new ArrayList<>());
+        }
+        job.setUniqueJobNumber(uniqueNumber);
+        if (oldJobs) {
+            job.setStatus(uniqueNumber % 2 == 0 ? AbstractJob.Status.CANCELLED : AbstractJob.Status.DONE);
         }
         queue.getJobs().add(job);
         return job;
