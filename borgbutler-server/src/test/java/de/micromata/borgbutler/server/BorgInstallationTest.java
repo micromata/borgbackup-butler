@@ -14,7 +14,7 @@ public class BorgInstallationTest {
 
     @Test
     void foo() throws Exception {
-        ConfigurationHandler.getConfiguration().setBorgCommand("hurzel");
+        ConfigurationHandler.getConfiguration().setBorgCommand(null);
         BorgInstallation borgInstallation = BorgInstallation.getInstance();
         borgInstallation.initialize();
         ConfigurationHandler.getConfiguration().setBorgCommand("borg");
@@ -23,7 +23,7 @@ public class BorgInstallationTest {
 
     @Test
     void downloadTest() {
-        String version = ConfigurationHandler.getConfiguration().getBinariesDownloadVersion();
+        String version = new BorgVersion().getBinariesDownloadVersion();
         checkDownload(RunningMode.OSType.LINUX, "borg-linux64-" + version);
         checkDownload(RunningMode.OSType.MAC_OS, "borg-macosx64-" + version);
         checkDownload(RunningMode.OSType.FREEBSD, "borg-freebsd64-" + version);

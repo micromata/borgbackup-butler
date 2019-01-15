@@ -41,35 +41,31 @@ public class BorgInstallation {
         if (version(configuration)) {
             return;
         }
-        log.warn("No working borg version found. Please configure a borg version with minimal version '" + configuration.getMinimumRequiredBorgVersion() + "'.");
+        log.warn("No working borg version found. Please configure a borg version with minimal version '" + borgVersion.getMinimumRequiredBorgVersion() + "'.");
     }
 
     /**
-     *
      * @return a clone of this.borgVersion.
      */
     public BorgVersion getVersion() {
-        return new BorgVersion()
-                .setVersion(borgVersion.getVersion())
-                .setVersionOK(borgVersion.isVersionOK());
+        return new BorgVersion().copyFrom(borgVersion);
     }
 
     private boolean version(Configuration configuration) {
         String versionString = BorgCommands.version();
+        boolean versionOK = false;
         if (versionString != null) {
-            if (versionString.compareTo(configuration.getMinimumRequiredBorgVersion()) < 0) {
-                log.info("Found borg version '" + versionString + "' is less than minimum required version '" + configuration.getMinimumRequiredBorgVersion() + "'.");
-                borgVersion.setVersionOK(false);
+            int cmp = versionString.compareTo(borgVersion.getMinimumRequiredBorgVersion());
+            if (cmp < 0) {
+                log.info("Found borg version '" + versionString + "' is less than minimum required version '" + borgVersion.getMinimumRequiredBorgVersion() + "'.");
             } else {
-                log.info("Found borg '" + configuration.getBorgCommand() + "', version: " + versionString + " (newer than '" + configuration.getMinimumRequiredBorgVersion()
+                versionOK = true;
+                log.info("Found borg '" + configuration.getBorgCommand() + "', version: " + versionString + " (equals to or newer than '" + borgVersion.getMinimumRequiredBorgVersion()
                         + "', OK).");
-                borgVersion.setVersionOK(true);
             }
-        } else {
-            borgVersion.setVersionOK(false);
-            return false;
         }
-        return true;
+        borgVersion.setVersionOK(versionOK);
+        return versionOK;
     }
 
     private String[] getBinary(RunningMode.OSType osType) {
@@ -88,7 +84,7 @@ public class BorgInstallation {
         if (os == null) {
             return null;
         }
-        for (String[] binary : ConfigurationHandler.getConfiguration().getBorgBinaries()) {
+        for (String[] binary : borgVersion.getBorgBinaries()) {
             if (binary[0].contains(os)) {
                 return binary;
             }
@@ -111,7 +107,7 @@ public class BorgInstallation {
             // File already downloaded, nothing to do.
             return file;
         }
-        String url = ConfigurationHandler.getConfiguration().getBinariesDownloadUrl() + getDownloadFilename(binary);
+        String url = borgVersion.getBinariesDownloadUrl() + getDownloadFilename(binary);
         log.info("Trying to download borg binary '" + binary[0] + "' (" + binary[1] + ") from url: " + url + "...");
         HttpClientBuilder builder = HttpClients.custom()
                 .setDefaultRequestConfig(RequestConfig.custom()
@@ -141,7 +137,7 @@ public class BorgInstallation {
             log.info("Creating binary directory: " + dir.getAbsolutePath());
             dir.mkdirs();
         }
-        return new File(dir, getDownloadFilename(binary) + "-" + ConfigurationHandler.getConfiguration().getBinariesDownloadVersion());
+        return new File(dir, getDownloadFilename(binary) + "-" + borgVersion.getBinariesDownloadVersion());
     }
 
     private String getDownloadFilename(String[] binary) {

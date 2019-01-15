@@ -58,7 +58,7 @@ class ConfigServerTab extends React.Component {
             showDemoRepos: true,
             maxArchiveContentCacheCapacityMb: 100,
             redirect: false,
-            binary: 'manual'
+            borgVersion: null
         };
 
         this.handleTextChange = this.handleTextChange.bind(this);
@@ -113,7 +113,7 @@ class ConfigServerTab extends React.Component {
         if (this.state.failed) {
             return <ErrorAlertGenericRestFailure handleClick={this.loadConfig}/>;
         }
-
+        const borgVersion = this.state.borgVersion;
         return (
             <div>
                 <form>
@@ -121,12 +121,12 @@ class ConfigServerTab extends React.Component {
                         <FormLabel>{'Borg command'}</FormLabel>
                         <FormField length={2}>
                             <FormSelect
-                                value={this.state.binary}
+                                value={borgVersion.binary}
                                 name={'binary'}
                                 onChange={this.handleTextChange}
-                                hint={`Choose your OS and BorgButler will download and use a ready to run borg binary from ${this.state.binariesDownloadUrl} or choose a manual installed version.`}
+                                hint={`Choose your OS and BorgButler will download and use a ready to run borg binary from ${borgVersion.binariesDownloadUrl} or choose a manual installed version.`}
                             >
-                                {this.state.borgBinaries
+                                {borgVersion.borgBinaries
                                     .map((binary, index) => <FormOption label={binary[1]} value={binary[0]}
                                                                         key={index}/>)}
                                 <FormOption label={'Manual'} value={'manual'}/>

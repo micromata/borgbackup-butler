@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,8 @@ public class ServerConfiguration extends Configuration {
 
     private int port = WEBSERVER_PORT_DEFAULT;
     private boolean webDevelopmentMode = WEB_DEVELOPMENT_MODE_PREF_DEFAULT;
+    @Getter
+    private BorgVersion borgVersion = new BorgVersion();
     @JsonProperty
     public String getCacheDir() {
         return ButlerCache.getInstance().getCacheDir().getAbsolutePath();
@@ -65,5 +68,6 @@ public class ServerConfiguration extends Configuration {
         super.copyFrom(other);
         this.port = other.port;
         this.webDevelopmentMode = other.webDevelopmentMode;
+        this.borgVersion.copyFrom(other.borgVersion);
     }
 }
