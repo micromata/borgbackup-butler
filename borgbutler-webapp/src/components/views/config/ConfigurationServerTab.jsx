@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button} from 'reactstrap';
+import {Alert} from 'reactstrap';
 import {
     FormCheckbox,
     FormField,
@@ -35,6 +35,8 @@ class ConfigServerTab extends React.Component {
             .then((data) => {
                 this.setState({
                     loading: false,
+                    borgBinary: data.borgVersion.borgBinary,
+                    borgCommand: data.borgVersion.borgCommand,
                     ...data
                 })
             })
@@ -58,7 +60,8 @@ class ConfigServerTab extends React.Component {
             showDemoRepos: true,
             maxArchiveContentCacheCapacityMb: 100,
             redirect: false,
-            borgVersion: null
+            borgCommand: null,
+            borgBinary: null
         };
 
         this.handleTextChange = this.handleTextChange.bind(this);
@@ -84,7 +87,11 @@ class ConfigServerTab extends React.Component {
             port: this.state.port,
             maxArchiveContentCacheCapacityMb: this.state.maxArchiveContentCacheCapacityMb,
             webDevelopmentMode: this.state.webDevelopmentMode,
-            showDemoRepos: this.state.showDemoRepos
+            showDemoRepos: this.state.showDemoRepos,
+            borgVersion: {
+                borgCommand: this.state.borgCommand,
+                borgBinary: this.state.borgBinary
+            }
         };
         return fetch(getRestServiceUrl("configuration/config"), {
             method: 'POST',
@@ -114,6 +121,14 @@ class ConfigServerTab extends React.Component {
             return <ErrorAlertGenericRestFailure handleClick={this.loadConfig}/>;
         }
         const borgVersion = this.state.borgVersion;
+        let borgStatus = <Alert color="success">
+            {`Borg version '${borgVersion.version}' is OK.`}
+        </Alert>
+        if (!borgVersion.versionOK) {
+            borgStatus = <Alert color="danger">
+                {`${borgVersion.statusMessage}`}
+            </Alert>
+        }
         return (
             <div>
                 <form>
@@ -121,8 +136,8 @@ class ConfigServerTab extends React.Component {
                         <FormLabel>{'Borg command'}</FormLabel>
                         <FormField length={2}>
                             <FormSelect
-                                value={borgVersion.binary}
-                                name={'binary'}
+                                value={this.state.borgBinary}
+                                name={'borgBinary'}
                                 onChange={this.handleTextChange}
                                 hint={`Choose your OS and BorgButler will download and use a ready to run borg binary from ${borgVersion.binariesDownloadUrl} or choose a manual installed version.`}
                             >
@@ -132,15 +147,17 @@ class ConfigServerTab extends React.Component {
                                 <FormOption label={'Manual'} value={'manual'}/>
                             </FormSelect>
                         </FormField>
-                        <FormField length={6}>
+                        <FormField length={8}>
                             <FormInput name={'borgCommand'} value={this.state.borgCommand}
                                        onChange={this.handleTextChange}
-                                       placeholder="Enter path of borg command"/>
+                                       placeholder="Enter path of borg command"
+                                       disabled={this.state.borgBinary !== "manual"}/>
                         </FormField>
-                        <FormField length={2}>
-                            <Button className={'outline-primary'} onClick={this.onCancel}
-                                    hint={'Tests the borg version.'}>Test
-                            </Button>
+                    </FormGroup>
+                    <FormGroup>
+                        <FormField length={2} />
+                        <FormField length={10}>
+                            {borgStatus}
                         </FormField>
                     </FormGroup>
                     <FormLabelInputField label={'Port'} fieldLength={2} type="number" min={0} max={65535}

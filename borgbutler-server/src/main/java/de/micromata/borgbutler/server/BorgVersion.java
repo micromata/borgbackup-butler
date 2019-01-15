@@ -24,6 +24,7 @@ public class BorgVersion {
      * using a manual installed borg version.
      */
     @Getter
+    @Setter(AccessLevel.PACKAGE)
     private String borgBinary;
     /**
      * The path of the borg command to use.
@@ -38,12 +39,16 @@ public class BorgVersion {
     @Getter
     @Setter(AccessLevel.PACKAGE)
     private String version;
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
+    private String statusMessage;
 
     public BorgVersion copyFrom(BorgVersion other) {
         this.borgCommand = other.borgCommand;
         this.borgBinary = other.borgBinary;
         this.versionOK = other.versionOK;
         this.version = other.version;
+        this.statusMessage = other.statusMessage;
         return this;
     }
 }

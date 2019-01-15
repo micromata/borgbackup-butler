@@ -3,6 +3,8 @@ package de.micromata.borgbutler.server.rest;
 import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.JsonUtils;
+import de.micromata.borgbutler.server.BorgInstallation;
+import de.micromata.borgbutler.server.BorgVersion;
 import de.micromata.borgbutler.server.ServerConfiguration;
 import de.micromata.borgbutler.server.user.UserData;
 import de.micromata.borgbutler.server.user.UserManager;
@@ -37,7 +39,9 @@ public class ConfigurationRest {
         ConfigurationHandler configurationHandler = ConfigurationHandler.getInstance();
         ServerConfiguration config = (ServerConfiguration)configurationHandler.getConfiguration();
         ServerConfiguration srcConfig = JsonUtils.fromJson(ServerConfiguration.class, jsonConfig);
+        BorgVersion oldBorgVersion = config.getBorgVersion();
         config.copyFrom(srcConfig);
+        BorgInstallation.getInstance().configure(oldBorgVersion);
         configurationHandler.save();
     }
 

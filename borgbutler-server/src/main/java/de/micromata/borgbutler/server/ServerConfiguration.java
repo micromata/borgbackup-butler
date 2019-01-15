@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +18,6 @@ public class ServerConfiguration extends Configuration {
 
     private int port = WEBSERVER_PORT_DEFAULT;
     private boolean webDevelopmentMode = WEB_DEVELOPMENT_MODE_PREF_DEFAULT;
-    @Getter
     private BorgVersion borgVersion = new BorgVersion();
     @JsonProperty
     public String getCacheDir() {
@@ -32,6 +30,17 @@ public class ServerConfiguration extends Configuration {
 
     public static String[] getSupportedLanguages() {
         return SUPPORTED_LANGUAGES;
+    }
+
+    /**
+     * @return a clone of this.borgVersion.
+     */
+    public BorgVersion getBorgVersion() {
+        return new BorgVersion().copyFrom(borgVersion);
+    }
+
+    BorgVersion _getBorgVersion() {
+        return this.borgVersion;
     }
 
     public static String getApplicationHome() {
