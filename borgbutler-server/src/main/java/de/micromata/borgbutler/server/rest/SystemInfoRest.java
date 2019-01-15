@@ -2,6 +2,8 @@ package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.BorgQueueExecutor;
 import de.micromata.borgbutler.json.JsonUtils;
+import de.micromata.borgbutler.server.BorgInstallation;
+import de.micromata.borgbutler.server.BorgVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +24,11 @@ public class SystemInfoRest {
      * @see JsonUtils#toJson(Object, boolean)
      */
     public String getStatistics() {
+        BorgVersion borgVersion = BorgInstallation.getInstance().getVersion();
         SystemInfo systemInfonfo = new SystemInfo()
                 .setQueueStatistics(BorgQueueExecutor.getInstance().getStatistics())
-                .setConfigurationOK(false);
+                .setConfigurationOK(borgVersion.isVersionOK())
+                .setBorgVersion(borgVersion);
         return JsonUtils.toJson(systemInfonfo);
     }
 }

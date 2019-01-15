@@ -49,12 +49,16 @@ class WebApp extends React.Component {
         if (statistics && statistics.numberOfRunningAndQueuedJobs > 0) {
             jobsBadge = <Badge color="danger" pill>{statistics.numberOfRunningAndQueuedJobs}</Badge>;
         }
+        let configurationBadge = '';
+        if (this.state && this.state.systemInfo && !this.state.systemInfo.configurationOK) {
+            configurationBadge = <Badge color="danger" pill>!</Badge>;
+        }
         let routes = [
             ['Start', '/', Start],
             ['Repositories', '/repos', RepoListView],
             ['Job monitor', '/jobmonitor', JobMonitorView, {badge: jobsBadge}],
             [getTranslation('logviewer'), '/logging', LogPage],
-            [getTranslation('configuration'), '/config', ConfigurationPage]
+            [getTranslation('configuration'), '/config', ConfigurationPage, {badge: configurationBadge}]
         ];
 
         if (isDevelopmentMode()) {

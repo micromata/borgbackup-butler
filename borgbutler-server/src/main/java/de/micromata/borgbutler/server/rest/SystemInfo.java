@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.BorgQueueStatistics;
+import de.micromata.borgbutler.server.BorgVersion;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,4 +18,8 @@ public class SystemInfo {
     @Getter
     @Setter
     private boolean configurationOK;
+
+    @Getter
+    @Setter
+    private BorgVersion borgVersion;
 }

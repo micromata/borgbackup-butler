@@ -4,6 +4,7 @@ import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -21,34 +22,54 @@ public class BorgInstallation {
     private Logger log = LoggerFactory.getLogger(BorgInstallation.class);
     private static final BorgInstallation instance = new BorgInstallation();
 
+    private BorgVersion borgVersion = new BorgVersion();
+
     public static BorgInstallation getInstance() {
         return instance;
     }
 
     public void initialize() {
         Configuration configuration = ConfigurationHandler.getConfiguration();
-        if (version(configuration) != null) {
-            return;
+        if (StringUtils.isNotBlank(configuration.getBorgCommand())) {
+            if (version(configuration)) {
+                return;
+            }
         }
         String[] binary = getBinary(RunningMode.getOSType());
         File file = download(binary);
         configuration.setBorgCommand(file.getAbsolutePath());
-        if (version(configuration) != null) {
+        if (version(configuration)) {
             return;
         }
         log.warn("No working borg version found. Please configure a borg version with minimal version '" + configuration.getMinimumRequiredBorgVersion() + "'.");
     }
 
-    private String version(Configuration configuration) {
-        String version = BorgCommands.version();
-        if (version != null) {
-            if (version.compareTo(configuration.getMinimumRequiredBorgVersion()) < 0) {
-                log.info("Found borg version '" + version + "' is less than minimum required version '" + configuration.getMinimumRequiredBorgVersion() + "'.");
-                return null;
+    /**
+     *
+     * @return a clone of this.borgVersion.
+     */
+    public BorgVersion getVersion() {
+        return new BorgVersion()
+                .setVersion(borgVersion.getVersion())
+                .setVersionOK(borgVersion.isVersionOK());
+    }
+
+    private boolean version(Configuration configuration) {
+        String versionString = BorgCommands.version();
+        if (versionString != null) {
+            if (versionString.compareTo(configuration.getMinimumRequiredBorgVersion()) < 0) {
+                log.info("Found borg version '" + versionString + "' is less than minimum required version '" + configuration.getMinimumRequiredBorgVersion() + "'.");
+                borgVersion.setVersionOK(false);
+            } else {
+                log.info("Found borg '" + configuration.getBorgCommand() + "', version: " + versionString + " (newer than '" + configuration.getMinimumRequiredBorgVersion()
+                        + "', OK).");
+                borgVersion.setVersionOK(true);
             }
-            log.info("Using borg '" + configuration.getBorgCommand() + "', version: " + version);
+        } else {
+            borgVersion.setVersionOK(false);
+            return false;
         }
-        return version;
+        return true;
     }
 
     private String[] getBinary(RunningMode.OSType osType) {
