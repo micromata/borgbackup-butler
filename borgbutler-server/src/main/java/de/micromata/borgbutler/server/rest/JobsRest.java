@@ -39,6 +39,7 @@ public class JobsRest {
      */
     public String getJobs(@QueryParam("repo") String repo,
                           @QueryParam("testMode") boolean testMode,
+                          @QueryParam("oldJobs") boolean oldJobs,
                           @QueryParam("prettyPrinter") boolean prettyPrinter) {
         if (testMode) {
             // Return dynamic test queue:
@@ -51,13 +52,13 @@ public class JobsRest {
         BorgQueueExecutor borgQueueExecutor = BorgQueueExecutor.getInstance();
         List<JsonJobQueue> queueList = new ArrayList<>();
         if (validRepo) { // Get only the queue of the given repo:
-            JsonJobQueue queue = getQueue(repo);
+            JsonJobQueue queue = getQueue(repo, oldJobs);
             if (queue != null) {
                 queueList.add(queue);
             }
         } else { // Get all the queues (of all repos).
             for (String rep : borgQueueExecutor.getRepos()) {
-                JsonJobQueue queue = getQueue(rep);
+                JsonJobQueue queue = getQueue(rep, oldJobs);
                 if (queue != null) {
                     queueList.add(queue);
                 }
@@ -66,13 +67,13 @@ public class JobsRest {
         return JsonUtils.toJson(queueList, prettyPrinter);
     }
 
-    private JsonJobQueue getQueue(String repo) {
+    private JsonJobQueue getQueue(String repo, boolean oldJobs) {
         BorgQueueExecutor borgQueueExecutor = BorgQueueExecutor.getInstance();
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repo);
         if (repoConfig == null) {
             return null;
         }
-        List<BorgJob<?>> borgJobList = borgQueueExecutor.getJobListCopy(repoConfig);
+        List<BorgJob<?>> borgJobList = borgQueueExecutor.getJobListCopy(repoConfig, oldJobs);
         if (CollectionUtils.isEmpty(borgJobList))
             return null;
         JsonJobQueue queue = new JsonJobQueue().setRepo(repoConfig.getDisplayName());

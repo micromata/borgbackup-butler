@@ -78,16 +78,17 @@ public class BorgQueueExecutor {
      * For displaying purposes.
      *
      * @param repoConfig
+     * @param oldJobs If false, the running and queued jobs are returned, otherwise the done ones.
      * @return A list of all jobs of the queue (as copies).
      */
-    public List<BorgJob<?>> getJobListCopy(BorgRepoConfig repoConfig) {
+    public List<BorgJob<?>> getJobListCopy(BorgRepoConfig repoConfig, boolean oldJobs) {
         JobQueue<String> origQueue = getQueue(repoConfig);
         List<BorgJob<?>> jobList = new ArrayList<>();
         if (origQueue == null) {
             return jobList;
         }
         synchronized (origQueue) {
-            Iterator<AbstractJob<String>> it = origQueue.getQueueIterator();
+            Iterator<AbstractJob<String>> it = oldJobs ? origQueue.getOldJobsIterator() : origQueue.getQueueIterator();
             while (it.hasNext()) {
                 AbstractJob<String> origJob = it.next();
                 if (!(origJob instanceof BorgJob)) {

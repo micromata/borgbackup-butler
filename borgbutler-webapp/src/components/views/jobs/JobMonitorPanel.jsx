@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button} from 'reactstrap';
+import {Button, Collapse} from 'reactstrap';
 import {getRestServiceUrl, isDevelopmentMode} from '../../../utilities/global';
 import JobQueue from './JobQueue';
 import ErrorAlert from '../archives/ArchiveView';
@@ -8,12 +8,13 @@ import PropTypes from 'prop-types';
 class JobMonitorPanel extends React.Component {
     state = {
         isFetching: false,
-        testMode: false
+        testMode: false,
+        collapseOldJobs: false
     };
 
     componentDidMount = () => {
-        this.fetchQueues();
-        this.interval = setInterval(() => this.fetchQueues(), 2000);
+        this.fetchQueues(false);
+        this.interval = setInterval(() => this.fetchQueues(false), 2000);
     };
 
     componentWillUnmount() {
@@ -26,14 +27,23 @@ class JobMonitorPanel extends React.Component {
         });
     }
 
-    fetchQueues = () => {
+    toggleOldJobs() {
+        if (!this.state.collapseOldJobs) {
+            this.fetchQueues(true);
+        }
+        this.setState({collapseOldJobs: !this.state.collapseOldJobs});
+    }
+
+
+    fetchQueues = (oldJobs) => {
         this.setState({
             isFetching: true,
             failed: false
         });
         fetch(getRestServiceUrl('jobs', {
             repo: this.props.repo,
-            testMode: this.state.testMode
+            testMode: this.state.testMode,
+            oldJobs: oldJobs
         }), {
             method: 'GET',
             headers: {
@@ -45,10 +55,17 @@ class JobMonitorPanel extends React.Component {
                 const queues = json.map(queue => {
                     return queue;
                 });
-                this.setState({
-                    isFetching: false,
-                    queues
-                });
+                if (oldJobs) {
+                    this.setState({
+                        isFetching: false,
+                        oldJobsQueues: queues
+                    });
+                } else {
+                    this.setState({
+                        isFetching: false,
+                        queues: queues
+                    });
+                }
             })
             .catch(() => this.setState({isFetching: false, failed: true}));
     };
@@ -85,8 +102,24 @@ class JobMonitorPanel extends React.Component {
                 content = <React.Fragment>No jobs are running or queued.</React.Fragment>
             }
         }
+        let oldJobs = 'Old jobs...';
+        if (this.state.oldJobsQueues && this.state.oldJobsQueues.length > 0) {
+            oldJobs = <React.Fragment>
+                {this.state.oldJobsQueues
+                    .map((queue) => <JobQueue
+                        embedded={this.props.embedded}
+                        queue={queue}
+                        key={queue.repo}
+                    />)}
+            </React.Fragment>
+        }
         return <React.Fragment>
             {content}
+            <h5 onClick={this.toggleOldJobs}>Show old jobs
+            </h5>
+            <Collapse isOpen={this.state.collapseOldJobs}>
+                {oldJobs}
+            </Collapse>
         </React.Fragment>;
     }
 
@@ -95,15 +128,18 @@ class JobMonitorPanel extends React.Component {
 
         this.fetchQueues = this.fetchQueues.bind(this);
         this.toggleTestMode = this.toggleTestMode.bind(this);
+        this.toggleOldJobs = this.toggleOldJobs.bind(this);
     }
 }
 
-JobMonitorPanel.propTypes = {
+JobMonitorPanel
+    .propTypes = {
     embedded: PropTypes.bool,
     repo: PropTypes.string
 };
 
-JobMonitorPanel.defaultProps = {
+JobMonitorPanel
+    .defaultProps = {
     embedded: true,
     repo: null
 };
