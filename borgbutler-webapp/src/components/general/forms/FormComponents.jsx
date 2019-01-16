@@ -80,10 +80,14 @@ const FormInput = (props) => {
         </UncontrolledTooltip>;
     }
     const {fieldLength, className, hint, hintPlacement, id, ...other} = props;
+    let myClassName = className;
+    if (fieldLength > 0) {
+        myClassName = classNames(`col-sm-${props.fieldLength}`, className);
+    }
     return (
         <React.Fragment>
             <Input id={targetId}
-                   className={classNames(`col-sm-${props.fieldLength}`, className)}
+                   className={myClassName}
                    {...other}
             />
             {tooltip}
@@ -113,7 +117,6 @@ FormInput.defaultProps = {
     name: '',
     hint: null,
     hintPlacement: 'top',
-    fieldLength: 10,
     value: '',
     min: null,
     max: null,
