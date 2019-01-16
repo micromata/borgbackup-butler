@@ -104,10 +104,6 @@ class JobMonitorPanel extends React.Component {
                             key={queue.repo}
                         />)}
                 </React.Fragment>;
-            } else if (isDevelopmentMode() && !this.props.embedded) {
-                content = <React.Fragment>No jobs are running or queued.<br/><br/>
-                    <Button color="primary" onClick={this.toggleTestMode}>Test mode</Button>
-                </React.Fragment>
             } else {
                 content = <React.Fragment>No jobs are running or queued.</React.Fragment>
             }
@@ -139,6 +135,11 @@ class JobMonitorPanel extends React.Component {
                 oldJobs = <React.Fragment>No old jobs available.</React.Fragment>
             }
         }
+        let testContent = '';
+        if (isDevelopmentMode() && !this.props.embedded) {
+            testContent = <React.Fragment><br/><br/><br/><Button className="btn-outline-info" onClick={this.toggleTestMode}>Test mode</Button></React.Fragment>;
+        }
+
         return <React.Fragment>
             {content}
             <h5 className={'onclick'} onClick={this.toggleOldJobs}>Show old jobs
@@ -146,6 +147,7 @@ class JobMonitorPanel extends React.Component {
             <Collapse isOpen={this.state.collapseOldJobs}>
                 {oldJobs}
             </Collapse>
+            {testContent}
         </React.Fragment>;
     }
 
