@@ -192,8 +192,9 @@ public class BorgCommands {
         // The returned job might be an already queued or running one!
         final ProgressInfo progressInfo = new ProgressInfo()
                 .setMessage("Getting file list...")
-                .setCurrent(0)
-                .setTotal(archive.getStats().getNfiles());
+                .setCurrent(0);
+        if (archive.getStats() != null) // Occurs only for demo repos.
+            progressInfo.setTotal(archive.getStats().getNfiles());
         BorgJob<List<BorgFilesystemItem>> job = BorgQueueExecutor.getInstance().execute(new BorgJob<List<BorgFilesystemItem>>(command) {
             @Override
             public void processStdOutLine(String line, int level) {
