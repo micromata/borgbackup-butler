@@ -78,5 +78,6 @@ public class ServerConfiguration extends Configuration {
         this.port = other.port;
         this.webDevelopmentMode = other.webDevelopmentMode;
         this.borgVersion.copyFrom(other.borgVersion);
+        this.setBorgCommand(this.borgVersion.getBorgCommand());
     }
 }
