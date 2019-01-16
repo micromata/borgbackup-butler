@@ -89,13 +89,8 @@ public class Configuration {
     }
 
     public List<BorgRepoConfig> getRepoConfigs() {
-        if (!ConfigurationHandler.getConfiguration().isShowDemoRepos()) {
-            return repoConfigs;
-        }
-        List<BorgRepoConfig> result = new ArrayList<>();
-        result.addAll(repoConfigs);
-        DemoRepos.addDemoRepos(result);
-        return result;
+        DemoRepos.handleDemoRepos(repoConfigs);
+        return repoConfigs;
     }
 
     List<BorgRepoConfig> _getRepoConfigs() {

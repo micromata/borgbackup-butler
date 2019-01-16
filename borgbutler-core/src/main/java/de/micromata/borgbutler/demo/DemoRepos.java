@@ -34,8 +34,17 @@ public class DemoRepos {
      *
      * @param repositoryList
      */
-    public static void addDemoRepos(List<BorgRepoConfig> repositoryList) {
+    public static void handleDemoRepos(List<BorgRepoConfig> repositoryList) {
         if (!ConfigurationHandler.getConfiguration().isShowDemoRepos()) {
+            // Remove any demo repository if exist due to former settings:
+            Iterator<BorgRepoConfig> it = repositoryList.iterator();
+            while(it.hasNext()) {
+                BorgRepoConfig repoConfig = it.next();
+                if (!StringUtils.startsWith(repoConfig.getRepo(), DEMO_IDENTIFIER)) {
+                    continue;
+                }
+                it.remove();
+            }
             return;
         }
         init();
