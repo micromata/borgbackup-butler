@@ -14,7 +14,7 @@ class JobMonitorPanel extends React.Component {
 
     componentDidMount = () => {
         this.fetchQueues(false);
-        this.interval = setInterval(() => this.fetchQueues(false), 2000);
+        this.interval = setInterval(() => this.fetchJobs(), 2000);
     };
 
     componentWillUnmount() {
@@ -34,6 +34,12 @@ class JobMonitorPanel extends React.Component {
         this.setState({collapseOldJobs: !this.state.collapseOldJobs});
     }
 
+    fetchJobs() {
+        this.fetchQueues(false);
+        if (this.state.collapseOldJobs) {
+            this.fetchQueues(true);
+        }
+    }
 
     fetchQueues = (oldJobs) => {
         this.setState({
