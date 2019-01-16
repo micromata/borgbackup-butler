@@ -130,6 +130,9 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
         if (progressInfo != null) {
             clone.setProgressInfo(progressInfo.clone());
         }
+        clone.setCreateTime(getCreateTime());
+        clone.setStartTime(getStartTime());
+        clone.setStopTime(getStopTime());
         return clone;
     }
 

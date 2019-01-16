@@ -40,6 +40,14 @@ class Job extends React.Component {
         let content = undefined;
         let job = this.props.job;
         let cancelDisabled = undefined;
+        let times = ' (created: ' + job.createTime;
+        if (job.startTime) {
+            times += ', started: ' + job.startTime;
+        }
+        if (job.stopTime) {
+            times += ', stopped: ' + job.stopTime;
+        }
+        times += ')';
         if ((job.status !== 'RUNNING' && job.status !== 'QUEUED') || job.cancellationRequested) {
             cancelDisabled = true;
         }
@@ -89,7 +97,7 @@ class Job extends React.Component {
                                 <tbody>
                                 <tr>
                                     <th>Status</th>
-                                    <td>{job.status}</td>
+                                    <td>{job.status} {times}</td>
                                 </tr>
                                 <tr>
                                     <th>Command line</th>

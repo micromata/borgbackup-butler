@@ -1,11 +1,13 @@
 package de.micromata.borgbutler.jobs;
 
+import de.micromata.borgbutler.utils.DateUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -18,7 +20,6 @@ public abstract class AbstractJob<T> {
     @Setter
     private boolean cancellationRequested;
     @Getter
-    @Setter(AccessLevel.PROTECTED)
     private Status status;
     @Getter
     @Setter
@@ -29,17 +30,36 @@ public abstract class AbstractJob<T> {
     @Getter
     @Setter(AccessLevel.PROTECTED)
     private long uniqueJobNumber = -1;
+    @Getter
+    @Setter
+    private String createTime;
+    @Getter
+    @Setter
+    private String startTime;
+    @Getter
+    @Setter
+    private String stopTime;
+
+    protected AbstractJob<T> setStatus(Status status) {
+        if (status == Status.RUNNING && this.status != Status.RUNNING) {
+            this.startTime = DateUtils.format(LocalDateTime.now());
+        } else if (status != Status.RUNNING && this.status == Status.RUNNING) {
+            this.stopTime = DateUtils.format(LocalDateTime.now());
+        }
+        this.status = status;
+        return this;
+    }
 
     public void cancel() {
         if (this.getStatus() == Status.QUEUED) {
-            this.status = Status.CANCELLED;
+            setStatus(Status.CANCELLED);
         }
         this.cancellationRequested = true;
         cancelRunningProcess();
     }
 
     protected void setCancelled() {
-        this.status = Status.CANCELLED;
+        setStatus(Status.CANCELLED);
     }
 
     /**
@@ -74,7 +94,7 @@ public abstract class AbstractJob<T> {
         if (this.status != Status.RUNNING) {
             logger.error("Internal error, illegal state! You shouldn't set the job status to FAILED if not in status RUNNING: " + this.status);
         }
-        this.status = Status.FAILED;
+        setStatus(Status.FAILED);
     }
 
     /**
@@ -96,4 +116,8 @@ public abstract class AbstractJob<T> {
      * @return
      */
     public abstract Object getId();
+
+    protected AbstractJob() {
+        this.createTime = DateUtils.format(LocalDateTime.now());
+    }
 }
