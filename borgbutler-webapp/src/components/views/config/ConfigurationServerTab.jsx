@@ -121,13 +121,11 @@ class ConfigServerTab extends React.Component {
             return <ErrorAlertGenericRestFailure handleClick={this.loadConfig}/>;
         }
         const borgVersion = this.state.borgVersion;
-        let borgStatus = <Alert color="success">
-            {`Borg version '${borgVersion.version}' is OK.`}
-        </Alert>
+        let borgInfoColor = 'success';
+        let borgInfoMessage = `Borg version '${borgVersion.version}' is OK.`;
         if (!borgVersion.versionOK) {
-            borgStatus = <Alert color="danger">
-                {`${borgVersion.statusMessage}`}
-            </Alert>
+            borgInfoColor = 'danger';
+            borgInfoMessage = borgVersion.statusMessage;
         }
         return (
             <div>
@@ -147,18 +145,16 @@ class ConfigServerTab extends React.Component {
                                 <FormOption label={'Manual'} value={'manual'}/>
                             </FormSelect>
                         </FormField>
-                        <FormField length={8}>
-                            <FormInput name={'borgCommand'} value={this.state.borgCommand}
-                                       onChange={this.handleTextChange}
-                                       placeholder="Enter path of borg command"
-                                       disabled={this.state.borgBinary !== "manual"}/>
-                        </FormField>
+                        <FormInput fieldLength={8} name={'borgCommand'} value={this.state.borgCommand}
+                                   onChange={this.handleTextChange}
+                                   placeholder="Enter path of borg command"
+                                   disabled={this.state.borgBinary !== "manual"}/>
                     </FormGroup>
                     <FormGroup>
-                        <FormField length={2} />
-                        <FormField length={10}>
-                            {borgStatus}
-                        </FormField>
+                        <FormField length={4}/>
+                        <Alert className={'col-sm-8'} color={borgInfoColor}>
+                            {borgInfoMessage}
+                        </Alert>
                     </FormGroup>
                     <FormLabelInputField label={'Port'} fieldLength={2} type="number" min={0} max={65535}
                                          step={1}
