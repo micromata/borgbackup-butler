@@ -45,7 +45,7 @@ class Job extends React.Component {
             times += ', started: ' + job.startTime;
         }
         if (job.stopTime) {
-            times += ', stopped: ' + job.stopTime;
+            times += ', ended: ' + job.stopTime;
         }
         times += ')';
         if ((job.status !== 'RUNNING' && job.status !== 'QUEUED') || job.cancellationRequested) {
