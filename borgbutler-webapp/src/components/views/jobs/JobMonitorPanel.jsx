@@ -115,7 +115,7 @@ class JobMonitorPanel extends React.Component {
         }
         return <React.Fragment>
             {content}
-            <h5 onClick={this.toggleOldJobs}>Show old jobs
+            <h5 className={'onclick'} onClick={this.toggleOldJobs}>Show old jobs
             </h5>
             <Collapse isOpen={this.state.collapseOldJobs}>
                 {oldJobs}

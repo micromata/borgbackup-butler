@@ -12,3 +12,7 @@
 .job-progress div.progress {
     margin: 0 .75rem .375rem;
 }
+
+.onclick {
+    cursor: pointer;
+}
