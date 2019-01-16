@@ -41,6 +41,7 @@ public class JobsRest {
                           @QueryParam("testMode") boolean testMode,
                           @QueryParam("oldJobs") boolean oldJobs,
                           @QueryParam("prettyPrinter") boolean prettyPrinter) {
+        log.debug("getJobs repo=" + repo + ", oldJobs=" + oldJobs);
         if (testMode) {
             // Return dynamic test queue:
             return returnTestList(oldJobs, prettyPrinter);
