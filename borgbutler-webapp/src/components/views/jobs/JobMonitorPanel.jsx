@@ -2,12 +2,13 @@ import React from 'react';
 import {Button, Collapse} from 'reactstrap';
 import {getRestServiceUrl, isDevelopmentMode} from '../../../utilities/global';
 import JobQueue from './JobQueue';
-import ErrorAlert from '../archives/ArchiveView';
+import ErrorAlert from '../../general/ErrorAlert';
 import PropTypes from 'prop-types';
 
 class JobMonitorPanel extends React.Component {
     state = {
         isFetching: false,
+        isFetchingOldJobs: false,
         testMode: false,
         collapseOldJobs: false
     };
@@ -35,16 +36,26 @@ class JobMonitorPanel extends React.Component {
     }
 
     fetchJobs() {
-        this.fetchQueues(false);
-        if (this.state.collapseOldJobs) {
+        if (!this.state.isFetching) { // Don't run twice at the same time
+            this.fetchQueues(false);
+        }
+        if (this.state.collapseOldJobs && !this.state.isFetchingOldJobs) {
             this.fetchQueues(true);
         }
     }
 
     fetchQueues = (oldJobs) => {
+        let queuesVar = 'queues';
+        let isFetchingVar = 'isFetching';
+        let failedVar = 'failed';
+        if (oldJobs) {
+            queuesVar = 'oldJobsQueues';
+            isFetchingVar = 'isFetchingOldJobs';
+            failedVar = 'oldJobsFailed';
+        }
         this.setState({
-            isFetching: true,
-            failed: false
+            [isFetchingVar]: true,
+            [failedVar]: false
         });
         fetch(getRestServiceUrl('jobs', {
             repo: this.props.repo,
@@ -61,19 +72,12 @@ class JobMonitorPanel extends React.Component {
                 const queues = json.map(queue => {
                     return queue;
                 });
-                if (oldJobs) {
-                    this.setState({
-                        isFetching: false,
-                        oldJobsQueues: queues
-                    });
-                } else {
-                    this.setState({
-                        isFetching: false,
-                        queues: queues
-                    });
-                }
+                this.setState({
+                    [isFetchingVar]: false,
+                    [queuesVar]: queues
+                });
             })
-            .catch(() => this.setState({isFetching: false, failed: true}));
+            .catch(() => this.setState({[isFetchingVar]: false, [failedVar]: true}));
     };
 
     render() {
@@ -83,7 +87,7 @@ class JobMonitorPanel extends React.Component {
             content = <i>Loading...</i>;
         } else if (this.state.failed) {
             content = <ErrorAlert
-                title={'Cannot load Repositories'}
+                title={'Cannot load job queues'}
                 description={'Something went wrong during contacting the rest api.'}
                 action={{
                     handleClick: this.fetchQueues,
@@ -108,16 +112,32 @@ class JobMonitorPanel extends React.Component {
                 content = <React.Fragment>No jobs are running or queued.</React.Fragment>
             }
         }
-        let oldJobs = 'No old jobs yet to display...';
-        if (this.state.oldJobsQueues && this.state.oldJobsQueues.length > 0) {
-            oldJobs = <React.Fragment>
-                {this.state.oldJobsQueues
-                    .map((queue) => <JobQueue
-                        embedded={this.props.embedded}
-                        queue={queue}
-                        key={queue.repo}
-                    />)}
-            </React.Fragment>
+        let oldJobs = '';
+
+        if (this.state.isFetchingOldJobs && !this.state.oldJobsQueues) {
+            oldJobs = <i>Loading...</i>;
+        } else if (this.state.oldJobsFailed) {
+            oldJobs = <ErrorAlert
+                title={'Cannot load old job queues'}
+                description={'Something went wrong during contacting the rest api.'}
+                action={{
+                    handleClick: this.fetchQueues,
+                    title: 'Try again'
+                }}
+            />;
+        } else if (this.state.oldJobsQueues) {
+            if (this.state.oldJobsQueues.length > 0) {
+                oldJobs = <React.Fragment>
+                    {this.state.oldJobsQueues
+                        .map((queue) => <JobQueue
+                            embedded={this.props.embedded}
+                            queue={queue}
+                            key={queue.repo}
+                        />)}
+                </React.Fragment>
+            } else {
+                oldJobs = <React.Fragment>No old jobs available.</React.Fragment>
+            }
         }
         return <React.Fragment>
             {content}
