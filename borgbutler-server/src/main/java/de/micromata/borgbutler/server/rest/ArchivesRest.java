@@ -33,16 +33,16 @@ import java.util.List;
 public class ArchivesRest {
     private static Logger log = LoggerFactory.getLogger(ArchivesRest.class);
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
     /**
      *
-     * @param repo Name of repository ({@link Repository#getName()}.
+     * @param repoName Name of repository ({@link Repository#getName()}.
      * @param archiveId Id or name of archive.
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @return Repository (including list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
     public String getArchive(@QueryParam("repo") String repoName,
                              @QueryParam("archiveId") String archiveId, @QueryParam("force") boolean force,
                              @QueryParam("prettyPrinter") boolean prettyPrinter) {
@@ -53,9 +53,6 @@ public class ArchivesRest {
         return JsonUtils.toJson(archive, prettyPrinter);
     }
 
-    @GET
-    @Path("filelist")
-    @Produces(MediaType.APPLICATION_JSON)
     /**
      *
      * @param archiveId Id or name of archive.
@@ -69,6 +66,9 @@ public class ArchivesRest {
      * @return Repository (including list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
+    @GET
+    @Path("filelist")
+    @Produces(MediaType.APPLICATION_JSON)
     public String getArchiveFileList(@QueryParam("archiveId") String archiveId,
                                      @QueryParam("searchString") String searchString,
                                      @QueryParam("mode") String mode,
@@ -105,13 +105,13 @@ public class ArchivesRest {
         return JsonUtils.toJson(items, prettyPrinter);
     }
 
-    @GET
-    @Path("/restore")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
     /**
      * @param archiveId
      * @param fileNumber The fileNumber of the file or directory in the archive served by BorgButler's
      */
+    @GET
+    @Path("/restore")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response restore(@QueryParam("archiveId") String archiveId, @QueryParam("fileNumber") int fileNumber) {
         log.info("Requesting file #" + fileNumber + " of archive '" + archiveId + "'.");
         FileSystemFilter filter = new FileSystemFilter().setFileNumber(fileNumber);

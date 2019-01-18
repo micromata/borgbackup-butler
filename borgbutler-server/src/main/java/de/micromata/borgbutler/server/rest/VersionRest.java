@@ -22,15 +22,15 @@ import java.util.Locale;
 public class VersionRest {
     private Logger log = LoggerFactory.getLogger(VersionRest.class);
 
-    @GET
-    @Path("version")
-    @Produces(MediaType.APPLICATION_JSON)
     /**
      *
      * @param requestContext For detecting the user's client locale.
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @see JsonUtils#toJson(Object, boolean)
      */
+    @GET
+    @Path("version")
+    @Produces(MediaType.APPLICATION_JSON)
     public String getVersion(@Context HttpServletRequest requestContext, @QueryParam("prettyPrinter") boolean prettyPrinter) {
         UserData user = RestUtils.getUser();
         String language = Languages.asString(user.getLocale());

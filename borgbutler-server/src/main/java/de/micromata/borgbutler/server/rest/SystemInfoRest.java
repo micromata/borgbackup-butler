@@ -16,13 +16,13 @@ import javax.ws.rs.core.MediaType;
 public class SystemInfoRest {
     private static Logger log = LoggerFactory.getLogger(SystemInfoRest.class);
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path("info")
     /**
      * @return The total number of jobs queued or running (and other statistics): {@link de.micromata.borgbutler.BorgQueueStatistics}.
      * @see JsonUtils#toJson(Object, boolean)
      */
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("info")
     public String getStatistics() {
         BorgVersion borgVersion = ServerConfiguration.get().getBorgVersion();
         SystemInfo systemInfonfo = new SystemInfo()

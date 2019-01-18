@@ -28,8 +28,6 @@ public class JobsRest {
 
     private static List<JsonJobQueue> testList, oldJobsTestList;
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
     /**
      * @param repo If given, only the job queue of the given repo will be returned.
      * @param testMode If true, then a test job list is created.
@@ -37,6 +35,8 @@ public class JobsRest {
      * @return Job queues as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
     public String getJobs(@QueryParam("repo") String repo,
                           @QueryParam("testMode") boolean testMode,
                           @QueryParam("oldJobs") boolean oldJobs,
@@ -86,11 +86,11 @@ public class JobsRest {
         return queue;
     }
 
-    @Path("/cancel")
-    @GET
     /**
      * @param uniqueJobNumberString The id of the job to cancel.
      */
+    @Path("/cancel")
+    @GET
     public void cancelJob(@QueryParam("uniqueJobNumber") String uniqueJobNumberString) {
         Long uniqueJobNumber = null;
         try {
