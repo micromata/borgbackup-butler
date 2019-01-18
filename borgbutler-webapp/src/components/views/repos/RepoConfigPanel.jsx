@@ -30,7 +30,7 @@ class RepoConfigPanel extends React.Component {
             failed: false,
             repoConfig: undefined
         });
-        fetch(getRestServiceUrl('repos/repoConfig', {
+        fetch(getRestServiceUrl('repoConfig', {
             id: this.props.id
         }), {
             method: 'GET',
@@ -60,7 +60,7 @@ class RepoConfigPanel extends React.Component {
     }
 
     async onSave(event) {
-        const response = fetch(getRestServiceUrl("repos/repoConfig"), {
+        const response = fetch(getRestServiceUrl("repoConfig"), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

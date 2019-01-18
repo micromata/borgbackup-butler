@@ -1,8 +1,6 @@
 package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.cache.ButlerCache;
-import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.BorgRepository;
@@ -10,7 +8,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -49,38 +50,6 @@ public class ReposRest {
         Repository repository = ButlerCache.getInstance().getRepository(id);
         return JsonUtils.toJson(repository, prettyPrinter);
     }
-
-    /**
-     *
-     * @param id id or name of repo.
-     * @param prettyPrinter If true then the json output will be in pretty format.
-     * @return {@link BorgRepoConfig} as json string.
-     * @see JsonUtils#toJson(Object, boolean)
-     */
-    @GET
-    @Path("repoConfig")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getRepoConfig(@QueryParam("id") String id, @QueryParam("prettyPrinter") boolean prettyPrinter) {
-        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(id);
-        return JsonUtils.toJson(repoConfig, prettyPrinter);
-    }
-
-    @POST
-    @Path("repoConfig")
-    @Produces(MediaType.TEXT_PLAIN)
-    public void setRepoConfig(String jsonConfig) {
-        BorgRepoConfig newRepoConfig = JsonUtils.fromJson(BorgRepoConfig.class, jsonConfig);
-        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(newRepoConfig.getId());
-        if (repoConfig == null) {
-            log.error("Can't find repo config '" + newRepoConfig.getId() + "'. Can't save new settings.");
-            return;
-        }
-        ButlerCache.getInstance().clearRepoCacheAccess(repoConfig.getRepo());
-        ButlerCache.getInstance().clearRepoCacheAccess(newRepoConfig.getRepo());
-        repoConfig.copyFrom(newRepoConfig);
-        ConfigurationHandler.getInstance().save();
-    }
-
 
     /**
      *
