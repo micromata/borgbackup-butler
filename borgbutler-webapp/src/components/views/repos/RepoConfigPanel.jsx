@@ -1,12 +1,6 @@
 import React from 'react';
-import {FormGroup, Input} from 'reactstrap';
-import {
-    FormButton,
-    FormField,
-    FormInput,
-    FormLabelField,
-    FormLabelInputField
-} from '../../general/forms/FormComponents';
+import {FormGroup} from 'reactstrap';
+import {FormButton, FormField, FormLabelInputField} from '../../general/forms/FormComponents';
 import {getRestServiceUrl} from '../../../utilities/global';
 import I18n from "../../general/translation/I18n";
 import LoadingOverlay from '../../general/loading/LoadingOverlay';
@@ -64,7 +58,7 @@ class RepoConfigPanel
 
     handleTextChange = event => {
         event.preventDefault();
-        this.setState({[event.target.name]: event.target.value});
+        this.setState({repoConfig: {...this.state.repoConfig, [event.target.name]: event.target.value}});
     }
 
     onSave(event) {
