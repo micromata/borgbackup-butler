@@ -1,6 +1,8 @@
 package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.cache.ButlerCache;
+import de.micromata.borgbutler.config.BorgRepoConfig;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.BorgRepository;
@@ -40,7 +42,7 @@ public class ReposRest {
      *
      * @param id id or name of repo.
      * @param prettyPrinter If true then the json output will be in pretty format.
-     * @return Repository (without list of archives) as json string.
+     * @return {@link Repository} (without list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
     @GET
@@ -55,22 +57,22 @@ public class ReposRest {
      *
      * @param id id or name of repo.
      * @param prettyPrinter If true then the json output will be in pretty format.
-     * @return BorgRepoConf as json string.
+     * @return {@link BorgRepoConfig} as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
     @GET
-    @Path("repo-config")
+    @Path("repoConfig")
     @Produces(MediaType.APPLICATION_JSON)
     public String getRepoConfig(@QueryParam("id") String id, @QueryParam("prettyPrinter") boolean prettyPrinter) {
-        Repository repository = ButlerCache.getInstance().getRepository(id);
-        return JsonUtils.toJson(repository, prettyPrinter);
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(id);
+        return JsonUtils.toJson(repoConfig, prettyPrinter);
     }
 
     /**
      *
      * @param id id or name of repo.
      * @param prettyPrinter If true then the json output will be in pretty format.
-     * @return Repository (including list of archives) as json string.
+     * @return {@link Repository} (including list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
     @GET

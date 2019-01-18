@@ -1,12 +1,13 @@
 import React from 'react'
 import {Nav, NavLink, TabContent, Table, TabPane} from 'reactstrap';
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import classNames from 'classnames';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {getRestServiceUrl, humanFileSize} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
 import {IconCheck, IconRefresh} from '../../general/IconComponents';
 import JobMonitorPanel from '../jobs/JobMonitorPanel';
+import RepoConfigPanel from "./RepoConfigPanel";
 
 class RepoArchiveListView extends React.Component {
 
@@ -57,7 +58,7 @@ class RepoArchiveListView extends React.Component {
         let pageHeader = '';
 
         if (this.state.isFetching) {
-            content = <JobMonitorPanel repo={this.state.id} />;
+            content = <JobMonitorPanel repo={this.state.id}/>;
         } else if (this.state.failed) {
             content = <ErrorAlert
                 title={'Cannot load Repositories'}
@@ -141,6 +142,12 @@ class RepoArchiveListView extends React.Component {
                     >
                         Information
                     </NavLink>
+                    <NavLink
+                        className={classNames({active: this.state.activeTab === '3'})}
+                        onClick={this.toggleTab('3')}
+                    >
+                        Configuration
+                    </NavLink>
                 </Nav>
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId={'1'}>
@@ -156,7 +163,7 @@ class RepoArchiveListView extends React.Component {
                                 // Return the element. Also pass key
                                 let loaded = '';
                                 if (archive.fileListAlreadyCached) {
-                                    loaded = <IconCheck />;
+                                    loaded = <IconCheck/>;
                                 }
                                 return (
                                     <tr key={archive.id}>
@@ -193,6 +200,9 @@ class RepoArchiveListView extends React.Component {
                             {cachePath}
                             </tbody>
                         </Table>
+                    </TabPane>
+                    <TabPane tabId={'3'}>
+                        <RepoConfigPanel id={repo.id}/>
                     </TabPane>
                 </TabContent>
             </React.Fragment>;
