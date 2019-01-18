@@ -7,9 +7,7 @@ import LoadingOverlay from '../../general/loading/LoadingOverlay';
 import PropTypes from "prop-types";
 import ErrorAlert from "../../general/ErrorAlert";
 
-class RepoConfigPanel
-    extends React
-        .Component {
+class RepoConfigPanel extends React.Component {
 
     constructor(props) {
         super(props);
@@ -61,27 +59,42 @@ class RepoConfigPanel
         this.setState({repoConfig: {...this.state.repoConfig, [event.target.name]: event.target.value}});
     }
 
-    onSave(event) {
-        this.setState({
-            loading: true
-        })
-        this.setState({
-            loading: false
-        })
-        this.setReload();
+    async onSave(event) {
+        const response = fetch(getRestServiceUrl("repos/repoConfig"), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(this.state.repoConfig)
+        });
+        if (response) await response;
+        if (this.props.afterSave) {
+            this.props.afterSave();
+        }
     }
 
-    onCancel() {
-        this.setReload();
+    async onCancel() {
+        const response = this.fetch();
+        if (response) await response;
+        if (this.props.afterCancel) {
+            this.props.afterCancel();
+        }
     }
 
     render() {
         let content;
+        let repoError = '';
+        if (this.props.repoError) {
+            repoError =<ErrorAlert
+                title={'Cannot access repository'}
+                description={'Repo not available or mis-configured (please refer the log files for more details).'}
+            />
+        }
         if (this.state.isFetching) {
             content = <React.Fragment>Loading...</React.Fragment>;
         } else if (this.state.failed) {
             content = <ErrorAlert
-                title={'Cannot load config or repository'}
+                title={'Cannot load config of repository'}
                 description={'Something went wrong during contacting the rest api.'}
                 action={{
                     handleClick: this.fetchRepo,
@@ -109,7 +122,7 @@ class RepoConfigPanel
                                          onChange={this.handleTextChange}
                                          placeholder="Enter the password command to get the command from."/>
                     <FormLabelInputField label={'Password'} fieldLength={6} type={'password'}
-                                         name={'passwordCommand'} value={repoConfig.password}
+                                         name={'passphrase'} value={repoConfig.passphrase}
                                          onChange={this.handleTextChange}
                                          hint={"It's recommended to use password command instead."}
                     />
@@ -125,13 +138,15 @@ class RepoConfigPanel
                 <LoadingOverlay active={this.state.loading}/>
             </React.Fragment>;
         }
-        return <React.Fragment>{content}</React.Fragment>;
+        return <React.Fragment>{content}{repoError}</React.Fragment>;
     }
 }
 
-RepoConfigPanel
-    .propTypes = {
-    id: PropTypes.string
+RepoConfigPanel.propTypes = {
+    afterCancel: PropTypes.func.isRequired,
+    afterSave: PropTypes.func.isRequired,
+    id: PropTypes.string,
+    repoError: PropTypes.bool
 };
 
 export default RepoConfigPanel;

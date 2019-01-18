@@ -10,10 +10,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 
@@ -67,6 +64,23 @@ public class ReposRest {
         BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(id);
         return JsonUtils.toJson(repoConfig, prettyPrinter);
     }
+
+    @POST
+    @Path("repoConfig")
+    @Produces(MediaType.TEXT_PLAIN)
+    public void setRepoConfig(String jsonConfig) {
+        BorgRepoConfig newRepoConfig = JsonUtils.fromJson(BorgRepoConfig.class, jsonConfig);
+        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(newRepoConfig.getId());
+        if (repoConfig == null) {
+            log.error("Can't find repo config '" + newRepoConfig.getId() + "'. Can't save new settings.");
+            return;
+        }
+        ButlerCache.getInstance().clearRepoCacheAccess(repoConfig.getRepo());
+        ButlerCache.getInstance().clearRepoCacheAccess(newRepoConfig.getRepo());
+        repoConfig.copyFrom(newRepoConfig);
+        ConfigurationHandler.getInstance().save();
+    }
+
 
     /**
      *

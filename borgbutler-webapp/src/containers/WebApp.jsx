@@ -81,7 +81,7 @@ class WebApp extends React.Component {
                                     />
                                 ))
                             }
-                            <Route path={'/repoArchives/:id'} component={RepoArchiveListView}/>
+                            <Route path={'/repoArchives/:id/:displayName'} component={RepoArchiveListView}/>
                             <Route path={'/archives/:repoId/:archiveId'} component={ArchiveView}/>
                         </Switch>
                     </div>

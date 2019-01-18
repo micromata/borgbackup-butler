@@ -18,7 +18,7 @@ class RepoCard extends React.Component {
         let repoText = this.buildItem(null, content);
 
         return <React.Fragment>
-            <Card tag={Link} to={`/repoArchives/${repo.id}`} outline color="success" className={'repo'}
+            <Card tag={Link} to={`/repoArchives/${repo.id}/${repo.displayName}`} outline color="success" className={'repo'}
                   style={{backgroundColor: '#fff'}}>
                 <CardHeader>{repo.displayName}</CardHeader>
                 <CardBody>

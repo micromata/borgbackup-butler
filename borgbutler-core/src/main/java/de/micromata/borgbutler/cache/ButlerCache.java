@@ -124,9 +124,15 @@ public class ButlerCache {
         this.repoCacheAccess.clear();
     }
 
+    public void clearRepoCacheAccess(String repo) {
+        if (this.repoCacheAccess.get(repo) != null) {
+            log.info("Clearing repository cache '" + repo + "'...");
+            this.repoCacheAccess.remove(repo);
+        }
+    }
+
     public void clearRepoCacheAccess(Repository repository) {
-        log.info("Clearing repository cache '" + repository.getName() + "'...");
-        this.repoCacheAccess.remove(repository.getName());
+        clearRepoCacheAccess(repository.getName());
     }
 
     /**
