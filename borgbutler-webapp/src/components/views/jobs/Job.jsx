@@ -68,6 +68,9 @@ class Job extends React.Component {
         } else if (job.status === 'CANCELLED') {
             content = <Progress color={'warning'} value={100}>{job.status}</Progress>
             cancelButton = '';
+        } else if (job.status === 'FAILED') {
+            content = <Progress color={'danger'} value={100}>{job.status}</Progress>
+            cancelButton = '';
         } else if (job.status === 'DONE') {
             content = <Progress color={'success'} value={100}>{job.status}</Progress>
             cancelButton = '';
