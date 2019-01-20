@@ -17,6 +17,7 @@ import LogPage from '../components/views/logging/LogPage';
 import Footer from '../components/views/footer/Footer';
 import {loadVersion} from '../actions';
 import {getTranslation} from '../utilities/i18n';
+import CreateRepoPage from "../components/views/repos/CreateRepoPage";
 
 class WebApp extends React.Component {
 
@@ -83,6 +84,7 @@ class WebApp extends React.Component {
                             }
                             <Route path={'/repoArchives/:id/:displayName'} component={RepoArchiveListView}/>
                             <Route path={'/archives/:repoId/:archiveId'} component={ArchiveView}/>
+                            <Route path={'/repo/new'} component={CreateRepoPage}/>
                         </Switch>
                     </div>
                     <Footer versionInfo={this.props.version}/>
