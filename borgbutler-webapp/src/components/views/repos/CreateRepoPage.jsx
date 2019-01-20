@@ -1,7 +1,14 @@
 import React from 'react';
-import {FormGroup} from 'reactstrap';
 import {Link} from 'react-router-dom'
-import {FormButton, FormField, FormLabelInputField} from '../../general/forms/FormComponents';
+import {
+    FormButton,
+    FormField,
+    FormGroup,
+    FormLabel,
+    FormLabelInputField,
+    FormOption,
+    FormSelect
+} from '../../general/forms/FormComponents';
 import I18n from "../../general/translation/I18n";
 import {PageHeader} from "../../general/BootstrapComponents";
 
@@ -10,8 +17,10 @@ class CreateRepoPage extends React.Component {
     constructor(props) {
         super(props);
         this.handleTextChange = this.handleTextChange.bind(this);
+        this.handleSelectChange = this.handleSelectChange.bind(this);
         this.state = {
-            repoConfig: {}
+            repoConfig: {},
+            mode: 'existingRepo'
         };
     }
 
@@ -20,13 +29,32 @@ class CreateRepoPage extends React.Component {
         this.setState({repoConfig: {...this.state.repoConfig, [event.target.name]: event.target.value}});
     }
 
+    handleSelectChange = event => {
+        event.preventDefault();
+        this.setState({[event.target.name]: event.target.value});
+    }
+
     render() {
         const repoConfig = this.state.repoConfig;
         return <React.Fragment>
             <PageHeader>
                 Configure new repository
             </PageHeader>
-            <FormGroup>
+            <form>
+                <FormGroup>
+                    <FormLabel length={2}>{'Mode'}</FormLabel>
+                    <FormField length={4}>
+                        <FormSelect
+                            value={this.state.mode}
+                            name={'mode'}
+                            onChange={this.handleSelectChange}
+                            hint={'Do you want to add an already existing Borg repository or do you want to create a new one?'}
+                        >
+                            <FormOption label={'Add existing repo'} value={'existingRepo'}/>
+                            <FormOption label={'Create new repo'} value={'newRepo'}/>
+                        </FormSelect>
+                    </FormField>
+                </FormGroup>
                 <FormLabelInputField label={'Display name'} fieldLength={12}
                                      name={'displayName'} value={repoConfig.displayName}
                                      onChange={this.handleTextChange}
@@ -55,13 +83,15 @@ class CreateRepoPage extends React.Component {
                                 hintKey="configuration.save.hint"><I18n name={'common.save'}/>
                     </FormButton>
                 </FormField>
-            </FormGroup>
+            </form>
             <code>
-                <h2>Please note:</h2>
+                <h2> Please
+                    note:</h2>
                 <ul>
-                    <li>Not yet implemented.</li>
-                    <li>This page is under construction.</li>
-                    <li>Please add configuration of repository manually in borg butler json config-file.</li>
+                    <li> Not yet implemented.</li>
+                    <li> This page is under construction.</li>
+                    <li> Please add configuration of repository manually in borg butler json config - file.
+                    </li>
                 </ul>
             </code>
         </React.Fragment>;
