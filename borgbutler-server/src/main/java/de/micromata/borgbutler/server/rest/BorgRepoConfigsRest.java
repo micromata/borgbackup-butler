@@ -4,34 +4,15 @@ import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.JsonUtils;
-import de.micromata.borgbutler.json.borg.BorgRepository;
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 
 @Path("/repoConfig")
 public class BorgRepoConfigsRest {
     private static Logger log = LoggerFactory.getLogger(BorgRepoConfigsRest.class);
-
-    /**
-     * @param prettyPrinter If true then the json output will be in pretty format.
-     * @return A list of repositories of type {@link BorgRepository}.
-     * @see JsonUtils#toJson(Object, boolean)
-     */
-    @GET
-    @Path("list")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getRepoConfigs(@QueryParam("prettyPrinter") boolean prettyPrinter) {
-        List<BorgRepoConfig> repoConfigs = ConfigurationHandler.getConfiguration().getRepoConfigs();
-        if (CollectionUtils.isEmpty(repoConfigs)) {
-            return "[]";
-        }
-        return JsonUtils.toJson(repoConfigs, prettyPrinter);
-    }
 
     /**
      * @param id            id or name of repo.
