@@ -210,7 +210,7 @@ class RepoArchiveListView extends React.Component {
         }
         return <React.Fragment>
             <PageHeader>
-                {pageHeader}
+                <Link to={'/repos'}> Repositories</Link> - {pageHeader}
             </PageHeader>
             <Nav tabs>
                 <NavLink
@@ -240,7 +240,8 @@ class RepoArchiveListView extends React.Component {
                     {content2}
                 </TabPane>
                 <TabPane tabId={'3'}>
-                    <RepoConfigPanel id={this.state.id} afterCancel={this.afterCancel} afterSave={this.afterSave} repoError={this.state.failed}/>
+                    <RepoConfigPanel id={this.state.id} afterCancel={this.afterCancel} afterSave={this.afterSave}
+                                     repoError={this.state.failed}/>
                 </TabPane>
             </TabContent>
         </React.Fragment>;

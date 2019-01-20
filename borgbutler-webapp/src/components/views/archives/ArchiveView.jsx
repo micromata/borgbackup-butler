@@ -72,7 +72,9 @@ class ArchiveView extends React.Component {
             />;
         } else if (this.state.archive) {
             pageHeader = <React.Fragment>
-                <Link to={`/repoArchives/${this.state.repoId}/${archive.repoDisplayName}`}> {archive.repoDisplayName}</Link> - {archive.name}
+                <Link to={'/repos'}> Repositories</Link> -
+                <Link
+                    to={`/repoArchives/${this.state.repoId}/${archive.repoDisplayName}`}> {archive.repoDisplayName}</Link> - {archive.name}
                 <div
                     className={'btn btn-outline-primary refresh-button-right'}
                     onClick={this.toggleModal}
