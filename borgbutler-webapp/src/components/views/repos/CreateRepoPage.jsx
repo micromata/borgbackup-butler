@@ -1,5 +1,6 @@
 import React from 'react';
 import {FormGroup} from 'reactstrap';
+import {Link} from 'react-router-dom'
 import {FormButton, FormField, FormLabelInputField} from '../../general/forms/FormComponents';
 import I18n from "../../general/translation/I18n";
 import {PageHeader} from "../../general/BootstrapComponents";
@@ -48,14 +49,21 @@ class CreateRepoPage extends React.Component {
                                      hint={"It's recommended to use password command instead."}
                 />
                 <FormField length={12}>
-                    <FormButton onClick={this.onCancel}
-                                hintKey="configuration.cancel.hint"><I18n name={'common.cancel'}/>
-                    </FormButton>
+                    <Link to={'/repos'} className={'btn btn-outline-primary'}><I18n name={'common.cancel'}/>
+                    </Link>
                     <FormButton onClick={this.onSave} bsStyle="primary"
                                 hintKey="configuration.save.hint"><I18n name={'common.save'}/>
                     </FormButton>
                 </FormField>
             </FormGroup>
+            <code>
+                <h2>Please note:</h2>
+                <ul>
+                    <li>Not yet implemented.</li>
+                    <li>This page is under construction.</li>
+                    <li>Please add configuration of repository manually in borg butler json config-file.</li>
+                </ul>
+            </code>
         </React.Fragment>;
     }
 }
