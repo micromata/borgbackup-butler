@@ -128,7 +128,7 @@ class ConfigServerTab extends React.Component {
             borgInfoMessage = borgVersion.statusMessage;
         }
         return (
-            <div>
+            <React.Fragment>
                 <form>
                     <FormGroup>
                         <FormLabel>{'Borg command'}</FormLabel>
@@ -182,7 +182,7 @@ class ConfigServerTab extends React.Component {
                                       onChange={this.handleCheckboxChange}/>
                     </FormLabelField>
                 </form>
-            </div>
+            </React.Fragment>
         );
     }
 }
