@@ -61,6 +61,31 @@ public class BorgCommands {
     }
 
     /**
+     * Executes borg init repository.
+     *
+     * @param repoConfig The configuration of the repo config (only repo is required).
+     * @param encryption The encryption value (repokey, repokey-blake2, none, ...).
+     * @return true, if no errors occured, otherwise false.
+     */
+    public static boolean init(BorgRepoConfig repoConfig, String encryption) {
+        BorgCommand command = new BorgCommand()
+                .setRepoConfig(repoConfig)
+                .setCommand("init")
+                //.setParams("--json") // --progress has no effect.
+                .setDescription("Init new repo '" + repoConfig.getDisplayName() + "'.");
+        JobResult<String> jobResult = getResult(command);
+        String result = jobResult != null ? jobResult.getResultObject() : null;
+        // If everything is ok, now String will be returned, result must be blank:
+        if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK || StringUtils.isNotBlank(result)) {
+            log.error("Error while trying to intialize repo '" + repoConfig.getRepo() + "': " + result);
+            return false;
+        }
+        log.error("Error while trying to intialize repo '" + repoConfig.getRepo() + "': " + result);
+        return false;
+    }
+
+
+    /**
      * Executes borg info repository.
      *
      * @param repoConfig
