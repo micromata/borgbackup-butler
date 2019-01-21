@@ -97,7 +97,7 @@ class RepoListView extends React.Component {
             </PageHeader>
             {content}
             <br/>
-            <Link to={'/repo/new'}
+            <Link to={'/repo/configure'}
                   className={'btn btn-outline-primary'}
             >
                 <IconAdd/>

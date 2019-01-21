@@ -13,7 +13,7 @@ import {
 import I18n from "../../general/translation/I18n";
 import {PageHeader} from "../../general/BootstrapComponents";
 
-class CreateRepoPage extends React.Component {
+class ConfigureRepoPage extends React.Component {
 
     constructor(props) {
         super(props);
@@ -109,10 +109,17 @@ class CreateRepoPage extends React.Component {
             ['kwallet', 'KWallet'],
             ['passphrase', 'Passphrase (not recommended)']
         ];
-
+        let repoPlaceHolder = 'Enter the repo used by Borg.';
+        if (this.state.mode === 'initNewRepo') {
+            if (this.state.localRemote === 'local') {
+                repoPlaceHolder = 'Enter the local path of the repo home dir.';
+            } else {
+                repoPlaceHolder = 'Enter the remote path of the repo, such as user@hostname:backup.';
+            }
+        }
         return <React.Fragment>
             <PageHeader>
-                Configure new repository
+                Configure repository
             </PageHeader>
             <form>
                 <FormGroup>
@@ -149,7 +156,7 @@ class CreateRepoPage extends React.Component {
                 <FormLabelInputField label={'Repo'} fieldLength={12}
                                      name={'repo'} value={repoConfig.repo}
                                      onChange={this.handleRepoTextChange}
-                                     placeholder="Enter the name of the repo, used by Borg."/>
+                                     placeholder={repoPlaceHolder}/>
                 <FormLabelInputField label={'RSH'} fieldLength={12}
                                      name={'rsh'} value={repoConfig.rsh}
                                      onChange={this.handleRepoTextChange}
@@ -194,7 +201,7 @@ class CreateRepoPage extends React.Component {
                 <FormLabelInputField label={'Password command'} fieldLength={12}
                                      name={'passwordCommand'} value={repoConfig.passwordCommand}
                                      onChange={this.handleRepoTextChange}
-                                     placeholder="Enter the password command to get the command from."
+                                     placeholder="Enter the password command to get the command from or choose a method above."
                                      className={this.state.passwordMethod === 'passphrase' ? 'hidden' : null}
                 />
                 <FormLabelInputField label={'Password'} fieldLength={6} type={'password'}
@@ -225,5 +232,5 @@ class CreateRepoPage extends React.Component {
     }
 }
 
-export default CreateRepoPage;
+export default ConfigureRepoPage;
 
