@@ -111,12 +111,8 @@ class ConfigureRepoPage extends React.Component {
             ['passphrase', 'Passphrase (not recommended)']
         ];
         let repoPlaceHolder = 'Enter the repo used by Borg.';
-        if (this.state.mode === 'initNewRepo') {
-            if (this.state.localRemote === 'local') {
-                repoPlaceHolder = 'Enter the local path of the repo home dir.';
-            } else {
-                repoPlaceHolder = 'Enter the remote path of the repo, such as user@hostname:backup.';
-            }
+        if (this.state.mode === 'initNewRepo' && this.state.localRemote === 'remote') {
+            repoPlaceHolder = 'Enter the remote path of the repo, such as user@hostname:backup.';
         }
         let repoFieldLength = '10';
         let browseButton = null;
@@ -124,6 +120,7 @@ class ConfigureRepoPage extends React.Component {
             repoFieldLength = '9';
             browseButton = <FormButton onClick={null}
                                        hint={'Browse local backup directory.'}>Browse</FormButton>
+            repoPlaceHolder = 'Enter or browse the local path of the repo home dir used by Borg.';
         }
         return <React.Fragment>
             <PageHeader>
