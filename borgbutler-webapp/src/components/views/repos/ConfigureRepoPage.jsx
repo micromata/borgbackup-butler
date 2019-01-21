@@ -4,6 +4,7 @@ import {
     FormButton,
     FormField,
     FormGroup,
+    FormInput,
     FormLabel,
     FormLabelInputField,
     FormOption,
@@ -117,6 +118,13 @@ class ConfigureRepoPage extends React.Component {
                 repoPlaceHolder = 'Enter the remote path of the repo, such as user@hostname:backup.';
             }
         }
+        let repoFieldLength = '10';
+        let browseButton = null;
+        if (this.state.localRemote === 'local') {
+            repoFieldLength = '9';
+            browseButton = <FormButton onClick={null}
+                                       hint={'Browse local backup directory.'}>Browse</FormButton>
+        }
         return <React.Fragment>
             <PageHeader>
                 Configure repository
@@ -153,10 +161,20 @@ class ConfigureRepoPage extends React.Component {
                                      name={'displayName'} value={repoConfig.displayName}
                                      onChange={this.handleRepoTextChange}
                                      placeholder="Enter display name (only for displaying purposes)."/>
-                <FormLabelInputField label={'Repo'} fieldLength={12}
-                                     name={'repo'} value={repoConfig.repo}
-                                     onChange={this.handleRepoTextChange}
-                                     placeholder={repoPlaceHolder}/>
+                <FormGroup>
+                    <FormLabel length={2}>{'Repo'}</FormLabel>
+                    <FormField length={repoFieldLength}>
+                        <FormInput
+                            id={'repo'}
+                            name={'repo'}
+                            type={'text'}
+                            value={repoConfig.repo}
+                            onChange={this.handleRepoTextChange}
+                            placeholder={repoPlaceHolder}
+                        />
+                    </FormField>
+                    {browseButton}
+                </FormGroup>
                 <FormLabelInputField label={'RSH'} fieldLength={12}
                                      name={'rsh'} value={repoConfig.rsh}
                                      onChange={this.handleRepoTextChange}
@@ -223,9 +241,9 @@ class ConfigureRepoPage extends React.Component {
                     note:</h2>
                 <ul>
                     <li> Not yet implemented.</li>
-                    <li> This page is under construction.</li>
                     <li> Please add configuration of repository manually in borg butler json config - file.</li>
                     <li>Add own environment variables.</li>
+                    <li>Add browse button for local repos.</li>
                 </ul>
             </code>
         </React.Fragment>;
