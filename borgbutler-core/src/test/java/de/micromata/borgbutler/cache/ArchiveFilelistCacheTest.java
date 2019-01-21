@@ -63,7 +63,7 @@ public class ArchiveFilelistCacheTest {
     @Test
     void cleanUpMaximumSizeTest() throws Exception {
         List<BorgFilesystemItem> list = createList(1000000);
-        ArchiveFilelistCache cache = new ArchiveFilelistCache(new File("out"), 3);
+        ArchiveFilelistCache cache = new ArchiveFilelistCache(new File("out"), 5);
         cache.removeAllCacheFiles();
         BorgRepoConfig repoConfig = new BorgRepoConfig();
         repoConfig.setRepo("repo");
