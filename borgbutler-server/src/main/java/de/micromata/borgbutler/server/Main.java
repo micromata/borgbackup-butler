@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -81,7 +82,11 @@ public class Main {
                     return;
                 }
             }
-            RunningMode.setServerType(RunningMode.ServerType.SERVER);
+            if (Desktop.isDesktopSupported()) {
+                RunningMode.setServerType(RunningMode.ServerType.DESKTOP);
+            } else {
+                RunningMode.setServerType(RunningMode.ServerType.SERVER);
+            }
             RunningMode.logMode();
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
