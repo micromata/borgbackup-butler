@@ -2,6 +2,10 @@ body {
     color: #50555f;
 }
 
+.hidden {
+    display: none;
+}
+
 a:hover {
     color: #47a7eb;
 }
