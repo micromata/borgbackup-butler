@@ -6,6 +6,15 @@ body {
     display: none;
 }
 
+.command-line {
+    font-family: monospace;
+    white-space: pre;
+    border-style: solid;
+    background-color: black;
+    color: white;
+    padding-left: 5pt;
+}
+
 a:hover {
     color: #47a7eb;
 }
