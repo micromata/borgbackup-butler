@@ -6,8 +6,7 @@ import {
     FormGroup,
     FormLabel,
     FormLabelInputField,
-    FormOption,
-    FormSelect
+    FormRadioButton
 } from '../../general/forms/FormComponents';
 import I18n from "../../general/translation/I18n";
 import {PageHeader} from "../../general/BootstrapComponents";
@@ -17,10 +16,11 @@ class CreateRepoPage extends React.Component {
     constructor(props) {
         super(props);
         this.handleTextChange = this.handleTextChange.bind(this);
-        this.handleSelectChange = this.handleSelectChange.bind(this);
+        this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
         this.state = {
             repoConfig: {},
-            mode: 'existingRepo'
+            mode: 'existingRepo',
+            localRemote: 'local'
         };
     }
 
@@ -29,8 +29,7 @@ class CreateRepoPage extends React.Component {
         this.setState({repoConfig: {...this.state.repoConfig, [event.target.name]: event.target.value}});
     }
 
-    handleSelectChange = event => {
-        event.preventDefault();
+    handleCheckboxChange = event => {
         this.setState({[event.target.name]: event.target.value});
     }
 
@@ -43,16 +42,28 @@ class CreateRepoPage extends React.Component {
             <form>
                 <FormGroup>
                     <FormLabel length={2}>{'Mode'}</FormLabel>
-                    <FormField length={4}>
-                        <FormSelect
-                            value={this.state.mode}
-                            name={'mode'}
-                            onChange={this.handleSelectChange}
-                            hint={'Do you want to add an already existing Borg repository or do you want to create a new one?'}
-                        >
-                            <FormOption label={'Add existing repo'} value={'existingRepo'}/>
-                            <FormOption label={'Create new repo'} value={'newRepo'}/>
-                        </FormSelect>
+                    <FormField length={10}>
+                        <FormRadioButton name={'mode'} id={'mode1'} label={'Add existing repository'}
+                                         value={'existingRepo'}
+                                         checked={this.state.mode === 'existingRepo'}
+                                         onChange={this.handleCheckboxChange}
+                                         hint={'Do you want to add an already existing Borg repository?'}/>
+                        <FormRadioButton name={'mode'} id={'mode2'} label={'Create new repository'} value={'createRepo'}
+                                         checked={this.state.mode === 'createRepo'}
+                                         onChange={this.handleCheckboxChange}
+                                         hint={'Do you want to create a new one?'}/>
+                    </FormField>
+                </FormGroup>
+                <FormGroup>
+                    <FormLabel length={2}>{'Local/Remote'}</FormLabel>
+                    <FormField length={10}>
+                        <FormRadioButton name={'localRemote'} id={'localRemote1'} label={'Local repository'}
+                                         value={'local'}
+                                         checked={this.state.localRemote === 'local'}
+                                         onChange={this.handleCheckboxChange}/>
+                        <FormRadioButton name={'localRemote'} id={'localRemote2'} label={'Remote repository'} value={'remote'}
+                                         checked={this.state.localRemote === 'remote'}
+                                         onChange={this.handleCheckboxChange}/>
                     </FormField>
                 </FormGroup>
                 <FormLabelInputField label={'Display name'} fieldLength={12}
@@ -66,7 +77,8 @@ class CreateRepoPage extends React.Component {
                 <FormLabelInputField label={'RSH'} fieldLength={12}
                                      name={'rsh'} value={repoConfig.rsh}
                                      onChange={this.handleTextChange}
-                                     placeholder="Enter the rsh value (ssh command) for remote repository."/>
+                                     placeholder="Enter the rsh value (ssh command) for remote repository."
+                                     className={this.state.localRemote === 'local' ? 'hidden' : null}/>
                 <FormLabelInputField label={'Password command'} fieldLength={12}
                                      name={'passwordCommand'} value={repoConfig.passwordCommand}
                                      onChange={this.handleTextChange}
