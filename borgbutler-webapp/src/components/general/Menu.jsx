@@ -54,16 +54,14 @@ class Menu extends React.Component {
     render() {
         return (
             <Navbar className={'fixed-top'} color="light" light expand="lg">
-                <NavbarBrand to="/" tag={ReactRouterNavLink}><img alt={'BorgButler logo'}
-                                                                  src={'../../../images/merlin-icon.png'}
-                                                                  width={'50px'}/>BorgButler</NavbarBrand>
+                <NavbarBrand to="/" tag={ReactRouterNavLink}>
+                    <img alt={'BorgButler logo'} src={'/images/merlin-icon.png'} width={'50px'} />BorgButler
+                </NavbarBrand>
                 <NavbarToggler onClick={this.toggle}/>
                 <Collapse isOpen={this.state.isOpen} navbar>
                     <Nav className="ml-auto" navbar>
                         {
-                            this.props.routes.map((route, index) => (
-                                this.getNavElement(route, index)
-                            ))
+                            this.props.routes.map(this.getNavElement)
                         }
                     </Nav>
                 </Collapse>

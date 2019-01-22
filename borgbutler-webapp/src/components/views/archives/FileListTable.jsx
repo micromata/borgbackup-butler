@@ -24,7 +24,6 @@ function FileListTable({archive, diffArchiveId, entries, search, mode, changeCur
                     entry={entry}
                     search={lowercaseSearch}
                     mode={mode}
-                    changeCurrentDirectory={changeCurrentDirectory}
                     key={index}
                 />)}
             </tbody>
@@ -36,8 +35,7 @@ FileListTable.propTypes = {
     diffArchiveId: PropTypes.string,
     entries: PropTypes.array,
     search: PropTypes.string,
-    mode: PropTypes.string,
-    changeCurrentDirectory: PropTypes.func.isRequired
+    mode: PropTypes.string
 };
 
 FileListTable.defaultProps = {

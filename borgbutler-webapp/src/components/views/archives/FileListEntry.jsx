@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Highlight from 'react-highlighter';
-import {Button, UncontrolledTooltip} from 'reactstrap';
+import {Link} from 'react-router-dom';
+import {UncontrolledTooltip} from 'reactstrap';
 import {IconBan, IconCheck, IconDownload} from '../../general/IconComponents';
 import {getResponseHeaderFilename, getRestServiceUrl, humanFileSize} from '../../../utilities/global';
 import fileDownload from 'js-file-download';
@@ -144,8 +145,11 @@ class FileListEntry extends React.Component {
         }
         let path;
         if (this.props.mode === 'tree' && entry.type === 'd') {
-            path = <Button color={'link'} onClick={() => this.props.changeCurrentDirectory(entry.path)}><Highlight
-                search={this.props.search} id={pathId}>{displayPath}</Highlight></Button>;
+            path = (
+                <Link to={`${displayPath}/`}>
+                    <Highlight search={this.props.search} id={pathId}>{displayPath}</Highlight>
+                </Link>
+            );
         } else {
             path = <Highlight search={this.props.search} id={pathId}>{displayPath}</Highlight>;
         }
@@ -177,13 +181,11 @@ class FileListEntry extends React.Component {
     }
 }
 
-FileListEntry
-    .propTypes = {
+FileListEntry.propTypes = {
     entry: PropTypes.shape({}).isRequired,
     search: PropTypes.string,
     mode: PropTypes.string,
-    diffArchiveId: PropTypes.string,
-    changeCurrentDirectory: PropTypes.func.isRequired
+    diffArchiveId: PropTypes.string
 };
 
 export default FileListEntry;

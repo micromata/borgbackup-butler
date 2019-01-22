@@ -1,10 +1,12 @@
 import React from 'react'
-import {Button, Breadcrumb, BreadcrumbItem} from 'reactstrap';
+import {withRouter} from 'react-router-dom';
+import {Breadcrumb, Button} from 'reactstrap';
 import {getRestServiceUrl} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
 import FileListTable from './FileListTable';
 import FileListFilter from './FileListFilter';
 import JobMonitorPanel from '../jobs/JobMonitorPanel';
+import BreadcrumbPath from './BreadcrumbPath';
 
 class FileListPanel extends React.Component {
 
@@ -20,8 +22,25 @@ class FileListPanel extends React.Component {
         }
     };
 
+    constructor(props) {
+        super(props);
+
+        this.fetchArchiveFileList = this.fetchArchiveFileList.bind(this);
+        this.handleURLChange = this.handleURLChange.bind(this);
+
+        this.unregisterHistoryListener = props.history.listen(this.handleURLChange);
+    }
+
     componentDidMount = () => {
-        this.fetchArchiveFileList(false);
+        this.handleURLChange(this.props.location);
+    };
+
+    componentWillUnmount() {
+        this.unregisterHistoryListener();
+    }
+
+    handleURLChange = location => {
+        this.changeCurrentDirectory(location.pathname.replace(this.props.match.url, '').replace(/^\/|\/$/g, ''));
     };
 
     handleInputChange = (event, callback) => {
@@ -77,7 +96,6 @@ class FileListPanel extends React.Component {
 
     render = () => {
         let content = undefined;
-        let breadcrumb = undefined;
 
         if (this.state.isFetching) {
             content = <JobMonitorPanel repo={this.props.repoId} />;
@@ -97,29 +115,17 @@ class FileListPanel extends React.Component {
                         borg backup server</Button>
                 </React.Fragment>;
             } else {
+                let breadcrumb;
+
                 if (this.state.filter.mode === 'tree' && this.state.filter.currentDirectory.length > 0) {
-                    let dirs = this.state.filter.currentDirectory.split('/');
-                    let breadcrumbs = [];
-                    for (let i = 0; i < dirs.length - 1; i++) {
                         let path = '';
-                        for (let j = 0; j <= i; j++) {
-                            path += dirs[j];
-                            if (j < i) {
-                                path += '/';
-                            }
-                        }
-                        breadcrumbs.push(<BreadcrumbItem key={i}><Button color={'link'} onClick={() => this.changeCurrentDirectory(path)}
-                                                                  >{dirs[i]}</Button></BreadcrumbItem>);
-                    }
-                    breadcrumb = <Breadcrumb>
-                        <BreadcrumbItem><Button color={'link'} onClick={() => this.changeCurrentDirectory('')}
-                                                       >Top</Button></BreadcrumbItem>
-                        {breadcrumbs}
-                        <BreadcrumbItem active>{dirs[dirs.length - 1]}</BreadcrumbItem>
-                    </Breadcrumb>;
-                } else {
-                    breadcrumb = '';
+                    breadcrumb = (
+                        <Breadcrumb>
+                            <BreadcrumbPath match={this.props.match} />
+                        </Breadcrumb>
+                    );
                 }
+
                 content = <React.Fragment>
                     <FileListFilter
                         filter={this.state.filter}
@@ -138,7 +144,7 @@ class FileListPanel extends React.Component {
                         entries={this.state.fileList}
                         search={this.state.filter.search}
                         mode={this.state.filter.mode}
-                        changeCurrentDirectory={this.changeCurrentDirectory}/>
+                    />
                 </React.Fragment>;
             }
         }
@@ -146,12 +152,6 @@ class FileListPanel extends React.Component {
             {content}
         </React.Fragment>;
     };
-
-    constructor(props) {
-        super(props);
-
-        this.fetchArchiveFileList = this.fetchArchiveFileList.bind(this);
-    }
 }
 
-export default FileListPanel;
+export default withRouter(FileListPanel);
