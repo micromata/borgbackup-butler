@@ -241,6 +241,7 @@ class ConfigureRepoPage extends React.Component {
                     <li>Implement browse button for local repos.</li>
                     <li>Note (for new backups): Save your password, otherwise your backup will be lost without!</li>
                     <li>Note (hide password fields): Your backup will not be encrypted!</li>
+                    <li>Remove and clone repo.</li>
                 </ul>
             </code>
         </React.Fragment>;
