@@ -12,11 +12,15 @@ const FormSelect = (props) => {
             {props.hint}
         </UncontrolledTooltip>;
     }
-    const {className, hint, hintPlacement, id, ...other} = props;
+    const {fieldLength, className, hint, hintPlacement, id, ...other} = props;
+    let myClassName = className;
+    if (fieldLength > 0) {
+        myClassName = classNames(`col-sm-${props.fieldLength}`, className);
+    }
     return (
         <React.Fragment>
             <select id={targetId}
-                    className={classNames('custom-select form-control form-control-sm mr-1', className)}
+                    className={classNames('custom-select form-control form-control-sm mr-1', myClassName)}
                     {...other}
             >
                 {props.children}
@@ -31,6 +35,7 @@ FormSelect.propTypes = {
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
     name: PropTypes.string,
     onChange: PropTypes.func,
+    fieldLength: PropTypes.number,
     hint: PropTypes.string,
     hintPlacement: PropTypes.oneOf(['right', 'top']),
     children: PropTypes.node,

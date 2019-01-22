@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import {FormFeedback, Input, UncontrolledTooltip} from 'reactstrap';
 import {FormCheckbox} from "./FormCheckbox";
+import {FormRadioButton} from "./FormRadioButton";
 import {FormButton} from "./FormButton";
-import {FormSelect, FormOption} from "./FormSelect";
+import {FormOption, FormSelect} from "./FormSelect";
 import {revisedRandId} from "../../../utilities/global";
 import I18n from "../translation/I18n";
 
@@ -80,10 +81,14 @@ const FormInput = (props) => {
         </UncontrolledTooltip>;
     }
     const {fieldLength, className, hint, hintPlacement, id, ...other} = props;
+    let myClassName = className;
+    if (fieldLength > 0) {
+        myClassName = classNames(`col-sm-${props.fieldLength}`, className);
+    }
     return (
         <React.Fragment>
             <Input id={targetId}
-                   className={classNames(`col-sm-${props.fieldLength}`, className)}
+                   className={myClassName}
                    {...other}
             />
             {tooltip}
@@ -113,7 +118,6 @@ FormInput.defaultProps = {
     name: '',
     hint: null,
     hintPlacement: 'top',
-    fieldLength: 10,
     value: '',
     min: null,
     max: null,
@@ -158,9 +162,9 @@ FormField.defaultProps = {
 
 
 const FormLabelField = (props) => {
-    const forId = props.children.props.id || props.htmlFor || revisedRandId();
+    const forId = props.children.props.id || props.children.props.name || props.htmlFor || revisedRandId();
     return (
-        <FormGroup>
+        <FormGroup className={props.className}>
             <FormLabel length={props.labelLength} htmlFor={forId}>
                 {props.label}
             </FormLabel>
@@ -173,6 +177,7 @@ const FormLabelField = (props) => {
 
 FormLabelField.propTypes = {
     id: PropTypes.string,
+    className: PropTypes.string,
     htmlFor: PropTypes.string,
     validationMessage: PropTypes.string,
     labelLength: PropTypes.number,
@@ -184,6 +189,7 @@ FormLabelField.propTypes = {
 
 FormLabelField.defaultProps = {
     id: null,
+    className: null,
     htmlFor: null,
     validationMessage: null,
     labelLength: 2,
@@ -202,6 +208,7 @@ const FormLabelInputField = (props) => {
             label={props.label}
             hint={props.hint}
             validationState={props.validationState}
+            className={props.className}
         >
             <FormInput
                 id={props.id}
@@ -224,6 +231,7 @@ const FormLabelInputField = (props) => {
 FormLabelInputField.propTypes = {
     id: PropTypes.string,
     label: PropTypes.node,
+    className: PropTypes.node,
     labelLength: PropTypes.number,
     fieldLength: PropTypes.number,
     hint: PropTypes.string,
@@ -241,6 +249,7 @@ FormLabelInputField.propTypes = {
 
 FormLabelInputField.defaultProps = {
     id: null,
+    className: null,
     label: '',
     labelLength: 2,
     fieldLength: 10,
@@ -291,6 +300,7 @@ export {
     FormSelect,
     FormOption,
     FormCheckbox,
+    FormRadioButton,
     FormLabelInputField,
     FormFieldset,
     FormButton,

@@ -19,15 +19,15 @@ import java.util.List;
 public class ReposRest {
     private static Logger log = LoggerFactory.getLogger(ReposRest.class);
 
-    @GET
-    @Path("list")
-    @Produces(MediaType.APPLICATION_JSON)
     /**
      *
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @return A list of repositories of type {@link BorgRepository}.
      * @see JsonUtils#toJson(Object, boolean)
      */
+    @GET
+    @Path("list")
+    @Produces(MediaType.APPLICATION_JSON)
     public String getList(@QueryParam("prettyPrinter") boolean prettyPrinter) {
         List<Repository> repositories = ButlerCache.getInstance().getAllRepositories();
         if (CollectionUtils.isEmpty(repositories)) {
@@ -36,32 +36,31 @@ public class ReposRest {
         return JsonUtils.toJson(repositories, prettyPrinter);
     }
 
-    @GET
-    @Path("repo")
-    @Produces(MediaType.APPLICATION_JSON)
     /**
      *
      * @param id id or name of repo.
-     * @param force If true, a reload of all repositories is forced.
      * @param prettyPrinter If true then the json output will be in pretty format.
-     * @return Repository (without list of archives) as json string.
+     * @return {@link Repository} (without list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
+    @GET
+    @Path("repo")
+    @Produces(MediaType.APPLICATION_JSON)
     public String getRepo(@QueryParam("id") String id, @QueryParam("prettyPrinter") boolean prettyPrinter) {
         Repository repository = ButlerCache.getInstance().getRepository(id);
         return JsonUtils.toJson(repository, prettyPrinter);
     }
 
-    @GET
-    @Path("repoArchiveList")
-    @Produces(MediaType.APPLICATION_JSON)
     /**
      *
      * @param id id or name of repo.
      * @param prettyPrinter If true then the json output will be in pretty format.
-     * @return Repository (including list of archives) as json string.
+     * @return {@link Repository} (including list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
+    @GET
+    @Path("repoArchiveList")
+    @Produces(MediaType.APPLICATION_JSON)
     public String getRepoArchiveList(@QueryParam("id") String id, @QueryParam("force") boolean force,
                                      @QueryParam("prettyPrinter") boolean prettyPrinter) {
         if (force) {

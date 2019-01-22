@@ -16,8 +16,8 @@ dependencies {
     compile group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC1'
     // Serialization (faster than Java built-in)
 
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.6'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.6'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.8'
 
     compileOnly "org.projectlombok:lombok:1.18.4"
     testCompileOnly "org.projectlombok:lombok:1.18.4"

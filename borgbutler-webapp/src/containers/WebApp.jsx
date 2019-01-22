@@ -17,6 +17,7 @@ import LogPage from '../components/views/logging/LogPage';
 import Footer from '../components/views/footer/Footer';
 import {loadVersion} from '../actions';
 import {getTranslation} from '../utilities/i18n';
+import ConfigureRepoPage from '../components/views/repos/ConfigureRepoPage';
 
 class WebApp extends React.Component {
 
@@ -24,11 +25,11 @@ class WebApp extends React.Component {
 
     componentDidMount = () => {
         this.props.loadVersion();
-        this.interval = setInterval(() => this.fetchJobStatistics(), 5000);
+        this.interval = setInterval(() => this.fetchSystemInfo(), 5000);
     };
 
-    fetchJobStatistics = () => {
-        fetch(getRestServiceUrl('jobs/statistics'), {
+    fetchSystemInfo = () => {
+        fetch(getRestServiceUrl('system/info'), {
             method: 'GET',
             headers: {
                 'Accept': 'application/json'
@@ -37,7 +38,7 @@ class WebApp extends React.Component {
             .then(response => response.json())
             .then(json => {
                 this.setState({
-                    statistics: json
+                    systemInfo: json
                 });
             })
             .catch();
@@ -45,15 +46,20 @@ class WebApp extends React.Component {
 
     render() {
         let jobsBadge = '';
-        if (this.state && this.state.statistics && this.state.statistics.numberOfRunningAndQueuedJobs > 0) {
-            jobsBadge = <Badge color="danger" pill>{this.state.statistics.numberOfRunningAndQueuedJobs}</Badge>;
+        const statistics = (this.state && this.state.systemInfo) ? this.state.systemInfo.queueStatistics : null;
+        if (statistics && statistics.numberOfRunningAndQueuedJobs > 0) {
+            jobsBadge = <Badge color="danger" pill>{statistics.numberOfRunningAndQueuedJobs}</Badge>;
+        }
+        let configurationBadge = '';
+        if (this.state && this.state.systemInfo && !this.state.systemInfo.configurationOK) {
+            configurationBadge = <Badge color="danger" pill>!</Badge>;
         }
         let routes = [
             ['Start', '/', Start],
             ['Repositories', '/repos', RepoListView],
             ['Job monitor', '/jobmonitor', JobMonitorView, {badge: jobsBadge}],
             [getTranslation('logviewer'), '/logging', LogPage],
-            [getTranslation('configuration'), '/config', ConfigurationPage]
+            [getTranslation('configuration'), '/config', ConfigurationPage, {badge: configurationBadge}]
         ];
 
         if (isDevelopmentMode()) {
@@ -76,8 +82,9 @@ class WebApp extends React.Component {
                                     />
                                 ))
                             }
-                            <Route path={'/repoArchives/:id'} component={RepoArchiveListView}/>
+                            <Route path={'/repoArchives/:id/:displayName'} component={RepoArchiveListView} />
                             <Route path={'/archives/:repoId/:archiveId/'} component={ArchiveView} />
+                            <Route path={'/repo/configure'} component={ConfigureRepoPage} />
                         </Switch>
                     </div>
                     <Footer versionInfo={this.props.version}/>

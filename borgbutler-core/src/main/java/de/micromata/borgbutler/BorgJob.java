@@ -52,7 +52,12 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
         if (command == null) {
             return null;
         }
-        CommandLine commandLine = new CommandLine(ConfigurationHandler.getConfiguration().getBorgCommand());
+        String borgCommand = ConfigurationHandler.getConfiguration().getBorgCommand();
+        if (StringUtils.isBlank(borgCommand)) {
+            log.error("Can't run empty borg command.");
+            return null;
+        }
+        CommandLine commandLine = new CommandLine(borgCommand);
         commandLine.addArgument(command.getCommand());
         if (command.getParams() != null) {
             for (String param : command.getParams()) {
@@ -101,7 +106,7 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
 
     @Override
     public JobResult<String> execute() {
-        if (DemoRepos.isDemo(command.getRepoConfig().getRepo())) {
+        if (command.getRepoConfig() != null && DemoRepos.isDemo(command.getRepoConfig().getRepo())) {
             return DemoRepos.execute(this);
         }
         return super.execute();
@@ -125,6 +130,9 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
         if (progressInfo != null) {
             clone.setProgressInfo(progressInfo.clone());
         }
+        clone.setCreateTime(getCreateTime());
+        clone.setStartTime(getStartTime());
+        clone.setStopTime(getStopTime());
         return clone;
     }
 

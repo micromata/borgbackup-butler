@@ -18,9 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class DemoRepos {
     private enum Type {FAST, SLOW, VERY_SLOW}
@@ -36,13 +34,37 @@ public class DemoRepos {
      *
      * @param repositoryList
      */
-    public static void addDemoRepos(List<BorgRepoConfig> repositoryList) {
+    public static void handleDemoRepos(List<BorgRepoConfig> repositoryList) {
         if (!ConfigurationHandler.getConfiguration().isShowDemoRepos()) {
+            // Remove any demo repository if exist due to former settings:
+            Iterator<BorgRepoConfig> it = repositoryList.iterator();
+            while(it.hasNext()) {
+                BorgRepoConfig repoConfig = it.next();
+                if (!StringUtils.startsWith(repoConfig.getRepo(), DEMO_IDENTIFIER)) {
+                    continue;
+                }
+                it.remove();
+            }
             return;
         }
         init();
         for (BorgRepoConfig repo : demoRepos) {
-            repositoryList.add(repo);
+            if (!repositoryList.contains(repo))
+                repositoryList.add(repo);
+        }
+        // Remove duplicate entries (produced by former versions of BorgButler:
+        Set<String> set = new HashSet<>();
+        Iterator<BorgRepoConfig> it = repositoryList.iterator();
+        while(it.hasNext()) {
+            BorgRepoConfig repoConfig = it.next();
+            if (!StringUtils.startsWith(repoConfig.getRepo(), DEMO_IDENTIFIER)) {
+                continue;
+            }
+            if (set.contains(repoConfig.getRepo())) {
+                it.remove();
+            } else {
+                set.add(repoConfig.getRepo());
+            }
         }
     }
 

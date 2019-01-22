@@ -3,6 +3,8 @@ package de.micromata.borgbutler.server.rest;
 import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.JsonUtils;
+import de.micromata.borgbutler.server.BorgInstallation;
+import de.micromata.borgbutler.server.BorgVersion;
 import de.micromata.borgbutler.server.ServerConfiguration;
 import de.micromata.borgbutler.server.user.UserData;
 import de.micromata.borgbutler.server.user.UserManager;
@@ -17,14 +19,14 @@ import javax.ws.rs.core.MediaType;
 public class ConfigurationRest {
     private Logger log = LoggerFactory.getLogger(ConfigurationRest.class);
 
-    @GET
-    @Path("config")
-    @Produces(MediaType.APPLICATION_JSON)
     /**
      *
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @see JsonUtils#toJson(Object, boolean)
      */
+    @GET
+    @Path("config")
+    @Produces(MediaType.APPLICATION_JSON)
     public String getConfig(@QueryParam("prettyPrinter") boolean prettyPrinter) {
         String json = JsonUtils.toJson(ServerConfiguration.get(), prettyPrinter);
         return json;
@@ -37,18 +39,20 @@ public class ConfigurationRest {
         ConfigurationHandler configurationHandler = ConfigurationHandler.getInstance();
         ServerConfiguration config = (ServerConfiguration)configurationHandler.getConfiguration();
         ServerConfiguration srcConfig = JsonUtils.fromJson(ServerConfiguration.class, jsonConfig);
+        BorgVersion oldBorgVersion = config.getBorgVersion();
         config.copyFrom(srcConfig);
+        BorgInstallation.getInstance().configure(oldBorgVersion);
         configurationHandler.save();
     }
 
-    @GET
-    @Path("user")
-    @Produces(MediaType.APPLICATION_JSON)
     /**
      *
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @see JsonUtils#toJson(Object, boolean)
      */
+    @GET
+    @Path("user")
+    @Produces(MediaType.APPLICATION_JSON)
     public String getUser(@QueryParam("prettyPrinter") boolean prettyPrinter) {
         UserData user = RestUtils.getUser();
         String json = JsonUtils.toJson(user, prettyPrinter);

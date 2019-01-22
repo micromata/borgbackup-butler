@@ -20,9 +20,6 @@ import java.util.Map;
 public class I18nRest {
     private Logger log = LoggerFactory.getLogger(I18nRest.class);
 
-    @GET
-    @Path("list")
-    @Produces(MediaType.APPLICATION_JSON)
     /**
      *
      * @param requestContext For detecting the user's client locale.
@@ -31,6 +28,9 @@ public class I18nRest {
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @see JsonUtils#toJson(Object, boolean)
      */
+    @GET
+    @Path("list")
+    @Produces(MediaType.APPLICATION_JSON)
     public String getList(@Context HttpServletRequest requestContext, @QueryParam("prettyPrinter") boolean prettyPrinter,
                           @QueryParam("keysOnly") boolean keysOnly, @QueryParam("locale") String locale) {
         Locale localeObject;

@@ -18,6 +18,7 @@ public class ServerConfiguration extends Configuration {
 
     private int port = WEBSERVER_PORT_DEFAULT;
     private boolean webDevelopmentMode = WEB_DEVELOPMENT_MODE_PREF_DEFAULT;
+    private BorgVersion borgVersion = new BorgVersion();
     @JsonProperty
     public String getCacheDir() {
         return ButlerCache.getInstance().getCacheDir().getAbsolutePath();
@@ -29,6 +30,17 @@ public class ServerConfiguration extends Configuration {
 
     public static String[] getSupportedLanguages() {
         return SUPPORTED_LANGUAGES;
+    }
+
+    /**
+     * @return a clone of this.borgVersion.
+     */
+    public BorgVersion getBorgVersion() {
+        return new BorgVersion().copyFrom(borgVersion);
+    }
+
+    BorgVersion _getBorgVersion() {
+        return this.borgVersion;
     }
 
     public static String getApplicationHome() {
@@ -65,5 +77,7 @@ public class ServerConfiguration extends Configuration {
         super.copyFrom(other);
         this.port = other.port;
         this.webDevelopmentMode = other.webDevelopmentMode;
+        this.borgVersion.copyFrom(other.borgVersion);
+        this.setBorgCommand(this.borgVersion.getBorgCommand());
     }
 }

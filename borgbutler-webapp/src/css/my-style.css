@@ -2,6 +2,19 @@ body {
     color: #50555f;
 }
 
+.hidden {
+    display: none;
+}
+
+.command-line {
+    font-family: monospace;
+    white-space: pre;
+    border-style: solid;
+    background-color: black;
+    color: white;
+    padding-left: 5pt;
+}
+
 a:hover {
     color: #47a7eb;
 }
@@ -173,6 +186,10 @@ label.custom-control-label {
 ul.nav-tabs .nav-link:hover {
     cursor: pointer;
     color: #47a7eb;
+}
+
+ul.nav-tabs a.active {
+    font-weight: bold;
 }
 
 .tab-pane.active {

@@ -38,6 +38,15 @@ public class JsonJob {
     @Getter
     @Setter
     private String[] environmentVariables;
+    @Getter
+    @Setter
+    private String createTime;
+    @Getter
+    @Setter
+    private String startTime;
+    @Getter
+    @Setter
+    private String stopTime;
 
     public JsonJob() {
     }
@@ -55,6 +64,9 @@ public class JsonJob {
         this.commandLineAsString = borgJob.getCommandLineAsString();
         this.description = borgJob.getDescription();
         environmentVariables = borgJob.getCommand().getRepoConfig().getEnvironmentVariables();
+        this.createTime = borgJob.getCreateTime();
+        this.startTime = borgJob.getStartTime();
+        this.stopTime = borgJob.getStopTime();
     }
 
     /**

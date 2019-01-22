@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class JobQueue<T> {
-    private static final int MAX_OLD_JOBS_SIZE = 50;
+    private static final int MAX_OLD_JOBS_SIZE = 10;
     private static long jobSequence = 0;
     private Logger log = LoggerFactory.getLogger(JobQueue.class);
     private List<AbstractJob<T>> queue = new ArrayList<>();
@@ -40,6 +40,12 @@ public class JobQueue<T> {
     public Iterator<AbstractJob<T>> getQueueIterator() {
         synchronized (queue) {
             return Collections.unmodifiableList(queue).iterator();
+        }
+    }
+
+    public Iterator<AbstractJob<T>> getOldJobsIterator() {
+        synchronized (oldJobs) {
+            return Collections.unmodifiableList(oldJobs).iterator();
         }
     }
 

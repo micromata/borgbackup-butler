@@ -24,9 +24,13 @@ public class Configuration {
     @JsonIgnore
     @Setter(AccessLevel.PACKAGE)
     private File workingDir;
-
+    /**
+     * The path of the borg command to use.
+     */
     @Getter
-    private String borgCommand = "borg";
+    @Setter
+    private String borgCommand;
+
     /**
      * Default is 100 MB (approximately).
      */
@@ -85,13 +89,8 @@ public class Configuration {
     }
 
     public List<BorgRepoConfig> getRepoConfigs() {
-        if (!ConfigurationHandler.getConfiguration().isShowDemoRepos()) {
-            return repoConfigs;
-        }
-        List<BorgRepoConfig> result = new ArrayList<>();
-        result.addAll(repoConfigs);
-        DemoRepos.addDemoRepos(result);
-        return result;
+        DemoRepos.handleDemoRepos(repoConfigs);
+        return repoConfigs;
     }
 
     List<BorgRepoConfig> _getRepoConfigs() {

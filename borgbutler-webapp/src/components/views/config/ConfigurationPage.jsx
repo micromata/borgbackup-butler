@@ -8,6 +8,7 @@ import classNames from "classnames";
 import ConfigAccountTab from "./ConfigurationAccountTab";
 import ConfigServerTab from "./ConfigurationServerTab";
 import LoadingOverlay from '../../general/loading/LoadingOverlay';
+import ConfirmModal from '../../general/modal/ConfirmModal';
 
 class ConfigurationPage
     extends React
@@ -20,11 +21,13 @@ class ConfigurationPage
         this.state = {
             activeTab: '1',
             loading: false,
-            reload: false
+            reload: false,
+            confirmModal: false
         };
 
         this.onSave = this.onSave.bind(this);
         this.onCancel = this.onCancel.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
     }
 
     toggleTab = tab => () => {
@@ -58,6 +61,12 @@ class ConfigurationPage
         this.setReload();
     }
 
+    toggleModal() {
+        this.setState({
+            confirmModal: !this.state.confirmModal
+        })
+    }
+
     render() {
         // https://codepen.io/_arpy/pen/xYoyPW
         if (this.state.reload) {
@@ -65,6 +74,17 @@ class ConfigurationPage
         }
         return (
             <React.Fragment>
+                <ConfirmModal
+                    onConfirm={ConfigServerTab.clearAllCaches}
+                    title={'Are you sure?'}
+                    toggle={this.toggleModal}
+                    open={this.state.confirmModal}
+                >
+                    Do you really want to clear all caches? All Archive file lists and caches for repo and archive
+                    information will be cleared.
+                    <br/>
+                    This is a safe option but it may take some time to re-fill the caches (on demand) again.
+                </ConfirmModal>
                 <PageHeader><I18n name={'configuration'}/></PageHeader>
                 <Nav tabs>
                     <NavLink
@@ -92,6 +112,8 @@ class ConfigurationPage
                 </TabContent>
                 <FormGroup>
                     <FormField length={12}>
+                        <FormButton id={'clearAllCaches'} onClick={this.toggleModal}> Clear all caches
+                        </FormButton>
                         <FormButton onClick={this.onCancel}
                                     hintKey="configuration.cancel.hint"><I18n name={'common.cancel'}/>
                         </FormButton>

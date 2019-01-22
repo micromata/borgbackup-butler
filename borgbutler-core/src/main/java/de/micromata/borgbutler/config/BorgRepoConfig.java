@@ -1,6 +1,5 @@
 package de.micromata.borgbutler.config;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +28,6 @@ public class BorgRepoConfig {
     private String passwordCommand;
     @Getter
     @Setter
-    @JsonIgnore
     private String id;
 
     public String[] getEnvironmentVariables() {
@@ -51,4 +49,11 @@ public class BorgRepoConfig {
         if (StringUtils.isBlank(value)) return;
         list.add(variable + "=" + value);
     }
+
+   public void copyFrom(BorgRepoConfig other) {
+        this.displayName = other.displayName;
+        this.repo = other.repo;
+        this.passphrase = other.passphrase;
+        this.passwordCommand = other.passwordCommand;
+   }
 }

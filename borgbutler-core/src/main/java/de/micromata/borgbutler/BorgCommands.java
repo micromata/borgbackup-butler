@@ -10,6 +10,7 @@ import de.micromata.borgbutler.json.borg.*;
 import de.micromata.borgbutler.utils.DateUtils;
 import de.micromata.borgbutler.utils.ReplaceUtils;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,14 +36,54 @@ public class BorgCommands {
         BorgCommand command = new BorgCommand()
                 .setParams("--version")
                 .setDescription("Getting borg version.");
-        JobResult<String> jobResult = getResult(command);
+
+        BorgJob<String> job = new BorgJob<>(command);
+        JobResult<String> jobResult = job.execute();
         if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
             return null;
         }
-        String version = jobResult.getResultObject();
+        String origVersion = jobResult.getResultObject();
+        String version = origVersion;
+        String[] strs = StringUtils.split(origVersion);
+        if (strs != null) {
+            if (!StringUtils.containsIgnoreCase(origVersion, "borg")) {
+                version = "";
+            } else {
+                version = strs[strs.length - 1]; // Work arround: borg returns "borg-macosx64 1.1.8" as version string (command is included).
+            }
+        }
+        if (version.length() == 0 || !Character.isDigit(version.charAt(0))) {
+            log.error("Version string returned by '" + job.getCommandLineAsString() + "' not as expected (not borg?): " + origVersion);
+            return null;
+        }
         log.info("Borg version: " + version);
         return version;
     }
+
+    /**
+     * Executes borg init repository.
+     *
+     * @param repoConfig The configuration of the repo config (only repo is required).
+     * @param encryption The encryption value (repokey, repokey-blake2, none, ...).
+     * @return true, if no errors occured, otherwise false.
+     */
+    public static boolean init(BorgRepoConfig repoConfig, String encryption) {
+        BorgCommand command = new BorgCommand()
+                .setRepoConfig(repoConfig)
+                .setCommand("init")
+                //.setParams("--json") // --progress has no effect.
+                .setDescription("Init new repo '" + repoConfig.getDisplayName() + "'.");
+        JobResult<String> jobResult = getResult(command);
+        String result = jobResult != null ? jobResult.getResultObject() : null;
+        // If everything is ok, now String will be returned, result must be blank:
+        if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK || StringUtils.isNotBlank(result)) {
+            log.error("Error while trying to intialize repo '" + repoConfig.getRepo() + "': " + result);
+            return false;
+        }
+        log.error("Error while trying to intialize repo '" + repoConfig.getRepo() + "': " + result);
+        return false;
+    }
+
 
     /**
      * Executes borg info repository.
@@ -176,8 +217,9 @@ public class BorgCommands {
         // The returned job might be an already queued or running one!
         final ProgressInfo progressInfo = new ProgressInfo()
                 .setMessage("Getting file list...")
-                .setCurrent(0)
-                .setTotal(archive.getStats().getNfiles());
+                .setCurrent(0);
+        if (archive.getStats() != null) // Occurs only for demo repos.
+            progressInfo.setTotal(archive.getStats().getNfiles());
         BorgJob<List<BorgFilesystemItem>> job = BorgQueueExecutor.getInstance().execute(new BorgJob<List<BorgFilesystemItem>>(command) {
             @Override
             public void processStdOutLine(String line, int level) {

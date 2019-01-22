@@ -8,3 +8,11 @@
     width: calc(100% - 3em);
     margin-top: -10px;
 }
+
+.job-progress div.progress {
+    margin: 0 .75rem .375rem;
+}
+
+.onclick {
+    cursor: pointer;
+}

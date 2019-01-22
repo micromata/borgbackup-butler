@@ -1,11 +1,12 @@
 import React from 'react'
+import {Link} from 'react-router-dom'
 import './RepoListView.css';
 import {CardDeck} from 'reactstrap';
 import {PageHeader} from '../../general/BootstrapComponents';
 import {getRestServiceUrl} from '../../../utilities/global';
 import ErrorAlert from '../../general/ErrorAlert';
 import RepoCard from './RepoCard';
-import {IconRefresh} from "../../general/IconComponents";
+import {IconAdd, IconRefresh} from "../../general/IconComponents";
 
 class RepoListView extends React.Component {
 
@@ -73,12 +74,12 @@ class RepoListView extends React.Component {
 
             content = <React.Fragment>
                 <CardDeck>
-                {this.state.repos.map(repo => {
-                    return <RepoCard
-                        key={repo.id}
-                        repo={repo}
-                    />;
-                })}
+                    {this.state.repos.map(repo => {
+                        return <RepoCard
+                            key={repo.id}
+                            repo={repo}
+                        />;
+                    })}
                 </CardDeck>
             </React.Fragment>;
 
@@ -95,6 +96,12 @@ class RepoListView extends React.Component {
                 </div>
             </PageHeader>
             {content}
+            <br/>
+            <Link to={'/repo/configure'}
+                  className={'btn btn-outline-primary'}
+            >
+                <IconAdd/>
+            </Link>
         </React.Fragment>;
     };
 
