@@ -118,7 +118,6 @@ class FileListPanel extends React.Component {
                 let breadcrumb;
 
                 if (this.state.filter.mode === 'tree' && this.state.filter.currentDirectory.length > 0) {
-                        let path = '';
                     breadcrumb = (
                         <Breadcrumb>
                             <BreadcrumbPath match={this.props.match} />
