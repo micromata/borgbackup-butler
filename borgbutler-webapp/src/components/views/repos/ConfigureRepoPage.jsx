@@ -49,7 +49,7 @@ class ConfigureRepoPage extends React.Component {
                     </div>
                 </React.Fragment>;
             } else if (value === 'macos-keychain') {
-                passwordCommand = 'security find-generic-password -a $USER -s borg-passphrase';
+                passwordCommand = 'security find-generic-password -a $USER -s borg-passphrase -w';
                 passwordCreate = <React.Fragment>
                     Generate a passphrase and use security to save it to your login (default) keychain:<br/>
                     <div className="command-line">security add-generic-password -D secret -U -a $USER -s borg-passphrase
