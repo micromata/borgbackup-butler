@@ -2,6 +2,8 @@ import React from 'react';
 import {Link, Route} from 'react-router-dom';
 import {BreadcrumbItem} from 'reactstrap';
 
+// Attention: Recursive Call
+// https://reacttraining.com/react-router/web/example/recursive-paths
 function BreadcrumbPath({match}) {
     return (
         <React.Fragment>
@@ -13,11 +15,6 @@ function BreadcrumbPath({match}) {
             <Route
                 path={`${match.url}/:path`}
                 component={BreadcrumbPath}
-                /*
-                render={props =>
-                    <BreadcrumbPath {...props} match={match} changeCurrentDirectory={changeCurrentDirectory} />
-                }
-                */
             />
         </React.Fragment>
     )

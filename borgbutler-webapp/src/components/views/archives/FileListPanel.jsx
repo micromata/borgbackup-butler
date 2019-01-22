@@ -40,6 +40,7 @@ class FileListPanel extends React.Component {
     }
 
     handleURLChange = location => {
+        // Replacing matched URL(archiveId, repoId) and removing trailing slashes
         this.changeCurrentDirectory(location.pathname.replace(this.props.match.url, '').replace(/^\/|\/$/g, ''));
     };
 
