@@ -114,10 +114,10 @@ class ConfigureRepoPage extends React.Component {
         if (this.state.mode === 'initNewRepo' && this.state.localRemote === 'remote') {
             repoPlaceHolder = 'Enter the remote path of the repo, such as user@hostname:backup.';
         }
-        let repoFieldLength = '10';
+        let repoFieldLength = 10;
         let browseButton = null;
         if (this.state.localRemote === 'local') {
-            repoFieldLength = '9';
+            repoFieldLength = 9;
             browseButton = <FormButton onClick={null}
                                        hint={'Browse local backup directory.'}>Browse</FormButton>
             repoPlaceHolder = 'Enter or browse the local path of the repo home dir used by Borg.';
@@ -195,7 +195,7 @@ class ConfigureRepoPage extends React.Component {
                 </FormGroup>
                 <FormGroup>
                     <FormLabel length={2}>{'Password method'}</FormLabel>
-                    <FormField length={2}>
+                    <FormField length={3}>
                         <FormSelect
                             value={this.state.passwordMethod}
                             name={'passwordMethod'}
@@ -208,7 +208,7 @@ class ConfigureRepoPage extends React.Component {
                     </FormField>
                 </FormGroup>
                 <FormGroup className={!this.state.passwordCreate ? 'hidden' : null}>
-                    <FormLabel length={2}>{'Create info'}</FormLabel>
+                    <FormLabel length={2}>{'Passphrase creation info'}</FormLabel>
                     <FormField length={10}>
                         {this.state.passwordCreate}
                     </FormField>
@@ -234,13 +234,13 @@ class ConfigureRepoPage extends React.Component {
                 </FormField>
             </form>
             <code>
-                <h2> Please
-                    note:</h2>
+                <h2>Todo:</h2>
                 <ul>
-                    <li> Not yet implemented.</li>
-                    <li> Please add configuration of repository manually in borg butler json config - file.</li>
+                    <li>Implement 'Save' button ;-)</li>
                     <li>Add own environment variables.</li>
-                    <li>Add browse button for local repos.</li>
+                    <li>Implement browse button for local repos.</li>
+                    <li>Note (for new backups): Save your password, otherwise your backup will be lost without!</li>
+                    <li>Note (hide password fields): Your backup will not be encrypted!</li>
                 </ul>
             </code>
         </React.Fragment>;
