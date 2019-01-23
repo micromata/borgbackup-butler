@@ -18,7 +18,9 @@ class FileListPanel extends React.Component {
             mode: 'tree',
             currentDirectory: '',
             maxSize: '50',
-            diffArchiveId: ''
+            diffArchiveId: '',
+            autoChangeDirectoryToLeafItem: true,
+            openDownloads: true
         }
     };
 
@@ -58,6 +60,10 @@ class FileListPanel extends React.Component {
             });
     };
 
+    handleCheckboxChange = event => {
+        this.setState({filter: {...this.state.filter, [event.target.name]: event.target.checked}});
+    }
+
     changeCurrentDirectory = (currentDirectory) => {
         this.setState({filter: {...this.state.filter, currentDirectory: currentDirectory}},
             () => {
@@ -78,7 +84,8 @@ class FileListPanel extends React.Component {
             mode: this.state.filter.mode,
             currentDirectory: this.state.filter.currentDirectory,
             maxResultSize: this.state.filter.maxSize,
-            diffArchive: this.state.filter.diffArchive
+            diffArchive: this.state.filter.diffArchive,
+            autoChangeDirectoryToLeafItem: this.state.filter.autoChangeDirectoryToLeafItem
         }), {
             method: 'GET',
             headers: {
@@ -87,9 +94,15 @@ class FileListPanel extends React.Component {
         })
             .then(response => response.json())
             .then(json => {
+                let currentDirectory = this.state.filter.currentDirectory;
+                const fileList = json;
+                if (fileList && fileList.length > 0) {
+                    currentDirectory = fileList[0].path.replace(fileList[0].displayPath, '');
+                }
                 this.setState({
                     isFetching: false,
-                    fileList: json
+                    fileList: fileList,
+                    filter: {...this.state.filter, currentDirectory: currentDirectory}
                 })
             })
             .catch(() => this.setState({isFetching: false, failed: true}));
@@ -117,7 +130,6 @@ class FileListPanel extends React.Component {
                 </React.Fragment>;
             } else {
                 let breadcrumb;
-
                 if (this.state.filter.mode === 'tree' && this.state.filter.currentDirectory.length > 0) {
                     breadcrumb = (
                         <Breadcrumb>
@@ -130,6 +142,7 @@ class FileListPanel extends React.Component {
                     <FileListFilter
                         filter={this.state.filter}
                         changeFilter={this.handleInputChange}
+                        changeFilterCheckbox={this.handleCheckboxChange}
                         reload={(event) => {
                             event.preventDefault();
                             this.fetchArchiveFileList();
@@ -141,6 +154,7 @@ class FileListPanel extends React.Component {
                     <FileListTable
                         archive={this.props.archive}
                         diffArchiveId={this.state.filter.diffArchiveId}
+                        openDownloads={this.state.filter.openDownloads}
                         entries={this.state.fileList}
                         search={this.state.filter.search}
                         mode={this.state.filter.mode}

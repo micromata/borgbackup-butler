@@ -422,6 +422,26 @@ div.progress {
     background-color: #bbbbbb;
 }
 
+.dropdown-menu {
+    width: 300px;
+    justify-content: left;
+}
+
+.dropdown-menu label {
+    justify-content: left;
+}
+
+.dropdown-menu .label {
+    width: 130px;
+    float: left;
+    padding-top: 10px;
+}
+
+.dropdown-menu .value {
+    width: 150px;
+    clear: right;
+}
+
 /* @media only screen and (max-width: 1050px) {
 	.navbar.navbar-light a.nav-link {
 		font-size: 0.8rem;

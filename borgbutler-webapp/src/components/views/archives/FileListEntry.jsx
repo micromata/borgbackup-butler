@@ -23,7 +23,8 @@ class FileListEntry extends React.Component {
         }
         fetch(getRestServiceUrl('archives/restore', {
             archiveId: archiveId,
-            fileNumber: fileNumber
+            fileNumber: fileNumber,
+            openDownloads: this.props.openDownloads
         }))
             .then(response => {
                 if (response.status === 202) { // ACCEPTED
@@ -185,7 +186,8 @@ FileListEntry.propTypes = {
     entry: PropTypes.shape({}).isRequired,
     search: PropTypes.string,
     mode: PropTypes.string,
-    diffArchiveId: PropTypes.string
+    diffArchiveId: PropTypes.string,
+    openDownloads: PropTypes.bool
 };
 
 export default FileListEntry;
