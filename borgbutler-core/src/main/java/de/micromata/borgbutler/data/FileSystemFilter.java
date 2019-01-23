@@ -18,6 +18,14 @@ public class FileSystemFilter {
     private String searchString;
     @Getter
     private Mode mode;
+    /**
+     * If true (default): Step in tree view automatically recursively into sub directory if only one sub directory exists in
+     * current directory. If false, also a single directory of the current directory is displayed.<br>
+     * Has no effect in flat mode.
+     */
+    @Getter
+    @Setter
+    private boolean autoChangeDirectoryToLeafItem = true;
     @Getter
     private String currentDirectory;
     // For storing sub directories of the currentDirectory
@@ -89,16 +97,16 @@ public class FileSystemFilter {
      * <br>
      * Reorders the list (.files will be displayed after normal files).
      *
-     * @param list
+     * @param origList
      * @return The original list for mode {@link Mode#FLAT} or the reduced list for the tree view.
      */
-    public List<BorgFilesystemItem> reduce(List<BorgFilesystemItem> list) {
+    public List<BorgFilesystemItem> reduce(List<BorgFilesystemItem> origList) {
         if (mode != FileSystemFilter.Mode.TREE) {
-            return list;
+            return origList;
         }
         Set<String> set = new HashSet<>();
-        List<BorgFilesystemItem> list2 = list;
-        list = new ArrayList<>();
+        List<BorgFilesystemItem> list2 = origList;
+        List<BorgFilesystemItem> list = new ArrayList<>();
         for (BorgFilesystemItem item : list2) {
             String topLevel = getTopLevel(item.getPath());
             if (topLevel == null) {
@@ -129,6 +137,16 @@ public class FileSystemFilter {
             if (item.getDisplayPath().startsWith(".")) {
                 list.add(item);
             }
+        }
+        if (autoChangeDirectoryToLeafItem && list.size() == 1 && "d".equals(list.get(0).getType())) {
+            // Only one sub directory is displayed, so change directory automatically to this sub directory:
+            FileSystemFilter filter = this.clone();
+            filter.setCurrentDirectory(list.get(0).getPath());
+            for (BorgFilesystemItem item: origList) {
+                filter.matches(item);
+            }
+            return filter.reduce(origList);
+            // TODO: Doesn't work because origList doesn't contain all children recursively! Check, why?
         }
         return list;
     }
@@ -193,11 +211,13 @@ public class FileSystemFilter {
         }
         if (!subDirectories.containsKey(topLevelDir)) {
             if (!item.getPath().endsWith(topLevelDir)) {
+                String currentDir = this.currentDirectory;
                 // Mount point? Top level was not received from Borg as separate item. Create a synthetic one (without file number):
                 BorgFilesystemItem syntheticItem = new BorgFilesystemItem()
-                        .setPath(topLevelDir)
+                        .setPath(currentDir + topLevelDir)
                         .setDisplayPath(topLevelDir)
                         .setType("d");
+                // TODO: Register synthetic sub directories if exist (see failure of FileSystemFilterTest).
                 subDirectories.put(topLevelDir, syntheticItem);
             } else {
                 subDirectories.put(topLevelDir, item);
@@ -219,22 +239,26 @@ public class FileSystemFilter {
      * the current directory.
      */
     String getTopLevel(String path) {
-        if (StringUtils.isEmpty(currentDirectory)) {
+        return getTopLevel(this.currentDirectory, path);
+    }
+
+    String getTopLevel(String currentDir, String path) {
+        if (StringUtils.isEmpty(currentDir)) {
             int pos = path.indexOf('/');
             if (pos < 0) {
                 return path;
             }
             return path.substring(0, pos);
         }
-        if (!path.startsWith(currentDirectory)) {
+        if (!path.startsWith(currentDir)) {
             // item is not a child of currentDirectory.
             return null;
         }
-        if (path.length() <= currentDirectory.length() + 1) {
+        if (path.length() <= currentDir.length() + 1) {
             // Don't show the current directory itself.
             return null;
         }
-        path = StringUtils.removeStart(path, currentDirectory);
+        path = StringUtils.removeStart(path, currentDir);
         int pos = path.indexOf('/');
         if (pos < 0) {
             return path;
@@ -275,11 +299,27 @@ public class FileSystemFilter {
     }
 
     public FileSystemFilter setCurrentDirectory(String currentDirectory) {
-        if (currentDirectory != null && currentDirectory.length() > 0 && !currentDirectory.endsWith("/")) {
-            this.currentDirectory = currentDirectory + "/";
-        } else {
-            this.currentDirectory = currentDirectory;
-        }
+        this.currentDirectory = ensureTrailingSeparator(currentDirectory);
         return this;
+    }
+
+    private String ensureTrailingSeparator(String dir) {
+        if (dir != null && dir.length() > 0 && !dir.endsWith("/")) {
+            return dir + "/";
+        }
+        return dir;
+    }
+
+    protected FileSystemFilter clone() {
+        FileSystemFilter filter = new FileSystemFilter();
+        filter.currentDirectory = this.currentDirectory;
+        filter.autoChangeDirectoryToLeafItem = this.autoChangeDirectoryToLeafItem;
+        filter.setMode(this.mode);
+        filter.searchString = this.searchString;
+        filter.maxResultSize = this.maxResultSize;
+        filter.fileNumber = this.fileNumber;
+        filter.searchKeyWords = this.searchKeyWords;
+        filter.blackListSearchKeyWords = this.blackListSearchKeyWords;
+        return filter;
     }
 }
