@@ -104,7 +104,7 @@ public class FileSystemFilter {
             if (topLevel == null) {
                 continue;
             }
-            if (set.contains(topLevel) == false) {
+            if (!set.contains(topLevel)) {
                 set.add(topLevel);
                 BorgFilesystemItem topItem = subDirectories.get(topLevel);
                 if (topItem == null) {
@@ -192,7 +192,16 @@ public class FileSystemFilter {
             return false;
         }
         if (!subDirectories.containsKey(topLevelDir)) {
-            subDirectories.put(topLevelDir, item);
+            if (!item.getPath().endsWith(topLevelDir)) {
+                // Mount point? Top level was not received from Borg as separate item. Create a synthetic one (without file number):
+                BorgFilesystemItem syntheticItem = new BorgFilesystemItem()
+                        .setPath(topLevelDir)
+                        .setDisplayPath(topLevelDir)
+                        .setType("d");
+                subDirectories.put(topLevelDir, syntheticItem);
+            } else {
+                subDirectories.put(topLevelDir, item);
+            }
         }
         return true;
     }

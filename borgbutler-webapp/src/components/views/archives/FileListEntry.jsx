@@ -69,9 +69,9 @@ class FileListEntry extends React.Component {
         let iconBan = <div className={'btn'}><IconBan/></div>;
         let iconCheck = <div className={'btn'}><IconCheck/></div>;
 
-        let icon1 = iconCheck;
+        let icon1 = entry.fileNumber >= 0 ? iconCheck : '';
         let icon1Tooltip = '';
-        if (!this.state.thisDownloaded) {
+        if (!this.state.thisDownloaded && entry.fileNumber >= 0) {
             const icon1Id = `icon1-${entry.fileNumber}`;
             icon1 = <div id={icon1Id} className={'btn'}
                          onClick={() => this.download(this.props.archive.id, entry.fileNumber, true)}>
@@ -82,7 +82,7 @@ class FileListEntry extends React.Component {
         }
         let icon2 = '';
         let icon2Tooltip = '';
-        if (this.props.diffArchiveId) {
+        if (this.props.diffArchiveId && entry.fileNumber >= 0) {
             icon2 = iconCheck;
             if (!this.state.otherDownloaded) {
                 const icon2Id = `icon2-${entry.fileNumber}`;

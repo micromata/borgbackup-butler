@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FileSystemFilterTest {
     @Test
@@ -29,7 +28,15 @@ public class FileSystemFilterTest {
             }
         }
         list = filter.reduce(list);
-        assertEquals(2, list.size());
+        assertEquals(3, list.size());
+        assertEquals("home", list.get(0).getDisplayPath());
+        assertEquals("etc", list.get(1).getDisplayPath());
+        assertEquals("opt", list.get(2).getDisplayPath());
+        assertEquals("opt", list.get(2).getPath());
+        assertEquals(-1, list.get(2).getFileNumber());
+        assertEquals("d", list.get(2).getType());
+        assertNull(list.get(2).getMode()); // Synthetic file item.
+
         list = createList();
         filter.setCurrentDirectory("home");
         for (BorgFilesystemItem item : list) {
@@ -40,18 +47,34 @@ public class FileSystemFilterTest {
         list = filter.reduce(list);
         assertEquals(4, list.size());
         assertEquals("admin", list.get(0).getDisplayPath());
+        assertEquals("drwxr-xr-x", list.get(0).getMode());
         assertEquals("kai", list.get(1).getDisplayPath());
+        assertEquals("drwxr-xr-x", list.get(1).getMode());
         assertEquals(".bashrc", list.get(2).getDisplayPath());
+        assertEquals("-rw-r--r--", list.get(2).getMode());
         assertEquals(".borgbutler", list.get(3).getDisplayPath());
 
+        list = createList();
+        filter.setCurrentDirectory("opt");
+        for (BorgFilesystemItem item : list) {
+            if (filter.matches(item)) {
+                // Do nothing.
+            }
+        }
+        list = filter.reduce(list);
+        assertEquals(2, list.size());
+        assertEquals("openhab", list.get(0).getDisplayPath());
+        assertEquals("vbox-backups", list.get(1).getDisplayPath());
     }
 
     private BorgFilesystemItem create(String path, boolean directory) {
         BorgFilesystemItem item = new BorgFilesystemItem().setPath(path);
         if (directory) {
-            item.setType("d");
+            item.setType("d")
+                    .setMode("drwxr-xr-x");
         } else {
-            item.setType("-");
+            item.setType("-")
+                    .setMode("-rw-r--r--");
         }
         return item;
     }
@@ -59,7 +82,7 @@ public class FileSystemFilterTest {
     private List<BorgFilesystemItem> createList() {
         List<BorgFilesystemItem> list = new ArrayList<>();
         list.add(create("home", true));
-        list.add(create("home/admin", false));
+        list.add(create("home/admin", true));
         list.add(create("home/kai", true));
         list.add(create("home/kai/borg/cache", false));
         list.add(create("home/kai/borg/config", false));
@@ -69,6 +92,12 @@ public class FileSystemFilterTest {
         list.add(create("home/.borgbutler", true));
         list.add(create("etc/apache", true));
         list.add(create("etc/apache/http.conf", false));
+        // opt is not given by borg, because opt is in this example a mount point.
+        list.add(create("opt/openhab", true));
+        list.add(create("opt/openhab/addons", true));
+        list.add(create("opt/openhab/conf", true));
+        list.add(create("opt/vbox-backups", true));
+        list.add(create("opt/vbox-backups/Oracle_VM_VirtualBox_Extension_Pack-4.3.32-103443.vbox-extpack", false));
         return list;
     }
 }
