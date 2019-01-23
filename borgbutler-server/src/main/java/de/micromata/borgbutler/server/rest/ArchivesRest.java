@@ -34,9 +34,8 @@ public class ArchivesRest {
     private static Logger log = LoggerFactory.getLogger(ArchivesRest.class);
 
     /**
-     *
-     * @param repoName Name of repository ({@link Repository#getName()}.
-     * @param archiveId Id or name of archive.
+     * @param repoName      Name of repository ({@link Repository#getName()}.
+     * @param archiveId     Id or name of archive.
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @return Repository (including list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
@@ -54,15 +53,15 @@ public class ArchivesRest {
     }
 
     /**
-     *
-     * @param archiveId Id or name of archive.
-     * @param searchString The string to search for (key words separated by white chars, trailing ! char represents exclude).
-     * @param mode Flat (default) or tree.
-     * @param currentDirectory The current displayed directory (only files and directories contained will be returned).
-     * @param maxResultSize maximum number of file items to return (default is 50).
-     * @param diffArchiveId If given, the differences between archiveId and diffArchiveId will be returned.
-     * @param force If false (default), non cached file lists will not be loaded by borg.
-     * @param prettyPrinter If true then the json output will be in pretty format.
+     * @param archiveId                     Id or name of archive.
+     * @param searchString                  The string to search for (key words separated by white chars, trailing ! char represents exclude).
+     * @param mode                          Flat (default) or tree.
+     * @param currentDirectory              The current displayed directory (only files and directories contained will be returned).
+     * @param maxResultSize                 maximum number of file items to return (default is 50).
+     * @param diffArchiveId                 If given, the differences between archiveId and diffArchiveId will be returned.
+     * @param autoChangeDirectoryToLeafItem If given, this method will step automatically into single sub directories.
+     * @param force                         If false (default), non cached file lists will not be loaded by borg.
+     * @param prettyPrinter                 If true then the json output will be in pretty format.
      * @return Repository (including list of archives) as json string.
      * @see JsonUtils#toJson(Object, boolean)
      */
@@ -75,13 +74,15 @@ public class ArchivesRest {
                                      @QueryParam("currentDirectory") String currentDirectory,
                                      @QueryParam("maxResultSize") String maxResultSize,
                                      @QueryParam("diffArchiveId") String diffArchiveId,
+                                     @QueryParam("autoChangeDirectoryToLeafItem") boolean autoChangeDirectoryToLeafItem,
                                      @QueryParam("force") boolean force,
                                      @QueryParam("prettyPrinter") boolean prettyPrinter) {
         boolean diffMode = StringUtils.isNotBlank(diffArchiveId);
         int maxSize = NumberUtils.toInt(maxResultSize, 50);
         FileSystemFilter filter = diffMode ? new DiffFileSystemFilter() : new FileSystemFilter();
         filter.setSearchString(searchString)
-                .setCurrentDirectory(currentDirectory);
+                .setCurrentDirectory(currentDirectory)
+                .setAutoChangeDirectoryToLeafItem(autoChangeDirectoryToLeafItem);
         List<BorgFilesystemItem> items = null;
         if (diffMode) {
             filter.setMode(FileSystemFilter.Mode.FLAT);
@@ -107,12 +108,15 @@ public class ArchivesRest {
 
     /**
      * @param archiveId
-     * @param fileNumber The fileNumber of the file or directory in the archive served by BorgButler's
+     * @param openDownloads
+     * @param fileNumber    The fileNumber of the file or directory in the archive served by BorgButler's
      */
     @GET
     @Path("/restore")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response restore(@QueryParam("archiveId") String archiveId, @QueryParam("fileNumber") int fileNumber) {
+    public Response restore(@QueryParam("archiveId") String archiveId,
+                            @QueryParam("openDownloads") boolean openDownloads,
+                            @QueryParam("fileNumber") int fileNumber) {
         log.info("Requesting file #" + fileNumber + " of archive '" + archiveId + "'.");
         FileSystemFilter filter = new FileSystemFilter().setFileNumber(fileNumber);
         List<BorgFilesystemItem> items = ButlerCache.getInstance().getArchiveContent(archiveId, false,
@@ -145,7 +149,8 @@ public class ArchivesRest {
                 Response.ResponseBuilder builder = Response.status(Response.Status.NOT_FOUND);
                 return builder.build();
             }
-            openFileBrowser(new File(restoreDir, item.getPath()));
+            if (openDownloads)
+                openFileBrowser(new File(restoreDir, item.getPath()));
             Response.ResponseBuilder builder = Response.status(Response.Status.ACCEPTED);
             return builder.build();
         } catch (IOException ex) {
