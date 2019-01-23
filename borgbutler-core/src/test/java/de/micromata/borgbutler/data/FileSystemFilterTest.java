@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class FileSystemFilterTest {
     @Test
@@ -54,6 +55,7 @@ public class FileSystemFilterTest {
         assertEquals("-rw-r--r--", list.get(2).getMode());
         assertEquals(".borgbutler", list.get(3).getDisplayPath());
 
+        // Check synthetic items (opt as parent is not an own entry):
         list = createList();
         filter.setCurrentDirectory("opt");
         for (BorgFilesystemItem item : list) {
@@ -65,6 +67,19 @@ public class FileSystemFilterTest {
         assertEquals(2, list.size());
         assertEquals("openhab", list.get(0).getDisplayPath());
         assertEquals("vbox-backups", list.get(1).getDisplayPath());
+
+        // Check auto cd into single sub directories:
+        list = createList();
+        filter.setCurrentDirectory("home/admin");
+        for (BorgFilesystemItem item : list) {
+            if (filter.matches(item)) {
+                // Do nothing.
+            }
+        }
+        list = filter.reduce(list);
+        assertEquals(1, list.size());
+        //assertEquals("Documents", list.get(0).getDisplayPath());
+        assertEquals("test.txt", list.get(0).getDisplayPath()); // if Filter#autoChangeDirectoryToLeafItem == true works
     }
 
     private BorgFilesystemItem create(String path, boolean directory) {
@@ -83,6 +98,7 @@ public class FileSystemFilterTest {
         List<BorgFilesystemItem> list = new ArrayList<>();
         list.add(create("home", true));
         list.add(create("home/admin", true));
+        list.add(create("home/admin/Documents/www/home/test.txt", false));
         list.add(create("home/kai", true));
         list.add(create("home/kai/borg/cache", false));
         list.add(create("home/kai/borg/config", false));
