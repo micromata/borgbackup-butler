@@ -196,4 +196,28 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
     public String toString() {
         return path;
     }
+
+    @Override
+    public BorgFilesystemItem clone() {
+        BorgFilesystemItem clone = new BorgFilesystemItem();
+        clone.type = this.type;
+        clone.mode = this.mode;
+        clone.user = this.user;
+        clone.group = this.group;
+        clone.uid = this.uid;
+        clone.gid = this.gid;
+        clone.path = this.path;
+        clone.displayPath = this.displayPath;
+        clone.healthy = this.healthy;
+        clone.source = this.source;
+        clone.linktarget = this.linktarget;
+        clone.flags = this.flags;
+        clone.mtime = this.mtime;
+        clone.size = this.size;
+        clone.fileNumber = this.fileNumber;
+        clone.diffStatus = this.diffStatus;
+        clone.diffItem = this.diffItem;
+        clone.differences = this.differences;
+        return clone;
+    }
 }

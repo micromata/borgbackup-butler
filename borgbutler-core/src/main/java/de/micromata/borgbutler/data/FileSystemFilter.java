@@ -119,8 +119,9 @@ public class FileSystemFilter {
                 if (topItem == null) {
                     log.error("Internal error, can't find subDirectory: " + topLevel);
                 } else {
-                    topItem.setDisplayPath(StringUtils.removeStart(topItem.getPath(), currentDirectory));
-                    list.add(topItem);
+                    BorgFilesystemItem cloneItem = autoChangeDirectoryToLeafItem ? topItem.clone() : topItem;
+                    cloneItem.setDisplayPath(StringUtils.removeStart(topItem.getPath(), currentDirectory));
+                    list.add(cloneItem);
                 }
             }
         }
