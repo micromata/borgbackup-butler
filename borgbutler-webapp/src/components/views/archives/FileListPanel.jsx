@@ -31,6 +31,11 @@ class FileListPanel extends React.Component {
         this.handleURLChange = this.handleURLChange.bind(this);
 
         this.unregisterHistoryListener = props.history.listen(this.handleURLChange);
+
+        // Resetting the NoReFetch State
+        if (props.location.state) {
+            props.location.state.noReFetch = undefined;
+        }
     }
 
     componentDidMount = () => {
