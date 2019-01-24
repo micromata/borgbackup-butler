@@ -36,6 +36,7 @@ class ConfigurationPage
         })
     };
 
+    // TODO: Don't reload, display toast instead.
     setReload = () => {
         this.setState({
             reload: true
@@ -72,6 +73,7 @@ class ConfigurationPage
         if (this.state.reload) {
             window.location.reload();
         }
+        console.log('TODO: render called (should only called after state was changed, shouldn\'t?'); // TODO
         return (
             <React.Fragment>
                 <ConfirmModal
