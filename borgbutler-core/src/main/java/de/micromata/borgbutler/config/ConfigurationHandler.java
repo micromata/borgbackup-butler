@@ -48,6 +48,14 @@ public class ConfigurationHandler {
                 }
             }
             this.configuration = JsonUtils.fromJson(configClazz, json);
+            if (this.configuration == null) {
+                try {
+                    this.configuration = configClazz.getDeclaredConstructor().newInstance();
+                } catch (Exception ex) {
+                    log.error("Internal error: Can't instantiate object of type '" + configClazz + "': " + ex.getMessage(), ex);
+                    return;
+                }
+            }
             if (this.configuration._getRepoConfigs() != null) {
                 for (BorgRepoConfig repoConfig : this.configuration._getRepoConfigs()) {
                     if (StringUtils.isBlank(repoConfig.getDisplayName())) {
