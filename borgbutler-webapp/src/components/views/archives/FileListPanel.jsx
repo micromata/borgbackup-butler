@@ -42,6 +42,10 @@ class FileListPanel extends React.Component {
     }
 
     handleURLChange = location => {
+        if (location.state && location.state.noReFetch) {
+            return;
+        }
+
         // Replacing matched URL(archiveId, repoId) and removing trailing slashes
         this.changeCurrentDirectory(location.pathname.replace(this.props.match.url, '').replace(/^\/|\/$/g, ''));
     };
@@ -108,7 +112,7 @@ class FileListPanel extends React.Component {
                     }
 
                     if (newUrl !== this.props.location.pathname) {
-                        this.props.history.push(newUrl);
+                        this.props.history.push(newUrl, {noReFetch: true});
                     }
                 }
                 this.setState({
