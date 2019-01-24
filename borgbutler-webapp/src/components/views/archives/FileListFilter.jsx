@@ -85,7 +85,7 @@ class FileListFilter extends React.Component {
                         Settings
                     </DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem disabled>
+                        <div className={'dropdown-item'}>
                             <div className={'label'}>Mode:{' '}</div>
                             <div className={'value'}>
                                 <FormSelect
@@ -97,8 +97,8 @@ class FileListFilter extends React.Component {
                                     <FormOption value={'flat'}/>
                                 </FormSelect>
                             </div>
-                        </DropdownItem>
-                        <DropdownItem disabled>
+                        </div>
+                        <div className={'dropdown-item'}>
                             <div className={'label'}>Result size:{' '}</div>
                             <div className={'value'}>
                                 <FormSelect
@@ -114,21 +114,21 @@ class FileListFilter extends React.Component {
                                     <FormOption value={'10000'}/>
                                 </FormSelect>
                             </div>
-                        </DropdownItem>
+                        </div>
                         <DropdownItem divider/>
-                        <DropdownItem disabled>
+                        <div className={'dropdown-item'}>
                             <FormCheckbox checked={filter.autoChangeDirectoryToLeafItem}
                                           hint={'Step automatically into single sub directories.'}
                                           name="autoChangeDirectoryToLeafItem"
                                           label={'Step automatically into sub dirs'}
                                           onChange={this.props.changeFilterCheckbox}/>
-                        </DropdownItem>
-                        <DropdownItem disabled>
+                        </div>
+                        <div className={'dropdown-item'}>
                             <FormCheckbox checked={filter.openDownloads}
                                           name="openDownloads"
                                           label={'Open downloads automatically'}
                                           onChange={this.props.changeFilterCheckbox}/>
-                        </DropdownItem>
+                        </div>
                     </DropdownMenu>
                 </Dropdown>
                 <FormButton type={'submit'} bsStyle={'primary'}>
