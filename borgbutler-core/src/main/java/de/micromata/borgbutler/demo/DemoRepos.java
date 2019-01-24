@@ -40,7 +40,7 @@ public class DemoRepos {
             Iterator<BorgRepoConfig> it = repositoryList.iterator();
             while (it.hasNext()) {
                 BorgRepoConfig repoConfig = it.next();
-                if (!StringUtils.startsWith(repoConfig.getRepo(), DEMO_IDENTIFIER)) {
+                if (repoConfig != null && !StringUtils.startsWith(repoConfig.getRepo(), DEMO_IDENTIFIER)) {
                     continue;
                 }
                 it.remove();
