@@ -3,6 +3,7 @@ package de.micromata.borgbutler.data;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,11 +143,15 @@ public class FileSystemFilter {
             // Only one sub directory is displayed, so change directory automatically to this sub directory:
             FileSystemFilter filter = this.clone();
             filter.setCurrentDirectory(list.get(0).getPath());
-            for (BorgFilesystemItem item: origList) {
+            for (BorgFilesystemItem item : origList) {
                 filter.matches(item);
             }
-            return filter.reduce(origList);
-            // TODO: Doesn't work because origList doesn't contain all children recursively! Check, why?
+            List<BorgFilesystemItem> result =
+                    filter.reduce(origList);
+            if (CollectionUtils.isNotEmpty(result)) {
+                // Use only result, if childs in the current directory do exist.
+                return result;
+            }
         }
         return list;
     }
