@@ -10,7 +10,12 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
 == Development
 === Creating test data
-1. Install virtual debian system
-2. `apt install net-tools curl`
-3. Execute script `./createFiles.sh` on debian host (borg is installed automatically)
-4. See the result files in `out.tar`.
+1. Install virtual debian system (including user `borgbutler).
+2. Enable ssh:
+   .. Port-forward: Virtual box network settings: [name=SSH], [protocol=TCP], [Host IP=127.0.0.1], [Host Port=2222], [Guest IP=10.0.0.15], [Guest Port=22]
+   .. Connect to virtual machine: `ssh -p 2222 borgbutler@127.0.0.1
+3. `apt install net-tools curl`
+4. Execute script `./createFiles.sh` as root on debian host (borg is installed automatically)
+5. See and get the result files in `out.tar`:
+   .. `cp out.tar /home/borgbutler`
+   .. From host system: `scp -P 2222 borgbutler@127.0.0.1:out.tar`
