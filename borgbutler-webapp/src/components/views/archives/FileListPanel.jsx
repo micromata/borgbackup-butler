@@ -96,11 +96,17 @@ class FileListPanel extends React.Component {
             .then(json => {
                 let currentDirectory = this.state.filter.currentDirectory;
                 const fileList = json;
-                if (fileList && fileList.length === 1 && fileList[0] && fileList[0].path) {
+                if (fileList && fileList.length > 0 && fileList[0] && fileList[0].path) {
                     currentDirectory = fileList[0].path.replace(fileList[0].displayPath, '');
-                    const newUrl = `${this.props.match.url}/${fileList[0].path}/`;
+
+                    let newUrl = this.props.match.url;
+
+                    if (currentDirectory) {
+                        newUrl += `/${currentDirectory}`;
+                    }
+
                     if (newUrl !== this.props.location.pathname) {
-                        this.props.history.push(`${this.props.match.url}/${fileList[0].path}/`);
+                        this.props.history.push(newUrl);
                     }
                 }
                 this.setState({
