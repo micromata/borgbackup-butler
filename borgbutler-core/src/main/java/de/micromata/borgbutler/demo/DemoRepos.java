@@ -38,7 +38,7 @@ public class DemoRepos {
         if (!ConfigurationHandler.getConfiguration().isShowDemoRepos()) {
             // Remove any demo repository if exist due to former settings:
             Iterator<BorgRepoConfig> it = repositoryList.iterator();
-            while(it.hasNext()) {
+            while (it.hasNext()) {
                 BorgRepoConfig repoConfig = it.next();
                 if (!StringUtils.startsWith(repoConfig.getRepo(), DEMO_IDENTIFIER)) {
                     continue;
@@ -51,6 +51,24 @@ public class DemoRepos {
         for (BorgRepoConfig repo : demoRepos) {
             if (!repositoryList.contains(repo))
                 repositoryList.add(repo);
+        }
+        // Remove duplicate entries (produced by former versions of BorgButler:
+        Set<String> set = new HashSet<>();
+        Iterator<BorgRepoConfig> it = repositoryList.iterator();
+        try {
+            while (it.hasNext()) {
+                BorgRepoConfig repoConfig = it.next();
+                if (!StringUtils.startsWith(repoConfig.getRepo(), DEMO_IDENTIFIER)) {
+                    continue;
+                }
+                if (set.contains(repoConfig.getRepo())) {
+                    it.remove();
+                } else {
+                    set.add(repoConfig.getRepo());
+                }
+            }
+        } catch (Exception ex) {
+            // ConcurrentException, ignore it, it's only for demo purposes.
         }
     }
 
