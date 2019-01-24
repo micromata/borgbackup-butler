@@ -94,6 +94,9 @@ public class ButlerCache {
     public List<Repository> getAllRepositories() {
         List<Repository> repositories = new ArrayList<>();
         for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getRepoConfigs()) {
+            if (repoConfig == null) {
+                 continue;
+            }
             Repository repository = repoCacheAccess.get(repoConfig.getRepo());
             if (repository == null) {
                 if (repoConfig.getId() == null) {
