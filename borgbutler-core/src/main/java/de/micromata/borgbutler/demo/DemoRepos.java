@@ -39,7 +39,7 @@ public class DemoRepos {
         if (!ConfigurationHandler.getConfiguration().isShowDemoRepos()) {
             return repositoryList;
         }
-        init();
+        init(repositoryList);
         List<BorgRepoConfig> list = new ArrayList<>();
         list.addAll(repositoryList);
         list.addAll(demoRepos);
@@ -129,10 +129,20 @@ public class DemoRepos {
         return Type.FAST;
     }
 
-    private static void init() {
+    private static void init(List<BorgRepoConfig> repositoryList) {
         synchronized (DEMO_IDENTIFIER) {
             if (demoRepos != null) {
                 return;
+            }
+            synchronized (repositoryList) {
+                // Remove demo repo entries if persisted in former config files:
+                Iterator<BorgRepoConfig> it = repositoryList.iterator();
+                while (it.hasNext()) {
+                    BorgRepoConfig repoConfig = it.next();
+                    if (isDemo(repoConfig.getRepo())) {
+                        it.remove();
+                    }
+                }
             }
             demoRepos = new ArrayList<>();
             demoRepos.add(new BorgRepoConfig()
