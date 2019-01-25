@@ -56,8 +56,8 @@ public class ConfigurationHandler {
                     return;
                 }
             }
-            if (this.configuration._getRepoConfigs() != null) {
-                for (BorgRepoConfig repoConfig : this.configuration._getRepoConfigs()) {
+            if (this.configuration.getRepoConfigs() != null) {
+                for (BorgRepoConfig repoConfig : this.configuration.getRepoConfigs()) {
                     if (StringUtils.isBlank(repoConfig.getDisplayName())) {
                         repoConfig.setDisplayName(repoConfig.getRepo());
                     }

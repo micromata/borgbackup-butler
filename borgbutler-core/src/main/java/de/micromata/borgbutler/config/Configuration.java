@@ -50,6 +50,7 @@ public class Configuration {
     @JsonIgnore
     private File restoreHomeDir;
 
+    @JsonProperty
     private List<BorgRepoConfig> repoConfigs = new ArrayList<>();
 
     public void add(BorgRepoConfig repoConfig) {
@@ -60,7 +61,7 @@ public class Configuration {
         if (idOrName == null) {
             return null;
         }
-        for (BorgRepoConfig repoConfig : getRepoConfigs()) {
+        for (BorgRepoConfig repoConfig : getAllRepoConfigs()) {
             if (StringUtils.equals(idOrName, repoConfig.getRepo()) || StringUtils.equals(idOrName, repoConfig.getId())) {
                 return repoConfig;
             }
@@ -88,11 +89,12 @@ public class Configuration {
         this.showDemoRepos = other.showDemoRepos;
     }
 
-    public List<BorgRepoConfig> getRepoConfigs() {
+    @JsonIgnore
+    public List<BorgRepoConfig> getAllRepoConfigs() {
         return DemoRepos.getAllRepos(repoConfigs);
     }
 
-    List<BorgRepoConfig> _getRepoConfigs() {
+    List<BorgRepoConfig> getRepoConfigs() {
         return repoConfigs;
     }
 }

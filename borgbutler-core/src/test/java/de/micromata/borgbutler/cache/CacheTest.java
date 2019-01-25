@@ -24,24 +24,24 @@ public class CacheTest {
     void repoCacheTest() {
         ConfigurationHandler configHandler = ConfigurationHandler.getInstance();
         Configuration config = ConfigurationHandler.getConfiguration();
-        if (config.getRepoConfigs().size() == 0) {
+        if (config.getAllRepoConfigs().size() == 0) {
             log.info("No repos configured. Please configure repos first in: " + configHandler.getConfigFile().getAbsolutePath());
             return;
         }
         ButlerCache butlerCache = ButlerCache.getInstance();
         {
-            for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getRepoConfigs()) {
+            for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getAllRepoConfigs()) {
                 Repository repository = ButlerCache.getInstance().getRepository(repoConfig.getRepo());
             }
-            assertEquals(config.getRepoConfigs().size(), ButlerCache.getInstance().getAllRepositories().size());
+            assertEquals(config.getAllRepoConfigs().size(), ButlerCache.getInstance().getAllRepositories().size());
         }
         {
-            for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getRepoConfigs()) {
+            for (BorgRepoConfig repoConfig : ConfigurationHandler.getConfiguration().getAllRepoConfigs()) {
                 Repository repository = ButlerCache.getInstance().getRepositoryArchives(repoConfig.getRepo());
             }
-            assertEquals(config.getRepoConfigs().size(), ButlerCache.getInstance().getAllRepositories().size());
+            assertEquals(config.getAllRepoConfigs().size(), ButlerCache.getInstance().getAllRepositories().size());
         }
-        List<BorgRepoConfig> repoConfigs = ConfigurationHandler.getConfiguration().getRepoConfigs();
+        List<BorgRepoConfig> repoConfigs = ConfigurationHandler.getConfiguration().getAllRepoConfigs();
         Archive archive = null;
         BorgRepoConfig repoConfig = null;
         if (CollectionUtils.isNotEmpty(repoConfigs)) {
