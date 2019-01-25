@@ -1,4 +1,5 @@
 import React from 'react'
+import cookie from "react-cookies";
 import {withRouter} from 'react-router-dom';
 import {Breadcrumb, Button} from 'reactstrap';
 import {getRestServiceUrl} from '../../../utilities/global';
@@ -10,32 +11,41 @@ import BreadcrumbPath from './BreadcrumbPath';
 
 class FileListPanel extends React.Component {
 
-    state = {
-        isFetching: false, activeTab: '1',
-        fileList: undefined,
-        filter: {
-            search: '',
-            mode: 'tree',
-            currentDirectory: '',
-            maxSize: '50',
-            diffArchiveId: '',
-            autoChangeDirectoryToLeafItem: true,
-            openDownloads: true
-        }
-    };
-
     constructor(props) {
         super(props);
 
         this.fetchArchiveFileList = this.fetchArchiveFileList.bind(this);
         this.handleURLChange = this.handleURLChange.bind(this);
+        this.componentWillMount = this.componentWillMount.bind(this);
 
         this.unregisterHistoryListener = props.history.listen(this.handleURLChange);
-
+        this.state = {
+            isFetching: false, activeTab: '1',
+            fileList: undefined,
+            filter: {
+                search: '',
+                mode: 'tree',
+                currentDirectory: '',
+                maxSize: '50',
+                diffArchiveId: '',
+                autoChangeDirectoryToLeafItem: true,
+                openDownloads: true
+            }
+        };
         // Resetting the NoReFetch State
         if (props.location.state) {
             props.location.state.noReFetch = undefined;
         }
+    }
+
+    componentWillMount = () => {
+        ['mode', 'maxSize', 'autoChangeDirectoryToLeafItem', 'openDownloads'].forEach(function (variable) {
+            const value = cookie.load(`file-list-${variable}`);
+            if (value) {
+                //console.log('Restoring ' + variable + '=' + value);
+                //this.setState({filter: {...this.state.filter, variable: value}});
+            }
+        });
     }
 
     componentDidMount = () => {
@@ -57,20 +67,29 @@ class FileListPanel extends React.Component {
 
     handleInputChange = (event, callback) => {
         event.preventDefault();
-        let target = event.target.name;
+        const variable = event.target.name;
         this.setState({filter: {...this.state.filter, [event.target.name]: event.target.value}},
             () => {
-                if (target === 'mode') {
+                if (variable === 'mode') {
                     this.fetchArchiveFileList();
                 }
                 if (callback) {
                     callback();
                 }
             });
+        if (['mode', 'maxSize'].indexOf(variable) >= 0) {
+            //console.log('Saving ' + variable + '=' + event.target.value);
+            cookie.save(`file-list-${variable}`, event.target.value, {path: "/"});
+        }
     };
 
     handleCheckboxChange = event => {
-        this.setState({filter: {...this.state.filter, [event.target.name]: event.target.checked}});
+        const variable = event.target.name;
+        this.setState({filter: {...this.state.filter, [variable]: event.target.checked}});
+        if (['autoChangeDirectoryToLeafItem', 'openDownloads'].indexOf(variable)) {
+            //console.log('Saving ' + variable + '=' + event.target.checked);
+            cookie.save(`file-list-${variable}`, event.target.checked, {path: "/"});
+        }
     }
 
     changeCurrentDirectory = (currentDirectory) => {
@@ -134,7 +153,7 @@ class FileListPanel extends React.Component {
         let content = undefined;
 
         if (this.state.isFetching) {
-            content = <JobMonitorPanel repo={this.props.repoId} />;
+            content = <JobMonitorPanel repo={this.props.repoId}/>;
         } else if (this.state.failed) {
             content = <ErrorAlert
                 title={'Cannot load Archive file list'}
@@ -155,7 +174,7 @@ class FileListPanel extends React.Component {
                 if (this.state.filter.mode === 'tree' && this.state.filter.currentDirectory.length > 0) {
                     breadcrumb = (
                         <Breadcrumb>
-                            <BreadcrumbPath match={this.props.match} />
+                            <BreadcrumbPath match={this.props.match}/>
                         </Breadcrumb>
                     );
                 }
