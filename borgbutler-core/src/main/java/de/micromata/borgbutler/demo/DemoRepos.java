@@ -33,43 +33,17 @@ public class DemoRepos {
      * If configured by the user, demo repositories are added to the given list. If not configured this method does nothing.
      *
      * @param repositoryList
+     * @return repo list including demo repos if configured. If not configured, the given list is returned (no op).
      */
-    public static void handleDemoRepos(List<BorgRepoConfig> repositoryList) {
+    public static  List<BorgRepoConfig> getAllRepos(List<BorgRepoConfig> repositoryList) {
         if (!ConfigurationHandler.getConfiguration().isShowDemoRepos()) {
-            // Remove any demo repository if exist due to former settings:
-            Iterator<BorgRepoConfig> it = repositoryList.iterator();
-            while (it.hasNext()) {
-                BorgRepoConfig repoConfig = it.next();
-                if (repoConfig != null && !StringUtils.startsWith(repoConfig.getRepo(), DEMO_IDENTIFIER)) {
-                    continue;
-                }
-                it.remove();
-            }
-            return;
+            return repositoryList;
         }
         init();
-        for (BorgRepoConfig repo : demoRepos) {
-            if (!repositoryList.contains(repo))
-                repositoryList.add(repo);
-        }
-        // Remove duplicate entries (produced by former versions of BorgButler:
-        Set<String> set = new HashSet<>();
-        Iterator<BorgRepoConfig> it = repositoryList.iterator();
-        try {
-            while (it.hasNext()) {
-                BorgRepoConfig repoConfig = it.next();
-                if (!StringUtils.startsWith(repoConfig.getRepo(), DEMO_IDENTIFIER)) {
-                    continue;
-                }
-                if (set.contains(repoConfig.getRepo())) {
-                    it.remove();
-                } else {
-                    set.add(repoConfig.getRepo());
-                }
-            }
-        } catch (Exception ex) {
-            // ConcurrentException, ignore it, it's only for demo purposes.
-        }
+        List<BorgRepoConfig> list = new ArrayList<>();
+        list.addAll(repositoryList);
+        list.addAll(demoRepos);
+        return list;
     }
 
     public static boolean isDemo(String name) {

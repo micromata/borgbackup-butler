@@ -89,8 +89,7 @@ public class Configuration {
     }
 
     public List<BorgRepoConfig> getRepoConfigs() {
-        DemoRepos.handleDemoRepos(repoConfigs);
-        return repoConfigs;
+        return DemoRepos.getAllRepos(repoConfigs);
     }
 
     List<BorgRepoConfig> _getRepoConfigs() {
