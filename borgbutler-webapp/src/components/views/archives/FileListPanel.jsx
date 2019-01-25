@@ -1,5 +1,5 @@
 import React from 'react'
-import cookie from "react-cookies";
+import cookie from 'react-cookies';
 import {withRouter} from 'react-router-dom';
 import {Breadcrumb, Button} from 'reactstrap';
 import {getRestServiceUrl} from '../../../utilities/global';
@@ -30,7 +30,8 @@ class FileListPanel extends React.Component {
                 diffArchiveId: '',
                 autoChangeDirectoryToLeafItem: true,
                 openDownloads: true
-            }
+            },
+            forceStepIntoDir: false
         };
         // Resetting the NoReFetch State
         if (props.location.state) {
@@ -56,8 +57,20 @@ class FileListPanel extends React.Component {
         this.unregisterHistoryListener();
     }
 
-    handleURLChange = location => {
-        if (location.state && location.state.noReFetch) {
+    handleURLChange = (location, action) => {
+
+        // When Action is going back and the last step was a force step go one extra
+        if (action === 'POP' && this.state.forceStepIntoDir) {
+            this.props.history.go(-1);
+            this.setState({forceStepIntoDir: false});
+            return;
+        }
+
+        const noReFetch = location.state && location.state.noReFetch;
+
+        this.setState({forceStepIntoDir: noReFetch});
+
+        if (noReFetch) {
             return;
         }
 
