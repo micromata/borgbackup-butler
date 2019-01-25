@@ -108,12 +108,13 @@ class FileListPanel extends React.Component {
                 if (fileList && fileList.length > 0 && fileList[0] && fileList[0].path) {
                     const path = fileList[0].path;
                     currentDirectory = path.substring(0, path.length - fileList[0].displayPath.length);
-                    //console.log(fileList[0].path + ", displayPath=" + fileList[0].displayPath + " -> " + currentDirectory);
+                    // console.log(fileList[0].path + ", displayPath=" + fileList[0].displayPath + " -> " + currentDirectory);
 
                     let newUrl = this.props.match.url;
 
                     if (currentDirectory) {
-                        newUrl += `/${currentDirectory}`;
+                        // Avoid double leading slash occurring if top directory of backup has only one single sub directory the server steps automatically in:
+                        newUrl += newUrl.endsWith('/') ? currentDirectory : `/${currentDirectory}`;
                     }
 
                     if (newUrl !== this.props.location.pathname) {
