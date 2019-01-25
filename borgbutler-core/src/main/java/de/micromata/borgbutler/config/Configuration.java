@@ -54,7 +54,9 @@ public class Configuration {
     private List<BorgRepoConfig> repoConfigs = new ArrayList<>();
 
     public void add(BorgRepoConfig repoConfig) {
-        repoConfigs.add(repoConfig);
+        synchronized (repoConfigs) {
+            repoConfigs.add(repoConfig);
+        }
     }
 
     public BorgRepoConfig getRepoConfig(String idOrName) {
