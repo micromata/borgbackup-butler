@@ -16,7 +16,6 @@ class FileListPanel extends React.Component {
 
         this.fetchArchiveFileList = this.fetchArchiveFileList.bind(this);
         this.handleURLChange = this.handleURLChange.bind(this);
-        this.componentWillMount = this.componentWillMount.bind(this);
 
         this.unregisterHistoryListener = props.history.listen(this.handleURLChange);
         this.state = {
@@ -39,18 +38,36 @@ class FileListPanel extends React.Component {
         }
     }
 
-    componentWillMount = () => {
-        ['mode', 'maxSize', 'autoChangeDirectoryToLeafItem', 'openDownloads'].forEach(function (variable) {
-            const value = cookie.load(`file-list-${variable}`);
-            if (value) {
-                //console.log('Restoring ' + variable + '=' + value);
-                //this.setState({filter: {...this.state.filter, variable: value}});
-            }
-        });
-    }
-
     componentDidMount = () => {
-        this.handleURLChange(this.props.location);
+        // Loading filters from cookies
+        let filter = {
+            ...this.state.filter
+        };
+        [
+            {key: 'mode', type: 'string'},
+            {key: 'maxSize', type: 'string'},
+            {key: 'autoChangeDirectoryToLeafItem', type: 'boolean'},
+            {key: 'openDownloads', type: 'boolean'}
+        ]
+            .map(entry => {
+                let value = cookie.load(`file-list-${entry.key}`);
+
+                if (value) {
+                    switch (entry.type) {
+                        case 'boolean':
+                            value = value === 'true';
+                            break;
+                        default:
+                    }
+                }
+
+                return {...entry, value};
+            })
+            .filter(cookie => cookie.value !== undefined)
+            .forEach(cookie => filter[cookie.key] = cookie.value);
+
+        // Set filter and when finished handleURLChange so the setState calls won't collide
+        this.setState({filter}, () => this.handleURLChange(this.props.location));
     };
 
     componentWillUnmount() {
@@ -99,11 +116,11 @@ class FileListPanel extends React.Component {
     handleCheckboxChange = event => {
         const variable = event.target.name;
         this.setState({filter: {...this.state.filter, [variable]: event.target.checked}});
-        if (['autoChangeDirectoryToLeafItem', 'openDownloads'].indexOf(variable)) {
-            //console.log('Saving ' + variable + '=' + event.target.checked);
+        if (['autoChangeDirectoryToLeafItem', 'openDownloads'].indexOf(variable) !== -1) {
+            // console.log('Saving ' + variable + '=' + event.target.checked);
             cookie.save(`file-list-${variable}`, event.target.checked, {path: "/"});
         }
-    }
+    };
 
     changeCurrentDirectory = (currentDirectory) => {
         this.setState({filter: {...this.state.filter, currentDirectory: currentDirectory}},
