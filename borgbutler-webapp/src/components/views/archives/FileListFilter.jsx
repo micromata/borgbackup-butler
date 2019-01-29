@@ -80,7 +80,7 @@ class FileListFilter extends React.Component {
                     <FormOption value={''} label={'Select diff archive'}/>
                     {archiveOptions}
                 </FormSelect>
-                <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+                <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle} style={{paddingRight: '3pt'}}>
                     <DropdownToggle outline color="secondary" caret>
                         Settings
                     </DropdownToggle>
