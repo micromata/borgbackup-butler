@@ -1,5 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router-dom'
+import {Alert} from 'reactstrap';
 import {
     FormButton,
     FormField,
@@ -12,6 +13,7 @@ import {
     FormSelect
 } from '../../general/forms/FormComponents';
 import I18n from "../../general/translation/I18n";
+import {getRestServiceUrl} from "../../../utilities/global";
 import {PageHeader} from "../../general/BootstrapComponents";
 
 class ConfigureRepoPage extends React.Component {
@@ -22,10 +24,11 @@ class ConfigureRepoPage extends React.Component {
         this.handleRepoTextChange = this.handleRepoTextChange.bind(this);
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
         this.state = {
-            repoConfig: {},
+            repoConfig: {
+                encryption: 'repoKey'
+            },
             mode: 'existingRepo',
             localRemote: 'local',
-            encryption: 'repokey',
             passwordMethod: 'passwordCommand',
             passwordCreate: null
         };
@@ -101,6 +104,28 @@ class ConfigureRepoPage extends React.Component {
         }*/
     }
 
+    browseDirectory = () => {
+        const current = "&current=" + encodeURIComponent(this.state.repoConfig.repo);
+        fetch(getRestServiceUrl("files/browse-local-filesystem?type=dir" + current), {
+            method: "GET",
+            dataType: "JSON",
+            headers: {
+                "Content-Type": "text/plain; charset=utf-8",
+            }
+        })
+            .then((resp) => {
+                return resp.json()
+            })
+            .then((data) => {
+                if (data.directory) {
+                    this.setState({repoConfig: {...this.state.repoConfig, repo: data.directory}});
+                }
+            })
+            .catch((error) => {
+                console.log(error, "Oups, what's happened?")
+            })
+    }
+
     render() {
         const repoConfig = this.state.repoConfig;
         var passwordMethods = [['password-command', 'Password command'],
@@ -108,7 +133,8 @@ class ConfigureRepoPage extends React.Component {
             ['macos-keychain', 'Mac OS X keychain'],
             ['gnome-keyring', 'GNOME keyring'],
             ['kwallet', 'KWallet'],
-            ['passphrase', 'Passphrase (not recommended)']
+            ['passphrase', 'Passphrase (not recommended)'],
+            ['none', 'No password (no encryption, not recommended)']
         ];
         let repoPlaceHolder = 'Enter the repo used by Borg.';
         if (this.state.mode === 'initNewRepo' && this.state.localRemote === 'remote') {
@@ -118,9 +144,14 @@ class ConfigureRepoPage extends React.Component {
         let browseButton = null;
         if (this.state.localRemote === 'local') {
             repoFieldLength = 9;
-            browseButton = <FormButton onClick={null}
-                                       hint={'Browse local backup directory.'}>Browse</FormButton>
+            browseButton = <FormButton onClick={this.browseDirectory}
+                                       hint={'Browse local backup directory.'}><I18n name={'common.browse'}/>
+            </FormButton>;
             repoPlaceHolder = 'Enter or browse the local path of the repo home dir used by Borg.';
+        }
+        let encrypted = true;
+        if (this.state.repoConfig.encryption === 'none' || this.state.passwordMethod === 'none') {
+            encrypted = false;
         }
         return <React.Fragment>
             <PageHeader>
@@ -179,7 +210,7 @@ class ConfigureRepoPage extends React.Component {
                                      className={this.state.localRemote === 'local' ? 'hidden' : null}/>
                 <FormGroup className={this.state.mode === 'existingRepo' ? 'hidden' : null}>
                     <FormLabel length={2}>{'Encryption'}</FormLabel>
-                    <FormField length={2}>
+                    <FormField length={4}>
                         <FormSelect
                             value={repoConfig.encryption}
                             name={'encryption'}
@@ -193,9 +224,11 @@ class ConfigureRepoPage extends React.Component {
                         </FormSelect>
                     </FormField>
                 </FormGroup>
-                <FormGroup>
+                <FormGroup
+                    className={this.state.repoConfig.encryption === 'none' ? 'hidden' : null}
+                >
                     <FormLabel length={2}>{'Password method'}</FormLabel>
-                    <FormField length={3}>
+                    <FormField length={4}>
                         <FormSelect
                             value={this.state.passwordMethod}
                             name={'passwordMethod'}
@@ -217,14 +250,37 @@ class ConfigureRepoPage extends React.Component {
                                      name={'passwordCommand'} value={repoConfig.passwordCommand}
                                      onChange={this.handleRepoTextChange}
                                      placeholder="Enter the password command to get the command from or choose a method above."
-                                     className={this.state.passwordMethod === 'passphrase' ? 'hidden' : null}
+                                     className={!encrypted || this.state.passwordMethod === 'passphrase' ? 'hidden' : null}
                 />
                 <FormLabelInputField label={'Password'} fieldLength={6} type={'password'}
                                      name={'passphrase'} value={repoConfig.passphrase}
                                      onChange={this.handleRepoTextChange}
                                      hint={"It's recommended to use password command instead."}
-                                     className={this.state.passwordMethod !== 'passphrase' ? 'hidden' : null}
+                                     className={(!encrypted || this.state.passwordMethod !== 'passphrase') ? 'hidden' : null}
                 />
+                <FormGroup className={!encrypted ? 'hidden' : null}>
+                    <FormField length={2}>
+                    </FormField>
+                    <FormField length={10}>
+                        <Alert
+                            color={'warning'}
+                        >
+                            Please keep a copy of your password safe! If your password get lost, your backup might be
+                            lost!
+                        </Alert>
+                    </FormField>
+                </FormGroup>
+                <FormGroup className={encrypted ? 'hidden' : null}>
+                    <FormField length={2}>
+                    </FormField>
+                    <FormField length={10}>
+                        <Alert
+                            color={'danger'}
+                        >
+                            You backup isn't encrpyted! You should ensure, that your destination storage is encrypted and protected.
+                        </Alert>
+                    </FormField>
+                </FormGroup>
                 <FormField length={12}>
                     <Link to={'/repos'} className={'btn btn-outline-primary'}><I18n name={'common.cancel'}/>
                     </Link>
@@ -238,9 +294,6 @@ class ConfigureRepoPage extends React.Component {
                 <ul>
                     <li>Implement 'Save' button ;-)</li>
                     <li>Add own environment variables.</li>
-                    <li>Implement browse button for local repos.</li>
-                    <li>Note (for new backups): Save your password, otherwise your backup will be lost without!</li>
-                    <li>Note (hide password fields): Your backup will not be encrypted!</li>
                     <li>Remove and clone repo.</li>
                 </ul>
             </code>

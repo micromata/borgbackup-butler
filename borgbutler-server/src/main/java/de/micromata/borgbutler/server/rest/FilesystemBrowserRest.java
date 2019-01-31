@@ -35,13 +35,11 @@ public class FilesystemBrowserRest {
             log.info(msg);
             return msg;
         }
-        JFileChooser chooser;
-        if (StringUtils.isNotBlank(current)) {
-            chooser = new JFileChooser(current);
-        } else {
-            chooser = new JFileChooser();
+        if (chooser != null) {
+            log.warn("Cannot call already opened file choose twice. Close file chooser first.");
+            return "{\"directory\": \"\"}";
         }
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        File file = null;
         synchronized (FilesystemBrowserRest.class) {
             if (frame == null) {
                 frame = new JFrame("BorgButler");
@@ -50,18 +48,28 @@ public class FilesystemBrowserRest {
                 frame.getContentPane().add(label);
                 frame.pack();
             }
-        }
-        frame.setVisible(true);
-        frame.setAlwaysOnTop(true);
-        int returnCode = chooser.showDialog(frame, "Choose");
-        frame.setVisible(false);
-        frame.setAlwaysOnTop(false);
-        File file = null;
-        if (returnCode == JFileChooser.APPROVE_OPTION) {
-            file = chooser.getSelectedFile();
+            try {
+                if (StringUtils.isNotBlank(current)) {
+                    chooser = new JFileChooser(current);
+                } else {
+                    chooser = new JFileChooser();
+                }
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+                frame.setVisible(true);
+                frame.setAlwaysOnTop(true);
+                int returnCode = chooser.showDialog(frame, "Choose");
+                frame.setVisible(false);
+                frame.setAlwaysOnTop(false);
+                if (returnCode == JFileChooser.APPROVE_OPTION) {
+                    file = chooser.getSelectedFile();
+                }
+            } finally {
+                chooser = null;
+            }
         }
         String filename = file != null ? JsonUtils.toJson(file.getAbsolutePath()) : "";
-        String result = "{\"directory\":" + filename + "}";
+        String result = "{\"directory\":\"" + filename + "\"}";
         return result;
     }
 
@@ -81,4 +89,5 @@ public class FilesystemBrowserRest {
     }
 
     private static JFrame frame;
+    private static JFileChooser chooser;
 }
