@@ -10,16 +10,18 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ConfigurationHandler {
     private static Logger log = LoggerFactory.getLogger(ConfigurationHandler.class);
     private static ConfigurationHandler instance;
     private static final String BUTLER_HOME_DIR = ".borgbutler";
     private static final String CONFIG_FILENAME = "borgbutler-config.json";
-    private static final String CONFIG_BACKUP_FILENAME = "borgbutler-config-bak.json";
+    private static final String CONFIG_BACKUP_DIR = "backup";
     @Getter
     private File configFile;
-    private File configBackupFile;
+    private File configBackupDir;
     @Getter
     private File workingDir;
     private Configuration configuration;
@@ -75,6 +77,8 @@ public class ConfigurationHandler {
         try {
             if (configFile.exists()) {
                 // Create backup-file first:
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss'-'");
+                File configBackupFile = new File(configBackupDir, formatter.format(new Date()) + CONFIG_FILENAME);
                 log.info("Creating backup file first: '" + configBackupFile.getAbsolutePath() + "'");
                 FileUtils.copyFile(configFile, configBackupFile);
             }
@@ -93,7 +97,11 @@ public class ConfigurationHandler {
             workingDir.mkdirs();
         }
         configFile = new File(workingDir, CONFIG_FILENAME);
-        configBackupFile = new File(workingDir, CONFIG_BACKUP_FILENAME);
+        configBackupDir = new File(workingDir, CONFIG_BACKUP_DIR);
+        if (!configBackupDir.exists()) {
+            log.info("Creating borg-butlers backup directory: " + configBackupDir.getAbsolutePath());
+            configBackupDir.mkdirs();
+        }
         read();
     }
 }
