@@ -15,6 +15,7 @@ import {
 import I18n from "../../general/translation/I18n";
 import {getRestServiceUrl} from "../../../utilities/global";
 import {PageHeader} from "../../general/BootstrapComponents";
+import PropTypes from "prop-types";
 
 class ConfigureRepoPage extends React.Component {
 
@@ -145,7 +146,8 @@ class ConfigureRepoPage extends React.Component {
         if (this.state.localRemote === 'local') {
             repoFieldLength = 9;
             browseButton = <FormButton onClick={this.browseDirectory}
-                                       hint={'Browse local backup directory.'}><I18n name={'common.browse'}/>
+                                       hint={'Browse local backup directory. (experimental!)'}><I18n
+                name={'common.browse'}/>
             </FormButton>;
             repoPlaceHolder = 'Enter or browse the local path of the repo home dir used by Borg.';
         }
@@ -158,7 +160,7 @@ class ConfigureRepoPage extends React.Component {
                 Configure repository
             </PageHeader>
             <form>
-                <FormGroup>
+                <FormGroup className={this.props.editExistingRepo ? 'hidden' : null}>
                     <FormLabel length={2}>{'Mode'}</FormLabel>
                     <FormField length={10}>
                         <FormRadioButton name={'mode'} id={'mode1'} label={'Add existing repository'}
@@ -166,7 +168,8 @@ class ConfigureRepoPage extends React.Component {
                                          checked={this.state.mode === 'existingRepo'}
                                          onChange={this.handleCheckboxChange}
                                          hint={'Do you want to add an already existing Borg repository?'}/>
-                        <FormRadioButton name={'mode'} id={'mode2'} label={'Init new repository'} value={'initNewRepo'}
+                        <FormRadioButton name={'mode'} id={'mode2'} label={'Init new repository (not yet implemented)'}
+                                         value={'initNewRepo'}
                                          checked={this.state.mode === 'initNewRepo'}
                                          onChange={this.handleCheckboxChange}
                                          hint={'Do you want to create and init a new one?'}/>
@@ -277,7 +280,8 @@ class ConfigureRepoPage extends React.Component {
                         <Alert
                             color={'danger'}
                         >
-                            You backup isn't encrpyted! You should ensure, that your destination storage is encrypted and protected.
+                            You backup isn't encrpyted! You should ensure, that your destination storage is encrypted
+                            and protected.
                         </Alert>
                     </FormField>
                 </FormGroup>
@@ -285,6 +289,8 @@ class ConfigureRepoPage extends React.Component {
                     <Link to={'/repos'} className={'btn btn-outline-primary'}><I18n name={'common.cancel'}/>
                     </Link>
                     <FormButton onClick={this.onSave} bsStyle="primary"
+                                disabled={repoConfig.repo && repoConfig.repo.length > 0
+                                && repoConfig.displayName && repoConfig.displayName.length > 0 ? false : true}
                                 hintKey="configuration.save.hint"><I18n name={'common.save'}/>
                     </FormButton>
                 </FormField>
@@ -300,6 +306,16 @@ class ConfigureRepoPage extends React.Component {
         </React.Fragment>;
     }
 }
+
+ConfigureRepoPage.propTypes = {
+    // true: The user wants to edit an already existing borg repository in the config file, if false, the user wants to configure
+    // a new repo and add this to the the BorgButler's config file.
+    editExistingRepo: PropTypes.bool
+};
+
+ConfigureRepoPage.defaultProps = {
+    editExistingRepo: false
+};
 
 export default ConfigureRepoPage;
 
