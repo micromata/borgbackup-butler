@@ -10,13 +10,8 @@ import {
 import PropTypes from "prop-types";
 import I18n from '../../general/translation/I18n';
 import {getRestServiceUrl} from "../../../utilities/global";
-import ConfigureRepoPage from "./ConfigureRepoPage";
 
 class RepoConfigBasePanel extends React.Component {
-
-    constructor(props) {
-        super(props);
-    }
 
     render() {
         let repoPlaceHolder = 'Enter the repo used by Borg.';
@@ -90,12 +85,11 @@ RepoConfigBasePanel.propTypes = {
     handleRepoConfigChange: PropTypes.func.isRequired,
     setRepoValue: PropTypes.func.isRequired,
     repoConfig: PropTypes.object.isRequired,
-    remote: PropTypes.bool.isRequired,
-    editExistingRepo: PropTypes.bool
+    remote: PropTypes.bool
 };
 
 RepoConfigBasePanel.defaultProps = {
-    editExistingRepo: false
+    remote: true
 };
 
 export default RepoConfigBasePanel;
