@@ -111,8 +111,10 @@ class RepoConfigPanel extends React.Component {
         } else if (this.state.repoConfig) {
             const repoConfig = this.state.repoConfig;
             let encryption = 'undefined'; // Todo
+            const remote = (repoConfig.rsh && repoConfig.rsh.length > 0) || (repoConfig.repo && repoConfig.repo.indexOf('@') >= 0);
             content = <React.Fragment>
                 <RepoConfigBasePanel repoConfig={repoConfig}
+                                     remote={remote}
                                      handleRepoConfigChange={this.handleRepoConfigChange}
                                      setRepoValue={this.setRepoValue}/>
                 <RepoConfigPasswordPanel encryption={encryption}
