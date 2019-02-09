@@ -25,7 +25,7 @@ class RepoConfigBasePanel extends React.Component {
         }
         let repoFieldLength = 10;
         let browseButton = null;
-        if (this.props.remote) {
+        if (!this.props.remote) {
             repoFieldLength = 9;
             browseButton = <FormButton onClick={this.browseDirectory}
                                        hint={'Browse local backup directory. (experimental!)'}><I18n

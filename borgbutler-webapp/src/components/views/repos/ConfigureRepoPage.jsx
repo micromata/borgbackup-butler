@@ -95,7 +95,7 @@ class ConfigureRepoPage extends React.Component {
                     </FormField>
                 </FormGroup>
                 <RepoConfigBasePanel repoConfig={repoConfig}
-                                     remote={this.state.localRemote === 'local'}
+                                     remote={this.state.localRemote !== 'local'}
                                      handleRepoConfigChange={this.handleRepoConfigChange}
                                      setRepoValue={this.setRepoValue}/>
                 <FormGroup className={this.state.mode === 'existingRepo' ? 'hidden' : null}>
