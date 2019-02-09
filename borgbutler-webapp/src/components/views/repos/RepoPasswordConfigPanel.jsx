@@ -18,10 +18,10 @@ class RepoPasswordConfigPanel extends React.Component {
             passwordMethod: 'passwordCommand',
             passwordCreate: null
         };
-        this.handleTextChange = this.handleTextChange.bind(this);
+        this.handlePasswordMethodChange = this.handlePasswordMethodChange.bind(this);
     }
 
-    handleTextChange = event => {
+    handlePasswordMethodChange = event => {
         event.preventDefault();
         this.setState({[event.target.name]: event.target.value});
         if (event.target.name === 'passwordMethod') {
@@ -100,7 +100,7 @@ class RepoPasswordConfigPanel extends React.Component {
                     <FormSelect
                         value={this.state.passwordMethod}
                         name={'passwordMethod'}
-                        onChange={this.handleTextChange}
+                        onChange={this.handlePasswordMethodChange}
                     >
                         {passwordMethods
                             .map((entry) => <FormOption label={entry[1]} value={entry[0]}
@@ -161,7 +161,7 @@ RepoPasswordConfigPanel.propTypes = {
 };
 
 RepoPasswordConfigPanel.defaultProps = {
-    editExistingRepo: 'none'
+    encryption: 'none'
 };
 
 export default RepoPasswordConfigPanel;
