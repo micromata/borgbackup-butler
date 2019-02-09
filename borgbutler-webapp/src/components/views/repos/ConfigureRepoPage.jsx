@@ -15,7 +15,7 @@ import I18n from '../../general/translation/I18n';
 import {getRestServiceUrl} from '../../../utilities/global';
 import {PageHeader} from '../../general/BootstrapComponents';
 import PropTypes from 'prop-types';
-import RepoPasswordConfigPanel from './RepoPasswordConfigPanel';
+import RepoConfigPasswordPanel from './RepoConfigPasswordPanel';
 
 class ConfigureRepoPage extends React.Component {
 
@@ -164,7 +164,7 @@ class ConfigureRepoPage extends React.Component {
                         </FormSelect>
                     </FormField>
                 </FormGroup>
-                <RepoPasswordConfigPanel encryption={this.state.repoConfig.encryption}
+                <RepoConfigPasswordPanel encryption={this.state.repoConfig.encryption}
                                          repoConfig={repoConfig}
                                          handleRepoConfigChange={this.handleRepoConfigChange}/>
                 <FormField length={12}>

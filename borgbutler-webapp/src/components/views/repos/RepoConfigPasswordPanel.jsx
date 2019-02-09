@@ -10,7 +10,7 @@ import {
 } from '../../general/forms/FormComponents';
 import PropTypes from "prop-types";
 
-class RepoPasswordConfigPanel extends React.Component {
+class RepoConfigPasswordPanel extends React.Component {
 
     constructor(props) {
         super(props);
@@ -154,14 +154,14 @@ class RepoPasswordConfigPanel extends React.Component {
     }
 }
 
-RepoPasswordConfigPanel.propTypes = {
+RepoConfigPasswordPanel.propTypes = {
     handleRepoConfigChange: PropTypes.func.isRequired,
     repoConfig: PropTypes.object.isRequired,
     encryption: PropTypes.string
 };
 
-RepoPasswordConfigPanel.defaultProps = {
+RepoConfigPasswordPanel.defaultProps = {
     encryption: 'none'
 };
 
-export default RepoPasswordConfigPanel;
+export default RepoConfigPasswordPanel;
