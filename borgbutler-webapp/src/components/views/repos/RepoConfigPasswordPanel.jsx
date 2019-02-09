@@ -70,8 +70,7 @@ class RepoConfigPasswordPanel extends React.Component {
                 </React.Fragment>;
             }
             if (passwordCommand) {
-                // TODO
-                this.setState({repoConfig: {...this.state.repoConfig, 'passwordCommand': passwordCommand}})
+                this.props.setRepoValue('passwordCommand', passwordCommand);
             }
             this.setState({'passwordCreate': passwordCreate});
         }
@@ -156,6 +155,7 @@ class RepoConfigPasswordPanel extends React.Component {
 
 RepoConfigPasswordPanel.propTypes = {
     handleRepoConfigChange: PropTypes.func.isRequired,
+    setRepoValue: PropTypes.func.isRequired,
     repoConfig: PropTypes.object.isRequired,
     encryption: PropTypes.string
 };

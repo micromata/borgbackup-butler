@@ -4,9 +4,7 @@ import {
     FormButton,
     FormField,
     FormGroup,
-    FormInput,
     FormLabel,
-    FormLabelInputField,
     FormOption,
     FormRadioButton,
     FormSelect
@@ -15,6 +13,7 @@ import I18n from '../../general/translation/I18n';
 import {getRestServiceUrl} from '../../../utilities/global';
 import {PageHeader} from '../../general/BootstrapComponents';
 import PropTypes from 'prop-types';
+import RepoConfigBasePanel from './RepoConfigBasePanel';
 import RepoConfigPasswordPanel from './RepoConfigPasswordPanel';
 
 class ConfigureRepoPage extends React.Component {
@@ -24,6 +23,7 @@ class ConfigureRepoPage extends React.Component {
         this.handleTextChange = this.handleTextChange.bind(this);
         this.handleRepoConfigChange = this.handleRepoConfigChange.bind(this);
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
+        this.setRepoValue = this.setRepoValue.bind(this);
         this.state = {
             repoConfig: {
                 encryption: 'repoKey'
@@ -45,6 +45,11 @@ class ConfigureRepoPage extends React.Component {
         this.setState({repoConfig: {...this.state.repoConfig, [event.target.name]: event.target.value}});
     }
 
+    setRepoValue(variable, value) {
+        //console.log(variable + "=" + value);
+        this.setState({repoConfig: {...this.state.repoConfig, [variable]: value}})
+    }
+
     handleCheckboxChange = event => {
         this.setState({[event.target.name]: event.target.value});
         /*if (event.target.name === 'mode' && event.target.value === 'existingRepo'
@@ -54,44 +59,8 @@ class ConfigureRepoPage extends React.Component {
         }*/
     }
 
-    browseDirectory = () => {
-        const current = "&current=" + encodeURIComponent(this.state.repoConfig.repo);
-        fetch(getRestServiceUrl("files/browse-local-filesystem?type=dir" + current), {
-            method: "GET",
-            dataType: "JSON",
-            headers: {
-                "Content-Type": "text/plain; charset=utf-8",
-            }
-        })
-            .then((resp) => {
-                return resp.json()
-            })
-            .then((data) => {
-                if (data.directory) {
-                    this.setState({repoConfig: {...this.state.repoConfig, repo: data.directory}});
-                }
-            })
-            .catch((error) => {
-                console.log(error, "Oups, what's happened?")
-            })
-    }
-
     render() {
         const repoConfig = this.state.repoConfig;
-        let repoPlaceHolder = 'Enter the repo used by Borg.';
-        if (this.state.mode === 'initNewRepo' && this.state.localRemote === 'remote') {
-            repoPlaceHolder = 'Enter the remote path of the repo, such as user@hostname:backup.';
-        }
-        let repoFieldLength = 10;
-        let browseButton = null;
-        if (this.state.localRemote === 'local') {
-            repoFieldLength = 9;
-            browseButton = <FormButton onClick={this.browseDirectory}
-                                       hint={'Browse local backup directory. (experimental!)'}><I18n
-                name={'common.browse'}/>
-            </FormButton>;
-            repoPlaceHolder = 'Enter or browse the local path of the repo home dir used by Borg.';
-        }
         return <React.Fragment>
             <PageHeader>
                 Configure repository
@@ -125,29 +94,10 @@ class ConfigureRepoPage extends React.Component {
                                          onChange={this.handleCheckboxChange}/>
                     </FormField>
                 </FormGroup>
-                <FormLabelInputField label={'Display name'} fieldLength={12}
-                                     name={'displayName'} value={repoConfig.displayName}
-                                     onChange={this.handleRepoConfigChange}
-                                     placeholder="Enter display name (only for displaying purposes)."/>
-                <FormGroup>
-                    <FormLabel length={2}>{'Repo'}</FormLabel>
-                    <FormField length={repoFieldLength}>
-                        <FormInput
-                            id={'repo'}
-                            name={'repo'}
-                            type={'text'}
-                            value={repoConfig.repo}
-                            onChange={this.handleRepoConfigChange}
-                            placeholder={repoPlaceHolder}
-                        />
-                    </FormField>
-                    {browseButton}
-                </FormGroup>
-                <FormLabelInputField label={'RSH'} fieldLength={12}
-                                     name={'rsh'} value={repoConfig.rsh}
-                                     onChange={this.handleRepoConfigChange}
-                                     placeholder="Enter the rsh value (ssh command) for remote repository."
-                                     className={this.state.localRemote === 'local' ? 'hidden' : null}/>
+                <RepoConfigBasePanel repoConfig={repoConfig}
+                                     remote={this.state.localRemote === 'local'}
+                                     handleRepoConfigChange={this.handleRepoConfigChange}
+                                     setRepoValue={this.setRepoValue}/>
                 <FormGroup className={this.state.mode === 'existingRepo' ? 'hidden' : null}>
                     <FormLabel length={2}>{'Encryption'}</FormLabel>
                     <FormField length={4}>
@@ -166,7 +116,8 @@ class ConfigureRepoPage extends React.Component {
                 </FormGroup>
                 <RepoConfigPasswordPanel encryption={this.state.repoConfig.encryption}
                                          repoConfig={repoConfig}
-                                         handleRepoConfigChange={this.handleRepoConfigChange}/>
+                                         handleRepoConfigChange={this.handleRepoConfigChange}
+                                         setRepoValue={this.setRepoValue}/>
                 <FormField length={12}>
                     <Link to={'/repos'} className={'btn btn-outline-primary'}><I18n name={'common.cancel'}/>
                     </Link>
