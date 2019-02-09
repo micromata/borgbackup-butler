@@ -20,7 +20,6 @@ class ConfigureRepoPage extends React.Component {
 
     constructor(props) {
         super(props);
-        this.handleTextChange = this.handleTextChange.bind(this);
         this.handleRepoConfigChange = this.handleRepoConfigChange.bind(this);
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
         this.setRepoValue = this.setRepoValue.bind(this);
@@ -32,12 +31,6 @@ class ConfigureRepoPage extends React.Component {
             localRemote: 'local'
         };
     }
-
-    handleTextChange = event => {
-        event.preventDefault();
-        this.setState({[event.target.name]: event.target.value});
-    }
-
 
     handleRepoConfigChange = event => {
         event.preventDefault();
@@ -66,7 +59,7 @@ class ConfigureRepoPage extends React.Component {
                 Configure repository
             </PageHeader>
             <form>
-                <FormGroup className={this.props.editExistingRepo ? 'hidden' : null}>
+                <FormGroup>
                     <FormLabel length={2}>{'Mode'}</FormLabel>
                     <FormField length={10}>
                         <FormRadioButton name={'mode'} id={'mode1'} label={'Add existing repository'}
@@ -139,15 +132,5 @@ class ConfigureRepoPage extends React.Component {
         </React.Fragment>;
     }
 }
-
-ConfigureRepoPage.propTypes = {
-    // true: The user wants to edit an already existing borg repository in the config file, if false, the user wants to configure
-    // a new repo and add this to the the BorgButler's config file.
-    editExistingRepo: PropTypes.bool
-};
-
-ConfigureRepoPage.defaultProps = {
-    editExistingRepo: false
-};
 
 export default ConfigureRepoPage;
