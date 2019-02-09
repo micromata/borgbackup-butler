@@ -85,11 +85,7 @@ RepoConfigBasePanel.propTypes = {
     handleRepoConfigChange: PropTypes.func.isRequired,
     setRepoValue: PropTypes.func.isRequired,
     repoConfig: PropTypes.object.isRequired,
-    remote: PropTypes.bool
-};
-
-RepoConfigBasePanel.defaultProps = {
-    remote: true
+    remote: PropTypes.bool.isRequired
 };
 
 export default RepoConfigBasePanel;
