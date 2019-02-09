@@ -10,9 +10,7 @@ import {
     FormSelect
 } from '../../general/forms/FormComponents';
 import I18n from '../../general/translation/I18n';
-import {getRestServiceUrl} from '../../../utilities/global';
 import {PageHeader} from '../../general/BootstrapComponents';
-import PropTypes from 'prop-types';
 import RepoConfigBasePanel from './RepoConfigBasePanel';
 import RepoConfigPasswordPanel from './RepoConfigPasswordPanel';
 
