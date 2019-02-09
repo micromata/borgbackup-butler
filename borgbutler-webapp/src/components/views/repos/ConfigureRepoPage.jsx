@@ -32,12 +32,10 @@ class ConfigureRepoPage extends React.Component {
 
     handleRepoConfigChange = event => {
         event.preventDefault();
-        //console.log(event.target.name + ": " + event.target.value);
-        this.setState({repoConfig: {...this.state.repoConfig, [event.target.name]: event.target.value}});
+        this.setRepoValue(event.target.name, event.target.value);
     }
 
     setRepoValue(variable, value) {
-        //console.log(variable + "=" + value);
         this.setState({repoConfig: {...this.state.repoConfig, [variable]: value}})
     }
 
