@@ -1,11 +1,13 @@
 import React from 'react';
 import {FormGroup} from 'reactstrap';
-import {FormButton, FormField, FormLabelInputField} from '../../general/forms/FormComponents';
+import {FormButton, FormField} from '../../general/forms/FormComponents';
 import {getRestServiceUrl} from '../../../utilities/global';
 import I18n from "../../general/translation/I18n";
 import LoadingOverlay from '../../general/loading/LoadingOverlay';
 import PropTypes from "prop-types";
 import ErrorAlert from "../../general/ErrorAlert";
+import RepoConfigBasePanel from './RepoConfigBasePanel';
+import RepoConfigPasswordPanel from './RepoConfigPasswordPanel';
 
 class RepoConfigPanel extends React.Component {
 
@@ -17,7 +19,7 @@ class RepoConfigPanel extends React.Component {
         };
 
         this.fetch = this.fetch.bind(this);
-        this.handleTextChange = this.handleTextChange.bind(this);
+        this.setRepoValue = this.setRepoValue.bind(this);
         this.onSave = this.onSave.bind(this);
         this.onCancel = this.onCancel.bind(this);
     }
@@ -54,9 +56,14 @@ class RepoConfigPanel extends React.Component {
             })
     };
 
-    handleTextChange = event => {
+    handleRepoConfigChange = event => {
         event.preventDefault();
-        this.setState({repoConfig: {...this.state.repoConfig, [event.target.name]: event.target.value}});
+        this.setRepoValue(event.target.name, event.target.value);
+    }
+
+    setRepoValue(variable, value) {
+        //console.log(variable + "=" + value);
+        this.setState({repoConfig: {...this.state.repoConfig, [variable]: value}})
     }
 
     async onSave(event) {
@@ -85,7 +92,7 @@ class RepoConfigPanel extends React.Component {
         let content;
         let repoError = '';
         if (this.props.repoError) {
-            repoError =<ErrorAlert
+            repoError = <ErrorAlert
                 title={'Cannot access repository'}
                 description={'Repo not available or mis-configured (please refer the log files for more details).'}
             />
@@ -103,29 +110,16 @@ class RepoConfigPanel extends React.Component {
             />;
         } else if (this.state.repoConfig) {
             const repoConfig = this.state.repoConfig;
+            let encryption = 'undefined'; // Todo
             content = <React.Fragment>
+                <RepoConfigBasePanel repoConfig={repoConfig}
+                                     handleRepoConfigChange={this.handleRepoConfigChange}
+                                     setRepoValue={this.setRepoValue}/>
+                <RepoConfigPasswordPanel encryption={encryption}
+                                         repoConfig={repoConfig}
+                                         handleRepoConfigChange={this.handleRepoConfigChange}
+                                         setRepoValue={this.setRepoValue}/>
                 <FormGroup>
-                    <FormLabelInputField label={'Display name'} fieldLength={12}
-                                         name={'displayName'} value={repoConfig.displayName}
-                                         onChange={this.handleTextChange}
-                                         placeholder="Enter display name (only for displaying purposes)."/>
-                    <FormLabelInputField label={'Repo'} fieldLength={12}
-                                         name={'repo'} value={repoConfig.repo}
-                                         onChange={this.handleTextChange}
-                                         placeholder="Enter the name of the repo, used by Borg."/>
-                    <FormLabelInputField label={'RSH'} fieldLength={12}
-                                         name={'rsh'} value={repoConfig.rsh}
-                                         onChange={this.handleTextChange}
-                                         placeholder="Enter the rsh value (ssh command) for remote repository."/>
-                    <FormLabelInputField label={'Password command'} fieldLength={12}
-                                         name={'passwordCommand'} value={repoConfig.passwordCommand}
-                                         onChange={this.handleTextChange}
-                                         placeholder="Enter the password command to get the command from."/>
-                    <FormLabelInputField label={'Password'} fieldLength={6} type={'password'}
-                                         name={'passphrase'} value={repoConfig.passphrase}
-                                         onChange={this.handleTextChange}
-                                         hint={"It's recommended to use password command instead."}
-                    />
                     <FormField length={12}>
                         <FormButton onClick={this.onCancel}
                                     hintKey="configuration.cancel.hint"><I18n name={'common.cancel'}/>
