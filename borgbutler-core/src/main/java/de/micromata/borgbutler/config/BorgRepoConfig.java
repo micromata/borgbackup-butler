@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.config;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ public class BorgRepoConfig {
     @Setter
     private String id;
 
+    @JsonIgnore
     public String[] getEnvironmentVariables() {
         return getEnvironmentVariables(false);
     }
