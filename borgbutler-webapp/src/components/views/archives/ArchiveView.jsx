@@ -82,6 +82,34 @@ class ArchiveView extends React.Component {
                     <IconRefresh/>
                 </div>
             </React.Fragment>;
+            let stats = null;
+            if (archive.stats) {
+                stats = <tr>
+                    <td>Stats</td>
+                    <td>
+                        <table className="inline">
+                            <tbody>
+                            <tr>
+                                <td>Compressed size</td>
+                                <td>{humanFileSize(archive.stats.compressed_size)}</td>
+                            </tr>
+                            <tr>
+                                <td>Deduplicated size</td>
+                                <td>{humanFileSize(archive.stats.deduplicated_size)}</td>
+                            </tr>
+                            <tr>
+                                <td>Original size</td>
+                                <td>{humanFileSize(archive.stats.original_size)}</td>
+                            </tr>
+                            <tr>
+                                <td>Number of files</td>
+                                <td>{Number(archive.stats.nfiles).toLocaleString()}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            }
             content = <React.Fragment>
                 <Nav tabs>
                     <NavLink
@@ -120,38 +148,14 @@ class ArchiveView extends React.Component {
                                 <td>Id</td>
                                 <td>{archive.id}</td>
                             </tr>
-                            <tr>
-                                <td>Stats</td>
-                                <td>
-                                    <table className="inline">
-                                        <tbody>
-                                        <tr>
-                                            <td>Compressed size</td>
-                                            <td>{humanFileSize(archive.stats.compressed_size)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Deduplicated size</td>
-                                            <td>{humanFileSize(archive.stats.deduplicated_size)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Original size</td>
-                                            <td>{humanFileSize(archive.stats.original_size)}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Number of files</td>
-                                            <td>{Number(archive.stats.nfiles).toLocaleString()}</td>
-                                        </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
+                            {stats}
                             <tr>
                                 <td>Comment</td>
                                 <td>{archive.comment}</td>
                             </tr>
                             <tr>
                                 <td>Command line</td>
-                                <td>{archive.commandLine.join(' ')}</td>
+                                <td>{archive.commandLine ? archive.commandLine.join(' ') : ''}</td>
                             </tr>
                             <tr>
                                 <td>Host name</td>
@@ -163,7 +167,7 @@ class ArchiveView extends React.Component {
                             </tr>
                             <tr>
                                 <td>Chunker params</td>
-                                <td>{archive.chunkerParams.join(', ')}</td>
+                                <td>{archive.chunkerParams ? archive.chunkerParams.join(', ') : ''}</td>
                             </tr>
                             <tr>
                                 <td>Limits</td>
@@ -172,7 +176,7 @@ class ArchiveView extends React.Component {
                                         <tbody>
                                         <tr>
                                             <td>max_archive_size</td>
-                                            <td>{archive.limits.max_archive_size}</td>
+                                            <td>{archive.limit ? archive.limits.max_archive_size : ''}</td>
                                         </tr>
                                         </tbody>
                                     </table>
