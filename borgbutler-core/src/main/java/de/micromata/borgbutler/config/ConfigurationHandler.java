@@ -73,6 +73,14 @@ public class ConfigurationHandler {
     }
 
     public void save() {
+        if (this.configuration.getRepoConfigs() != null) {
+            for (BorgRepoConfig repoConfig : this.configuration.getRepoConfigs()) {
+                if (StringUtils.isNotBlank(repoConfig.getPasswordCommand())) {
+                    log.info("Removing password command from config because password command is given: " + repoConfig.getPasswordCommand());
+                    repoConfig.setPassphrase(null); // Don't use password (anymore) if password command is available.
+                }
+            }
+        }
         String json = JsonUtils.toJson(configuration, true);
         try {
             if (configFile.exists()) {
