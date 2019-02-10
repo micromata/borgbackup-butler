@@ -19,12 +19,12 @@ class ConfigureRepoPage extends React.Component {
     constructor(props) {
         super(props);
         this.handleRepoConfigChange = this.handleRepoConfigChange.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
         this.setRepoValue = this.setRepoValue.bind(this);
         this.state = {
-            repoConfig: {
-                encryption: 'repoKey'
-            },
+            repoConfig: {},
+            encryption: 'repoKey',
             mode: 'existingRepo',
             localRemote: 'local'
         };
@@ -38,6 +38,11 @@ class ConfigureRepoPage extends React.Component {
     setRepoValue(variable, value) {
         this.setState({repoConfig: {...this.state.repoConfig, [variable]: value}})
     }
+
+    handleInputChange = (event) => {
+        event.preventDefault();
+        this.setState({[event.target.name]: event.target.value});
+    };
 
     handleCheckboxChange = event => {
         this.setState({[event.target.name]: event.target.value});
@@ -91,9 +96,9 @@ class ConfigureRepoPage extends React.Component {
                     <FormLabel length={2}>{'Encryption'}</FormLabel>
                     <FormField length={4}>
                         <FormSelect
-                            value={repoConfig.encryption}
+                            value={this.state.encryption}
                             name={'encryption'}
-                            onChange={this.handleRepoConfigChange}
+                            onChange={this.handleInputChange}
                             hint={'Encryption for the new repository (use repokey if you don\'t know what to choose).'}
                         >
                             <FormOption label={'repokey (SHA256)'} value={'repokey'}/>
@@ -103,7 +108,7 @@ class ConfigureRepoPage extends React.Component {
                         </FormSelect>
                     </FormField>
                 </FormGroup>
-                <RepoConfigPasswordPanel encryption={this.state.repoConfig.encryption}
+                <RepoConfigPasswordPanel passwordMethod={this.state.encryption === 'none' ? 'none' : 'yes'}
                                          repoConfig={repoConfig}
                                          handleRepoConfigChange={this.handleRepoConfigChange}
                                          setRepoValue={this.setRepoValue}/>

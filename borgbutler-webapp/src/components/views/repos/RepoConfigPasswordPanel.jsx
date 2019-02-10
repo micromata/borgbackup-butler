@@ -14,11 +14,31 @@ class RepoConfigPasswordPanel extends React.Component {
 
     constructor(props) {
         super(props);
+        this.handlePasswordMethodChange = this.handlePasswordMethodChange.bind(this);
+        let passwordMethod = this.props.passwordMethod;
+        if (passwordMethod === 'auto') {
+            const repoConfig = this.props.repoConfig;
+            passwordMethod = 'passwordCommand';
+            if (repoConfig.passwordCommand && repoConfig.passwordCommand.length > 0) {
+                if (repoConfig.passwordCommand.indexOf('find-generic-password') > 0) {
+                    passwordMethod = 'macos-keychain';
+                } else if (repoConfig.passwordCommand.indexOf('secret-tool') > 0) {
+                    passwordMethod = 'gnome-keyring';
+                } else if (repoConfig.passwordCommand.indexOf('kwallet') > 0) {
+                    passwordMethod = 'kwallet';
+                } else {
+                    passwordMethod = 'passwordCommand'; // Default.
+                }
+            } else if (repoConfig.passphrase && repoConfig.passphrase.length > 0) {
+                passwordMethod = 'passphrase';
+            } else {
+                passwordMethod = 'passwordCommand'; // Default.
+            }
+        }
         this.state = {
-            passwordMethod: 'passwordCommand',
+            passwordMethod: passwordMethod,
             passwordCreate: null
         };
-        this.handlePasswordMethodChange = this.handlePasswordMethodChange.bind(this);
     }
 
     handlePasswordMethodChange = event => {
@@ -86,13 +106,10 @@ class RepoConfigPasswordPanel extends React.Component {
             ['passphrase', 'Passphrase (not recommended)'],
             ['none', 'No password (no encryption, not recommended)']
         ];
-        let encrypted = true;
-        if (this.props.encryption === 'none' || this.state.passwordMethod === 'none') {
-            encrypted = false;
-        }
+        let encrypted = this.props.passwordMethod !== 'none' && this.state.passwordMethod !== 'none';
         return <React.Fragment>
             <FormGroup
-                className={this.props.encryption === 'none' ? 'hidden' : null}
+                className={this.props.passwordMethod === 'none' ? 'hidden' : null}
             >
                 <FormLabel length={2}>{'Password method'}</FormLabel>
                 <FormField length={4}>
@@ -144,7 +161,7 @@ class RepoConfigPasswordPanel extends React.Component {
                     <Alert
                         color={'danger'}
                     >
-                        You backup isn't encrpyted! You should ensure, that your destination storage is encrypted
+                        You backup isn't encrypted! You should ensure, that your destination storage is encrypted
                         and protected.
                     </Alert>
                 </FormField>
@@ -157,11 +174,11 @@ RepoConfigPasswordPanel.propTypes = {
     handleRepoConfigChange: PropTypes.func.isRequired,
     setRepoValue: PropTypes.func.isRequired,
     repoConfig: PropTypes.object.isRequired,
-    encryption: PropTypes.string
+    passwordMethod: PropTypes.string
 };
 
 RepoConfigPasswordPanel.defaultProps = {
-    encryption: 'none'
+    passwordMethod: 'auto'
 };
 
 export default RepoConfigPasswordPanel;
