@@ -1,6 +1,6 @@
 import React from 'react';
 import {Alert, FormGroup} from 'reactstrap';
-import {FormButton, FormField} from '../../general/forms/FormComponents';
+import {FormButton, FormField, FormLabel} from '../../general/forms/FormComponents';
 import {getRestServiceUrl} from '../../../utilities/global';
 import I18n from "../../general/translation/I18n";
 import LoadingOverlay from '../../general/loading/LoadingOverlay';
@@ -66,7 +66,11 @@ class RepoConfigPanel extends React.Component {
 
     setRepoValue(variable, value) {
         //console.log(variable + "=" + value);
-        this.setState({repoConfig: {...this.state.repoConfig, [variable]: value}})
+        this.setState({
+            repoConfig: {...this.state.repoConfig, [variable]: value},
+            // reset testStatus only, if test status is OK (config values are changed, new test required):
+            testStatus: this.state.testStatus === 'OK' ? undefined : this.state.testStatus
+        })
     }
 
     async onSave(event) {
@@ -128,7 +132,7 @@ class RepoConfigPanel extends React.Component {
                 description={'Repo not available or mis-configured (please refer the log files for more details).'}
             />
         }
-        let testResult = '';
+        let testResult = undefined;
         if (!this.state.testStatus) {
             // No test available.
         } else if (this.state.testStatus === 'exception') {
@@ -146,6 +150,15 @@ class RepoConfigPanel extends React.Component {
                 title={'Error while testing repo configuration'}
                 description={this.state.testResult}
             />
+        }
+        let testResultGroup = '';
+        if (testResult) {
+            testResultGroup = <FormGroup row={true}>
+                <FormLabel length={2}>{'Test result'}</FormLabel>
+                <FormField length={10}>
+                    {testResult}
+                </FormField>
+            </FormGroup>;
         }
         if (this.state.isFetching) {
             content = <React.Fragment>Loading...</React.Fragment>;
@@ -171,12 +184,13 @@ class RepoConfigPanel extends React.Component {
                                          repoConfig={repoConfig}
                                          handleRepoConfigChange={this.handleRepoConfigChange}
                                          setRepoValue={this.setRepoValue}/>
-                <FormGroup>
-                    <FormField length={12}>
+                <FormGroup row={true}>
+                    <FormLabel length={2} />
+                    <FormField length={10}>
                         <FormButton onClick={this.onCancel}
                                     hintKey="configuration.cancel.hint"><I18n name={'common.cancel'}/>
                         </FormButton>
-                        <FormButton onClick={this.onTest} disabled={this.state.testResult === 'fetching'} bsStyle="info"
+                        <FormButton onClick={this.onTest} disabled={this.state.testStatus === 'fetching'} bsStyle="info"
                                     hint={'Tries to connect to the repo and to get info from.'}>Test
                         </FormButton>
                         <FormButton onClick={this.onSave} bsStyle="primary"
@@ -184,10 +198,11 @@ class RepoConfigPanel extends React.Component {
                         </FormButton>
                     </FormField>
                 </FormGroup>
+                {testResultGroup}
                 <LoadingOverlay active={this.state.loading}/>
             </React.Fragment>;
         }
-        return <React.Fragment>{content}{testResult}{repoError}</React.Fragment>;
+        return <React.Fragment>{content}{repoError}</React.Fragment>;
     }
 }
 
