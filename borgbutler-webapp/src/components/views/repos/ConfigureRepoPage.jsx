@@ -13,6 +13,7 @@ import I18n from '../../general/translation/I18n';
 import {PageHeader} from '../../general/BootstrapComponents';
 import RepoConfigBasePanel from './RepoConfigBasePanel';
 import RepoConfigPasswordPanel from './RepoConfigPasswordPanel';
+import RepoConfigTestPanel from './RepoConfigTestPanel';
 
 class ConfigureRepoPage extends React.Component {
 
@@ -124,6 +125,7 @@ class ConfigureRepoPage extends React.Component {
                         </FormButton>
                     </FormField>
                 </FormGroup>
+                <RepoConfigTestPanel repoConfig={this.state.repoConfig} />
             </form>
             <code>
                 <h2>Todo:</h2>
