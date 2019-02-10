@@ -47,11 +47,6 @@ class ConfigureRepoPage extends React.Component {
 
     handleCheckboxChange = event => {
         this.setState({[event.target.name]: event.target.value});
-        /*if (event.target.name === 'mode' && event.target.value === 'existingRepo'
-            && this.state.passwordMethod !== 'passwordCommand' && this.state.passwordMethod !== 'passphrase') {
-            // Other options such as Mac OS key chain isn't available for existing repos:
-            this.setState({passwordMethod: 'passwordCommand'});
-        }*/
     }
 
     render() {
@@ -125,7 +120,7 @@ class ConfigureRepoPage extends React.Component {
                         </FormButton>
                     </FormField>
                 </FormGroup>
-                <RepoConfigTestPanel repoConfig={this.state.repoConfig} />
+                <RepoConfigTestPanel repoConfig={this.state.repoConfig}/>
             </form>
             <code>
                 <h2>Todo:</h2>
