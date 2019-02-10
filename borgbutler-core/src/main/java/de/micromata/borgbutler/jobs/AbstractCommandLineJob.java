@@ -101,13 +101,22 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
             if (logError && !isCancellationRequested() && getStatus() != Status.CANCELLED) {
                 log.error("Execution failed for job: '" + commandLineAsString + "': " + ex.getMessage());
                 log.error("Error output of job '" + commandLineAsString + "': "
-                        + StringUtils.abbreviateMiddle(errorOutputStream.toString(Definitions.STD_CHARSET),
-                        "\n    [... ***** error log abbreviated ***** ...]\n", 2000));
+                        + getErrorString(2000));
             }
             failed();
         }
         result.setResultObject(outputStream.toString(Definitions.STD_CHARSET));
         return result;
+    }
+
+    /**
+     * @param maxlength The result string will be abbreviated (in the middle).
+     * @return
+     * @see StringUtils#abbreviateMiddle(String, String, int)
+     */
+    public String getErrorString(int maxlength) {
+        return StringUtils.abbreviateMiddle(errorOutputStream.toString(Definitions.STD_CHARSET),
+                "\n    [... ***** error log abbreviated ***** ...]\n", maxlength);
     }
 
     public void processStdOutLine(String line, int level) {
