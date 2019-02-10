@@ -1,8 +1,12 @@
 package de.micromata.borgbutler.server.rest;
 
+import de.micromata.borgbutler.BorgCommandResult;
+import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.data.Repository;
+import de.micromata.borgbutler.jobs.JobResult;
 import de.micromata.borgbutler.json.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,5 +44,19 @@ public class BorgRepoConfigsRest {
         ButlerCache.getInstance().clearRepoCacheAccess(newRepoConfig.getRepo());
         repoConfig.copyFrom(newRepoConfig);
         ConfigurationHandler.getInstance().save();
+    }
+
+    /**
+     * @param jsonRepoConfig All configuration value of the repo to check.
+     * @return Result of borg (tbd.).
+     */
+    @POST
+    @Path("check")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String checkConfig(String jsonRepoConfig) {
+        log.info("Testing repo config: " + jsonRepoConfig);
+        BorgRepoConfig repoConfig = JsonUtils.fromJson(BorgRepoConfig.class, jsonRepoConfig);
+        BorgCommandResult<Repository> result = BorgCommands.info(repoConfig);
+        return result.getStatus() == JobResult.Status.OK ? "OK" : result.getError();
     }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import {FormGroup} from 'reactstrap';
+import {Alert, FormGroup} from 'reactstrap';
 import {FormButton, FormField} from '../../general/forms/FormComponents';
 import {getRestServiceUrl} from '../../../utilities/global';
 import I18n from "../../general/translation/I18n";
@@ -15,13 +15,16 @@ class RepoConfigPanel extends React.Component {
         super(props);
         this.state = {
             loading: false,
-            repoConfig: undefined
+            repoConfig: undefined,
+            testStatus: undefined,
+            testResult: undefined
         };
 
         this.fetch = this.fetch.bind(this);
         this.setRepoValue = this.setRepoValue.bind(this);
         this.onSave = this.onSave.bind(this);
         this.onCancel = this.onCancel.bind(this);
+        this.onTest = this.onTest.bind(this);
     }
 
     componentDidMount = () => this.fetch();
@@ -80,6 +83,34 @@ class RepoConfigPanel extends React.Component {
         }
     }
 
+    onTest(event) {
+        this.setState({
+            testStatus: 'fetching',
+            testResult: undefined
+        });
+        fetch(getRestServiceUrl("repoConfig/check"), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(this.state.repoConfig)
+        })
+            .then(response => response.text())
+            .then(result => {
+                //console.log("test-result: " + result);
+                this.setState({
+                    testStatus: result === 'OK' ? 'OK' : 'error',
+                    testResult: result
+                })
+            })
+            .catch((error) => {
+                console.log("error", error);
+                this.setState({
+                    testStatus: 'exception'
+                });
+            });
+    }
+
     async onCancel() {
         const response = this.fetch();
         if (response) await response;
@@ -93,8 +124,27 @@ class RepoConfigPanel extends React.Component {
         let repoError = '';
         if (this.props.repoError) {
             repoError = <ErrorAlert
-                title={'Cannot access repository'}
+                title={'Internal error'}
                 description={'Repo not available or mis-configured (please refer the log files for more details).'}
+            />
+        }
+        let testResult = '';
+        if (!this.state.testStatus) {
+            // No test available.
+        } else if (this.state.testStatus === 'exception') {
+            testResult = <ErrorAlert title={'Unknown error'} description={'Internal error while calling Rest API.'}/>;
+        } else if (this.state.testStatus === 'OK') {
+            testResult = <Alert color={'success'}>
+                OK
+            </Alert>;
+        } else if (this.state.testStatus === 'fetching') {
+            testResult = <Alert color={'warning'}>
+                Testing...
+            </Alert>;
+        } else {
+            testResult = <ErrorAlert
+                title={'Error while testing repo configuration'}
+                description={this.state.testResult}
             />
         }
         if (this.state.isFetching) {
@@ -126,6 +176,9 @@ class RepoConfigPanel extends React.Component {
                         <FormButton onClick={this.onCancel}
                                     hintKey="configuration.cancel.hint"><I18n name={'common.cancel'}/>
                         </FormButton>
+                        <FormButton onClick={this.onTest} disabled={this.state.testResult === 'fetching'} bsStyle="info"
+                                    hint={'Tries to connect to the repo and to get info from.'}>Test
+                        </FormButton>
                         <FormButton onClick={this.onSave} bsStyle="primary"
                                     hintKey="configuration.save.hint"><I18n name={'common.save'}/>
                         </FormButton>
@@ -134,7 +187,7 @@ class RepoConfigPanel extends React.Component {
                 <LoadingOverlay active={this.state.loading}/>
             </React.Fragment>;
         }
-        return <React.Fragment>{content}{repoError}</React.Fragment>;
+        return <React.Fragment>{content}{testResult}{repoError}</React.Fragment>;
     }
 }
 
