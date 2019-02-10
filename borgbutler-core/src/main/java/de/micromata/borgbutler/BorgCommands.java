@@ -91,18 +91,19 @@ public class BorgCommands {
      * @param repoConfig
      * @return Parsed repo config returned by Borg command (without archives).
      */
-    public static Repository info(BorgRepoConfig repoConfig) {
+    public static BorgCommandResult<Repository> info(BorgRepoConfig repoConfig) {
         BorgCommand command = new BorgCommand()
                 .setRepoConfig(repoConfig)
                 .setCommand("info")
                 .setParams("--json") // --progress has no effect.
                 .setDescription("Loading info of repo '" + repoConfig.getDisplayName() + "'.");
-        JobResult<String> jobResult = getResult(command);
-        if (jobResult == null || jobResult.getStatus() != JobResult.Status.OK) {
-            return null;
+        BorgCommandResult<Repository> result = new BorgCommandResult<>();
+        getResult(result, command);
+        if (result.getStatus() != JobResult.Status.OK) {
+            return result;
         }
-        String result = jobResult.getResultObject();
-        BorgRepoInfo repoInfo = JsonUtils.fromJson(BorgRepoInfo.class, result);
+        String resultJson = result.getJobResult().getResultObject();
+        BorgRepoInfo repoInfo = JsonUtils.fromJson(BorgRepoInfo.class, resultJson);
         BorgRepository borgRepository = repoInfo.getRepository();
         Repository repository = new Repository()
                 .setId(borgRepository.getId())
@@ -115,7 +116,7 @@ public class BorgCommands {
                 .setSecurityDir(repoInfo.getSecurityDir())
                 .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
         DemoRepos.repoWasRead(repoConfig, repository);
-        return repository;
+        return result.setObject(repository);
     }
 
     /**
@@ -269,6 +270,16 @@ public class BorgCommands {
                         + path);
         JobResult<String> jobResult = getResult(command);
         return restoreDir;
+    }
+
+    private static void getResult(BorgCommandResult<?> result, BorgCommand command) {
+        BorgJob<Void> job = execute(command);
+        JobResult<String> jobResult = job.getResult();
+        result.setJobResult(jobResult);
+        if (jobResult == null || jobResult.getStatus() == JobResult.Status.ERROR) {
+            jobResult.setErrorString(job.getErrorString(2000));
+        }
+        job.cleanUp();
     }
 
     private static JobResult<String> getResult(BorgCommand command) {

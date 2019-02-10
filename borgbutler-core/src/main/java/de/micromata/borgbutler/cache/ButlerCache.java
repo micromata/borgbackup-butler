@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.cache;
 
+import de.micromata.borgbutler.BorgCommandResult;
 import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.config.Configuration;
@@ -75,7 +76,8 @@ public class ButlerCache {
             log.warn("Error while deserializing repository (maybe data format was changed). Reloading...");
         }
         if (repository == null || repository.getLocation() == null) {
-            repository = BorgCommands.info(repoConfig);
+            BorgCommandResult<Repository> result = BorgCommands.info(repoConfig);
+            repository = result.getObject();
             if (repository != null) {
                 repoCacheAccess.put(repoConfig.getRepo(), repository);
             }
