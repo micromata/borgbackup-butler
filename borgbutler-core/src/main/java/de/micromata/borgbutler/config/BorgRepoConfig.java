@@ -52,10 +52,11 @@ public class BorgRepoConfig {
         list.add(variable + "=" + value);
     }
 
-   public void copyFrom(BorgRepoConfig other) {
+    public void copyFrom(BorgRepoConfig other) {
         this.displayName = other.displayName;
         this.repo = other.repo;
+        this.rsh = other.rsh;
         this.passphrase = other.passphrase;
         this.passwordCommand = other.passwordCommand;
-   }
+    }
 }
