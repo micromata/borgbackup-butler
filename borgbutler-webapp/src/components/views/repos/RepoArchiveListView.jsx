@@ -230,7 +230,7 @@ class RepoArchiveListView extends React.Component {
                     className={classNames({active: this.state.activeTab === '3'})}
                     onClick={this.toggleTab('3')}
                 >
-                    Configuration
+                    Configuration {errorBadge}
                 </NavLink>
             </Nav>
             <TabContent activeTab={this.state.activeTab}>
