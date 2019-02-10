@@ -190,7 +190,7 @@ class RepoConfigPanel extends React.Component {
                         <FormButton onClick={this.onCancel}
                                     hintKey="configuration.cancel.hint"><I18n name={'common.cancel'}/>
                         </FormButton>
-                        <FormButton onClick={this.onTest} disabled={this.state.testStatus === 'fetching'} bsStyle="info"
+                        <FormButton onClick={this.onTest} disabled={this.state.testStatus === 'fetching'} bsStyle={this.props.repoError ? 'danger' :'info'}
                                     hint={'Tries to connect to the repo and to get info from.'}>Test
                         </FormButton>
                         <FormButton onClick={this.onSave} bsStyle="primary"
