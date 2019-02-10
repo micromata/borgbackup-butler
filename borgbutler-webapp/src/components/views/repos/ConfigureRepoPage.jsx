@@ -112,15 +112,18 @@ class ConfigureRepoPage extends React.Component {
                                          repoConfig={repoConfig}
                                          handleRepoConfigChange={this.handleRepoConfigChange}
                                          setRepoValue={this.setRepoValue}/>
-                <FormField length={12}>
-                    <Link to={'/repos'} className={'btn btn-outline-primary'}><I18n name={'common.cancel'}/>
-                    </Link>
-                    <FormButton onClick={this.onSave} bsStyle="primary"
-                                disabled={repoConfig.repo && repoConfig.repo.length > 0
-                                && repoConfig.displayName && repoConfig.displayName.length > 0 ? false : true}
-                                hintKey="configuration.save.hint"><I18n name={'common.save'}/>
-                    </FormButton>
-                </FormField>
+                <FormGroup row={true}>
+                    <FormLabel length={2}/>
+                    <FormField length={10}>
+                        <Link to={'/repos'} className={'btn btn-outline-primary'}><I18n name={'common.cancel'}/>
+                        </Link>
+                        <FormButton onClick={this.onSave} bsStyle="primary"
+                                    disabled={repoConfig.repo && repoConfig.repo.length > 0
+                                    && repoConfig.displayName && repoConfig.displayName.length > 0 ? false : true}
+                                    hintKey="configuration.save.hint"><I18n name={'common.save'}/>
+                        </FormButton>
+                    </FormField>
+                </FormGroup>
             </form>
             <code>
                 <h2>Todo:</h2>

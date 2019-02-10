@@ -1,6 +1,5 @@
 import React from 'react';
-import {Alert, FormGroup} from 'reactstrap';
-import {FormButton, FormField, FormLabel} from '../../general/forms/FormComponents';
+import {FormButton, FormField, FormGroup, FormLabel} from '../../general/forms/FormComponents';
 import {getRestServiceUrl} from '../../../utilities/global';
 import I18n from "../../general/translation/I18n";
 import LoadingOverlay from '../../general/loading/LoadingOverlay';
@@ -8,6 +7,7 @@ import PropTypes from "prop-types";
 import ErrorAlert from "../../general/ErrorAlert";
 import RepoConfigBasePanel from './RepoConfigBasePanel';
 import RepoConfigPasswordPanel from './RepoConfigPasswordPanel';
+import RepoConfigTestPanel from './RepoConfigTestPanel';
 
 class RepoConfigPanel extends React.Component {
 
@@ -15,16 +15,13 @@ class RepoConfigPanel extends React.Component {
         super(props);
         this.state = {
             loading: false,
-            repoConfig: undefined,
-            testStatus: undefined,
-            testResult: undefined
+            repoConfig: undefined
         };
 
         this.fetch = this.fetch.bind(this);
         this.setRepoValue = this.setRepoValue.bind(this);
         this.onSave = this.onSave.bind(this);
         this.onCancel = this.onCancel.bind(this);
-        this.onTest = this.onTest.bind(this);
     }
 
     componentDidMount = () => this.fetch();
@@ -68,8 +65,6 @@ class RepoConfigPanel extends React.Component {
         //console.log(variable + "=" + value);
         this.setState({
             repoConfig: {...this.state.repoConfig, [variable]: value},
-            // reset testStatus only, if test status is OK (config values are changed, new test required):
-            testStatus: this.state.testStatus === 'OK' ? undefined : this.state.testStatus
         })
     }
 
@@ -85,34 +80,6 @@ class RepoConfigPanel extends React.Component {
         if (this.props.afterSave) {
             this.props.afterSave();
         }
-    }
-
-    onTest(event) {
-        this.setState({
-            testStatus: 'fetching',
-            testResult: undefined
-        });
-        fetch(getRestServiceUrl("repoConfig/check"), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(this.state.repoConfig)
-        })
-            .then(response => response.text())
-            .then(result => {
-                //console.log("test-result: " + result);
-                this.setState({
-                    testStatus: result === 'OK' ? 'OK' : 'error',
-                    testResult: result
-                })
-            })
-            .catch((error) => {
-                console.log("error", error);
-                this.setState({
-                    testStatus: 'exception'
-                });
-            });
     }
 
     async onCancel() {
@@ -131,37 +98,6 @@ class RepoConfigPanel extends React.Component {
                 title={'Internal error'}
                 description={'Repo not available or mis-configured (please refer the log files for more details).'}
             />
-        }
-        let testResult = undefined;
-        let testButtonColor = this.props.repoError ? 'danger' : 'info';
-        if (!this.state.testStatus) {
-            // No test available.
-        } else if (this.state.testStatus === 'exception') {
-            testResult = <ErrorAlert title={'Unknown error'} description={'Internal error while calling Rest API.'}/>;
-        } else if (this.state.testStatus === 'OK') {
-            testResult = <Alert color={'success'}>
-                OK
-            </Alert>;
-            testButtonColor = 'success';
-        } else if (this.state.testStatus === 'fetching') {
-            testResult = <Alert color={'warning'}>
-                Testing...
-            </Alert>;
-        } else {
-            testResult = <ErrorAlert
-                title={'Error while testing repo configuration'}
-                description={this.state.testResult}
-            />
-            testButtonColor = 'danger';
-        }
-        let testResultGroup = '';
-        if (testResult) {
-            testResultGroup = <FormGroup row={true}>
-                <FormLabel length={2}>{'Test result'}</FormLabel>
-                <FormField length={10}>
-                    {testResult}
-                </FormField>
-            </FormGroup>;
         }
         if (this.state.isFetching) {
             content = <React.Fragment>Loading...</React.Fragment>;
@@ -187,22 +123,19 @@ class RepoConfigPanel extends React.Component {
                                          repoConfig={repoConfig}
                                          handleRepoConfigChange={this.handleRepoConfigChange}
                                          setRepoValue={this.setRepoValue}/>
-                <FormGroup row={true}>
-                    <FormLabel length={2} />
+                <FormGroup>
+                    <FormLabel length={2}/>
                     <FormField length={10}>
                         <FormButton onClick={this.onCancel}
                                     hintKey="configuration.cancel.hint"><I18n name={'common.cancel'}/>
-                        </FormButton>
-                        <FormButton onClick={this.onTest} disabled={this.state.testStatus === 'fetching'}
-                                    bsStyle={testButtonColor}
-                                    hint={'Tries to connect to the repo and to get info from.'}>Test
                         </FormButton>
                         <FormButton onClick={this.onSave} bsStyle="primary"
                                     hintKey="configuration.save.hint"><I18n name={'common.save'}/>
                         </FormButton>
                     </FormField>
                 </FormGroup>
-                {testResultGroup}
+                <RepoConfigTestPanel repoConfig={this.state.repoConfig}
+                                     repoError={this.props.repoError}/>
                 <LoadingOverlay active={this.state.loading}/>
             </React.Fragment>;
         }
