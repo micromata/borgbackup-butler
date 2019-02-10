@@ -34,7 +34,7 @@ class FormButton extends React.Component {
 
 FormButton.propTypes = {
     id: PropTypes.string,
-    bsStyle: PropTypes.oneOf(['primary', 'outline-primary', 'info', null]),
+    bsStyle: PropTypes.string,
     type: PropTypes.string,
     onClick: PropTypes.func,
     hint: PropTypes.string,
