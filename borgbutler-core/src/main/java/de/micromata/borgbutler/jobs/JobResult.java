@@ -1,6 +1,5 @@
 package de.micromata.borgbutler.jobs;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,4 +11,7 @@ public class JobResult<T> {
     @Getter
     @Setter
     private T resultObject;
+    @Getter
+    @Setter
+    private String errorString;
 }
