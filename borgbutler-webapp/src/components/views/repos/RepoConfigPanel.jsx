@@ -133,6 +133,7 @@ class RepoConfigPanel extends React.Component {
             />
         }
         let testResult = undefined;
+        let testButtonColor = this.props.repoError ? 'danger' : 'info';
         if (!this.state.testStatus) {
             // No test available.
         } else if (this.state.testStatus === 'exception') {
@@ -141,6 +142,7 @@ class RepoConfigPanel extends React.Component {
             testResult = <Alert color={'success'}>
                 OK
             </Alert>;
+            testButtonColor = 'success';
         } else if (this.state.testStatus === 'fetching') {
             testResult = <Alert color={'warning'}>
                 Testing...
@@ -150,6 +152,7 @@ class RepoConfigPanel extends React.Component {
                 title={'Error while testing repo configuration'}
                 description={this.state.testResult}
             />
+            testButtonColor = 'danger';
         }
         let testResultGroup = '';
         if (testResult) {
@@ -190,7 +193,8 @@ class RepoConfigPanel extends React.Component {
                         <FormButton onClick={this.onCancel}
                                     hintKey="configuration.cancel.hint"><I18n name={'common.cancel'}/>
                         </FormButton>
-                        <FormButton onClick={this.onTest} disabled={this.state.testStatus === 'fetching'} bsStyle={this.props.repoError ? 'danger' :'info'}
+                        <FormButton onClick={this.onTest} disabled={this.state.testStatus === 'fetching'}
+                                    bsStyle={testButtonColor}
                                     hint={'Tries to connect to the repo and to get info from.'}>Test
                         </FormButton>
                         <FormButton onClick={this.onSave} bsStyle="primary"
