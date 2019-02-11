@@ -4,7 +4,6 @@ import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.server.BorgInstallation;
-import de.micromata.borgbutler.server.BorgVersion;
 import de.micromata.borgbutler.server.ServerConfiguration;
 import de.micromata.borgbutler.server.user.UserData;
 import de.micromata.borgbutler.server.user.UserManager;
@@ -20,7 +19,6 @@ public class ConfigurationRest {
     private Logger log = LoggerFactory.getLogger(ConfigurationRest.class);
 
     /**
-     *
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @see JsonUtils#toJson(Object, boolean)
      */
@@ -28,7 +26,10 @@ public class ConfigurationRest {
     @Path("config")
     @Produces(MediaType.APPLICATION_JSON)
     public String getConfig(@QueryParam("prettyPrinter") boolean prettyPrinter) {
-        String json = JsonUtils.toJson(ServerConfiguration.get(), prettyPrinter);
+        ConfigurationInfo configurationInfo = new ConfigurationInfo();
+        configurationInfo.setServerConfiguration(ServerConfiguration.get());
+        configurationInfo.setBorgVersion(BorgInstallation.getInstance().getBorgVersion());
+        String json = JsonUtils.toJson(configurationInfo, prettyPrinter);
         return json;
     }
 
@@ -37,16 +38,14 @@ public class ConfigurationRest {
     @Produces(MediaType.TEXT_PLAIN)
     public void setConfig(String jsonConfig) {
         ConfigurationHandler configurationHandler = ConfigurationHandler.getInstance();
-        ServerConfiguration config = (ServerConfiguration)configurationHandler.getConfiguration();
-        ServerConfiguration srcConfig = JsonUtils.fromJson(ServerConfiguration.class, jsonConfig);
-        BorgVersion oldBorgVersion = config.getBorgVersion();
-        config.copyFrom(srcConfig);
-        BorgInstallation.getInstance().configure(oldBorgVersion);
+        ConfigurationInfo configurationInfo = JsonUtils.fromJson(ConfigurationInfo.class, jsonConfig);
+        BorgInstallation.getInstance().configure(configurationInfo.getServerConfiguration(), configurationInfo.getBorgVersion().getBorgBinary());
+        ServerConfiguration configuration = ServerConfiguration.get();
+        configuration.copyFrom(configurationInfo.getServerConfiguration());
         configurationHandler.save();
     }
 
     /**
-     *
      * @param prettyPrinter If true then the json output will be in pretty format.
      * @see JsonUtils#toJson(Object, boolean)
      */

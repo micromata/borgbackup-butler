@@ -2,8 +2,8 @@ package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.BorgQueueExecutor;
 import de.micromata.borgbutler.json.JsonUtils;
+import de.micromata.borgbutler.server.BorgInstallation;
 import de.micromata.borgbutler.server.BorgVersion;
-import de.micromata.borgbutler.server.ServerConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ public class SystemInfoRest {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("info")
     public String getStatistics() {
-        BorgVersion borgVersion = ServerConfiguration.get().getBorgVersion();
+        BorgVersion borgVersion = BorgInstallation.getInstance().getBorgVersion();
         SystemInfo systemInfonfo = new SystemInfo()
                 .setQueueStatistics(BorgQueueExecutor.getInstance().getStatistics())
                 .setConfigurationOK(borgVersion.isVersionOK())

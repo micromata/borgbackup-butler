@@ -35,9 +35,9 @@ class ConfigServerTab extends React.Component {
             .then((data) => {
                 this.setState({
                     loading: false,
+                    borgVersion: data.borgVersion,
                     borgBinary: data.borgVersion.borgBinary,
-                    borgCommand: data.borgVersion.borgCommand,
-                    ...data
+                    ...data.serverConfiguration
                 })
             })
             .catch((error) => {
@@ -84,12 +84,14 @@ class ConfigServerTab extends React.Component {
 
     save() {
         var config = {
-            port: this.state.port,
-            maxArchiveContentCacheCapacityMb: this.state.maxArchiveContentCacheCapacityMb,
-            webDevelopmentMode: this.state.webDevelopmentMode,
-            showDemoRepos: this.state.showDemoRepos,
+            serverConfiguration: {
+                port: this.state.port,
+                maxArchiveContentCacheCapacityMb: this.state.maxArchiveContentCacheCapacityMb,
+                webDevelopmentMode: this.state.webDevelopmentMode,
+                showDemoRepos: this.state.showDemoRepos,
+                borgCommand: this.state.borgCommand
+            },
             borgVersion: {
-                borgCommand: this.state.borgCommand,
                 borgBinary: this.state.borgBinary
             }
         };

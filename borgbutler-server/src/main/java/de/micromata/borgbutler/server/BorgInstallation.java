@@ -3,6 +3,7 @@ package de.micromata.borgbutler.server;
 import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
+import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -26,6 +27,9 @@ public class BorgInstallation {
         return instance;
     }
 
+    @Getter
+    private BorgVersion borgVersion = new BorgVersion();
+
     public void initialize() {
         Configuration configuration = ConfigurationHandler.getConfiguration();
         if (StringUtils.isNotBlank(configuration.getBorgCommand())) {
@@ -37,34 +41,31 @@ public class BorgInstallation {
         if (version(configuration)) {
             return;
         }
-        BorgVersion borgVersion = ServerConfiguration.get()._getBorgVersion();
         log.warn("No working borg version found. Please configure a borg version with minimal version '" + borgVersion.getMinimumRequiredBorgVersion() + "'.");
     }
 
     /**
      * Configures a new borg configuration if modifications was done.
-     * @param oldVersion The old version before this current modification.
+     *
+     * @param newConfiguration The new configuration with the (new) borg command to use (executable).
+     * @param borgBinary       The id of the borg binary (Mac OS X, Linux 64, manual etc.)
      */
-    public void configure(BorgVersion oldVersion) {
-        Configuration configuration = ConfigurationHandler.getConfiguration();
-        BorgVersion newVersion = ServerConfiguration.get()._getBorgVersion();
-        boolean borgBinaryChanged = !StringUtils.equals(oldVersion.getBorgBinary(), newVersion.getBorgBinary());
-        boolean manualBorgCommand = "manual".equals(newVersion.getBorgBinary());
+    public void configure(ServerConfiguration newConfiguration, String borgBinary) {
+        ServerConfiguration configuration = ServerConfiguration.get();
+        boolean borgBinaryChanged = !StringUtils.equals(borgVersion.getBorgBinary(), borgBinary);
+        borgVersion.setBorgBinary(borgBinary); // Update borg binary (if changed).
+        boolean manualBorgCommand = "manual".equals(borgBinary);
         if (manualBorgCommand) {
-            boolean borgCommandChanged = !StringUtils.equals(oldVersion.getBorgCommand(), newVersion.getBorgCommand());
+            boolean borgCommandChanged = !StringUtils.equals(newConfiguration.getBorgCommand(), configuration.getBorgCommand());
             if (borgCommandChanged) {
-                configuration.setBorgCommand(newVersion.getBorgCommand());
+                configuration.setBorgCommand(newConfiguration.getBorgCommand());
                 version(configuration);
-            } else {
-                newVersion.copyFrom(oldVersion); // Restore all old settings.
             }
         } else {
             if (borgBinaryChanged) {
-                newVersion.setBorgCommand(oldVersion.getBorgCommand()); // Don't modify borg command, if not manual.
-                initialize(getBinary(newVersion.getBorgBinary()));
-            } else {
-                newVersion.copyFrom(oldVersion); // Restore all old settings.
+                initialize(getBinary(borgBinary));
             }
+            newConfiguration.setBorgCommand(configuration.getBorgCommand()); // borg command of this class overwrites new configuration for mode != 'manual'.
         }
     }
 
@@ -74,19 +75,25 @@ public class BorgInstallation {
         }
         Configuration configuration = ConfigurationHandler.getConfiguration();
         File file = download(binary);
-        BorgVersion borgVersion = ServerConfiguration.get()._getBorgVersion();
         if (file != null) {
             configuration.setBorgCommand(file.getAbsolutePath());
-            borgVersion.setBorgCommand(file.getAbsolutePath());
             borgVersion.setBorgBinary(binary[0]);
         }
         return version(configuration);
     }
 
     private boolean version(Configuration configuration) {
+        String borgCommand = configuration.getBorgCommand();
+        if (StringUtils.isNotBlank(borgCommand)) {
+            for (String[] borgBinary : borgVersion.getBorgBinaries()) {
+                if (borgCommand.contains(borgBinary[0])) {
+                    borgVersion.setBorgBinary(borgBinary[0]);
+                    break;
+                }
+            }
+        }
         String versionString = BorgCommands.version();
         boolean versionOK = false;
-        BorgVersion borgVersion = ServerConfiguration.get()._getBorgVersion();
         String msg = null;
         if (versionString != null) {
             borgVersion.setVersion(versionString);
@@ -128,7 +135,6 @@ public class BorgInstallation {
         if (os == null) {
             return null;
         }
-        BorgVersion borgVersion = ServerConfiguration.get()._getBorgVersion();
         for (String[] binary : borgVersion.getBorgBinaries()) {
             if (binary[0].contains(os)) {
                 return binary;
@@ -152,7 +158,6 @@ public class BorgInstallation {
             // File already downloaded, nothing to do.
             return file;
         }
-        BorgVersion borgVersion = ServerConfiguration.get()._getBorgVersion();
         String url = borgVersion.getBinariesDownloadUrl() + getDownloadFilename(binary);
         log.info("Trying to download borg binary '" + binary[0] + "' (" + binary[1] + ") from url: " + url + "...");
         HttpClientBuilder builder = HttpClients.custom()
@@ -183,7 +188,6 @@ public class BorgInstallation {
             log.info("Creating binary directory: " + dir.getAbsolutePath());
             dir.mkdirs();
         }
-        BorgVersion borgVersion = ServerConfiguration.get()._getBorgVersion();
         return new File(dir, getDownloadFilename(binary) + "-" + borgVersion.getBinariesDownloadVersion());
     }
 
