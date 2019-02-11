@@ -75,7 +75,7 @@ public class ConfigurationHandler {
     public void save() {
         if (this.configuration.getRepoConfigs() != null) {
             for (BorgRepoConfig repoConfig : this.configuration.getRepoConfigs()) {
-                if (StringUtils.isNotBlank(repoConfig.getPasswordCommand())) {
+                if (StringUtils.isNotBlank(repoConfig.getPassphrase())) {
                     log.info("Removing password command from config because password command is given: " + repoConfig.getPasswordCommand());
                     repoConfig.setPassphrase(null); // Don't use password (anymore) if password command is available.
                 }
