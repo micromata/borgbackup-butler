@@ -91,7 +91,7 @@ public abstract class AbstractJob<T> {
             // do nothing. It's normal that cancelled jobs fail.
             return;
         }
-        if (this.status != Status.RUNNING) {
+        if (this.status != null && this.status != Status.RUNNING) {
             logger.error("Internal error, illegal state! You shouldn't set the job status to FAILED if not in status RUNNING: " + this.status);
         }
         setStatus(Status.FAILED);
