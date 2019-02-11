@@ -35,15 +35,41 @@ public class BorgRepoConfigsRest {
     @Produces(MediaType.TEXT_PLAIN)
     public void setRepoConfig(String jsonConfig) {
         BorgRepoConfig newRepoConfig = JsonUtils.fromJson(BorgRepoConfig.class, jsonConfig);
-        BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(newRepoConfig.getId());
-        if (repoConfig == null) {
-            log.error("Can't find repo config '" + newRepoConfig.getId() + "'. Can't save new settings.");
+        if (newRepoConfig == null) {
+            log.error("Internal Rest error. Can't parse BorgRepoConfig: " + jsonConfig);
             return;
         }
-        ButlerCache.getInstance().clearRepoCacheAccess(repoConfig.getRepo());
-        ButlerCache.getInstance().clearRepoCacheAccess(newRepoConfig.getRepo());
-        repoConfig.copyFrom(newRepoConfig);
+        if ("new".equals(newRepoConfig.getId())) {
+            newRepoConfig.setId(null);
+            ConfigurationHandler.getConfiguration().add(newRepoConfig);
+        } else {
+            BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(newRepoConfig.getId());
+            if (repoConfig == null) {
+                log.error("Can't find repo config '" + newRepoConfig.getId() + "'. Can't save new settings.");
+                return;
+            }
+            ButlerCache.getInstance().clearRepoCacheAccess(repoConfig.getRepo());
+            ButlerCache.getInstance().clearRepoCacheAccess(newRepoConfig.getRepo());
+            repoConfig.copyFrom(newRepoConfig);
+        }
         ConfigurationHandler.getInstance().save();
+    }
+
+    /**
+     * @param idOrName id or name of repo to remove from BorgButler.
+     * @return "OK" if removed or error string.
+     */
+    @GET
+    @Path("remove")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String removeRepoConfig(@QueryParam("id") String idOrName) {
+        boolean result = ConfigurationHandler.getConfiguration().remove(idOrName);
+        if (!result) {
+            String error = "Repo config with id or name '" + idOrName + "' not found. Can't remove the repo.";
+            log.error(error);
+            return error;
+        }
+        return "OK";
     }
 
     /**

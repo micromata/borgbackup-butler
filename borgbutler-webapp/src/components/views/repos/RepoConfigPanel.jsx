@@ -8,6 +8,7 @@ import ErrorAlert from "../../general/ErrorAlert";
 import RepoConfigBasePanel from './RepoConfigBasePanel';
 import RepoConfigPasswordPanel from './RepoConfigPasswordPanel';
 import RepoConfigTestPanel from './RepoConfigTestPanel';
+import ConfirmModal from '../../general/modal/ConfirmModal';
 
 class RepoConfigPanel extends React.Component {
 
@@ -15,16 +16,25 @@ class RepoConfigPanel extends React.Component {
         super(props);
         this.state = {
             loading: false,
-            repoConfig: undefined
+            repoConfig: undefined,
+            confirmModal: false
         };
 
         this.fetch = this.fetch.bind(this);
         this.setRepoValue = this.setRepoValue.bind(this);
         this.onSave = this.onSave.bind(this);
+        this.onRemove = this.onRemove.bind(this);
         this.onCancel = this.onCancel.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
     }
 
     componentDidMount = () => this.fetch();
+
+    toggleModal() {
+        this.setState({
+            confirmModal: !this.state.confirmModal
+        })
+    }
 
     fetch = () => {
         this.setState({
@@ -66,6 +76,23 @@ class RepoConfigPanel extends React.Component {
         this.setState({
             repoConfig: {...this.state.repoConfig, [variable]: value},
         })
+    }
+
+    onRemove(event) {
+        const response = fetch(getRestServiceUrl('repoConfig/remove', {
+            id: this.props.id
+        }), {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+            .then(response => response.text())
+            .then(text => {
+            })
+            .catch((error) => {
+                console.log("error", error);
+            })
     }
 
     async onSave(event) {
@@ -129,6 +156,7 @@ class RepoConfigPanel extends React.Component {
                         <FormButton onClick={this.onCancel}
                                     hintKey="configuration.cancel.hint"><I18n name={'common.cancel'}/>
                         </FormButton>
+                        <FormButton onClick={this.toggleModal} bsStyle={'outline-danger'}>Remove</FormButton>
                         <FormButton onClick={this.onSave} bsStyle="primary"
                                     hintKey="configuration.save.hint"><I18n name={'common.save'}/>
                         </FormButton>
@@ -139,7 +167,20 @@ class RepoConfigPanel extends React.Component {
                 <LoadingOverlay active={this.state.loading}/>
             </React.Fragment>;
         }
-        return <React.Fragment>{content}{repoError}</React.Fragment>;
+        return <React.Fragment>
+            <ConfirmModal
+                onConfirm={this.onRemove}
+                title={'Are you sure?'}
+                toggle={this.toggleModal}
+                open={this.state.confirmModal}
+            >
+                Do you really want to remove this repository from BorgButler?
+                <br/>
+                The Borg repository itself and its content will be left untouched.
+            </ConfirmModal>
+            {content}
+            {repoError}
+        </React.Fragment>;
     }
 }
 

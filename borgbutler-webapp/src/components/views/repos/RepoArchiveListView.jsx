@@ -160,30 +160,32 @@ class RepoArchiveListView extends React.Component {
                 </tr>
             }
 
-            content1 = <Table hover>
-                <tbody>
-                <tr>
-                    <th>Archive</th>
-                    <th>Time</th>
-                    <th></th>
-                    <th>Id</th>
-                </tr>
-                {repo.archives.map((archive) => {
-                    // Return the element. Also pass key
-                    let loaded = '';
-                    if (archive.fileListAlreadyCached) {
-                        loaded = <IconCheck/>;
-                    }
-                    return (
-                        <tr key={archive.id}>
-                            <td><Link to={`/archives/${repo.id}/${archive.id}/`}>{archive.name}</Link></td>
-                            <td>{archive.time}</td>
-                            <td>{loaded}</td>
-                            <td>{archive.id}</td>
-                        </tr>);
-                })}
-                </tbody>
-            </Table>;
+            if (repo.archives) {
+                content1 = <Table hover>
+                    <tbody>
+                    <tr>
+                        <th>Archive</th>
+                        <th>Time</th>
+                        <th></th>
+                        <th>Id</th>
+                    </tr>
+                    {repo.archives.map((archive) => {
+                        // Return the element. Also pass key
+                        let loaded = '';
+                        if (archive.fileListAlreadyCached) {
+                            loaded = <IconCheck/>;
+                        }
+                        return (
+                            <tr key={archive.id}>
+                                <td><Link to={`/archives/${repo.id}/${archive.id}/`}>{archive.name}</Link></td>
+                                <td>{archive.time}</td>
+                                <td>{loaded}</td>
+                                <td>{archive.id}</td>
+                            </tr>);
+                    })}
+                    </tbody>
+                </Table>;
+            }
             content2 = <Table striped bordered hover>
                 <tbody>
                 <tr>

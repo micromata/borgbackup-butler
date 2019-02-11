@@ -32,7 +32,7 @@ class RepoConfigPasswordPanel extends React.Component {
             } else if (repoConfig.passphrase && repoConfig.passphrase.length > 0) {
                 passwordMethod = 'passphrase';
             } else {
-                passwordMethod = 'passwordCommand'; // Default.
+                passwordMethod = 'none'; // Default.
             }
         }
         this.state = {
@@ -46,8 +46,8 @@ class RepoConfigPasswordPanel extends React.Component {
         this.setState({[event.target.name]: event.target.value});
         if (event.target.name === 'passwordMethod') {
             const value = event.target.value;
-            var passwordCommand = null;
-            var passwordCreate = null;
+            var passwordCommand = undefined;
+            var passwordCreate = undefined;
             if (value === 'passwordFile') {
                 passwordCommand = 'cat ~/.borg-passphrase';
                 passwordCreate = <React.Fragment>
@@ -89,10 +89,16 @@ class RepoConfigPasswordPanel extends React.Component {
                     </div>
                 </React.Fragment>;
             }
+            if (value === 'none') {
+                this.setState({passwordCreate: '', passphrase: ''});
+                this.props.setRepoValue('passwordCommand', undefined);
+            } else if (value !== 'passphrase') {
+                this.setState({passphrase: ''});
+            }
             if (passwordCommand) {
                 this.props.setRepoValue('passwordCommand', passwordCommand);
             }
-            this.setState({'passwordCreate': passwordCreate});
+            this.setState({passwordCreate: passwordCreate});
         }
     }
 

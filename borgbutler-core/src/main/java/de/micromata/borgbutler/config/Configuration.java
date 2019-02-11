@@ -59,6 +59,21 @@ public class Configuration {
         }
     }
 
+    public boolean remove(String idOrName) {
+        if (idOrName == null) {
+            return false;
+        }
+        synchronized (repoConfigs) {
+            for (BorgRepoConfig repoConfig : getAllRepoConfigs()) {
+                if (StringUtils.equals(idOrName, repoConfig.getRepo()) || StringUtils.equals(idOrName, repoConfig.getId())) {
+                    repoConfigs.remove(repoConfig);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public BorgRepoConfig getRepoConfig(String idOrName) {
         if (idOrName == null) {
             return null;

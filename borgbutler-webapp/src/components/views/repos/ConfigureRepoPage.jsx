@@ -14,21 +14,33 @@ import {PageHeader} from '../../general/BootstrapComponents';
 import RepoConfigBasePanel from './RepoConfigBasePanel';
 import RepoConfigPasswordPanel from './RepoConfigPasswordPanel';
 import RepoConfigTestPanel from './RepoConfigTestPanel';
+import {getRestServiceUrl} from "../../../utilities/global";
 
 class ConfigureRepoPage extends React.Component {
 
     constructor(props) {
         super(props);
+        this.onSave = this.onSave.bind(this);
         this.handleRepoConfigChange = this.handleRepoConfigChange.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
         this.setRepoValue = this.setRepoValue.bind(this);
         this.state = {
-            repoConfig: {},
+            repoConfig: {id: 'new'},
             encryption: 'repoKey',
             mode: 'existingRepo',
             localRemote: 'local'
         };
+    }
+
+    onSave(event) {
+        const response = fetch(getRestServiceUrl("repoConfig"), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(this.state.repoConfig)
+        });
     }
 
     handleRepoConfigChange = event => {
@@ -108,7 +120,7 @@ class ConfigureRepoPage extends React.Component {
                                          repoConfig={repoConfig}
                                          handleRepoConfigChange={this.handleRepoConfigChange}
                                          setRepoValue={this.setRepoValue}/>
-                <FormGroup row={true}>
+                <FormGroup>
                     <FormLabel length={2}/>
                     <FormField length={10}>
                         <Link to={'/repos'} className={'btn btn-outline-primary'}><I18n name={'common.cancel'}/>
