@@ -59,7 +59,6 @@ class ConfigServerTab extends React.Component {
             webdevelopmentMode: false,
             showDemoRepos: true,
             maxArchiveContentCacheCapacityMb: 100,
-            redirect: false,
             borgCommand: null,
             borgBinary: null
         };
