@@ -34,13 +34,23 @@ class ConfigureRepoPage extends React.Component {
     }
 
     onSave(event) {
-        const response = fetch(getRestServiceUrl("repoConfig"), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(this.state.repoConfig)
-        });
+        this.setState(
+            {repoConfig: {...this.state.repoConfig, id: this.state.mode == 'initNewRepo' ? 'init' : 'new'}},
+            () => {
+                const response = fetch(getRestServiceUrl("repoConfig"), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.state.repoConfig)
+                })
+                    .then(json => {
+                        this.props.history.push('/repos');
+                    })
+                    .catch(() => {
+                    });
+            }
+        )
     }
 
     handleRepoConfigChange = event => {
@@ -63,6 +73,7 @@ class ConfigureRepoPage extends React.Component {
 
     render() {
         const repoConfig = this.state.repoConfig;
+        const saveButtonLabel = this.state.mode === 'initNewRepo' ? 'Init and save' : <I18n name={'common.save'}/>;
         return <React.Fragment>
             <PageHeader>
                 Configure repository
@@ -128,20 +139,12 @@ class ConfigureRepoPage extends React.Component {
                         <FormButton onClick={this.onSave} bsStyle="primary"
                                     disabled={repoConfig.repo && repoConfig.repo.length > 0
                                     && repoConfig.displayName && repoConfig.displayName.length > 0 ? false : true}
-                                    hintKey="configuration.save.hint"><I18n name={'common.save'}/>
+                                    hintKey="configuration.save.hint">{saveButtonLabel}
                         </FormButton>
                     </FormField>
                 </FormGroup>
                 <RepoConfigTestPanel repoConfig={this.state.repoConfig}/>
             </form>
-            <code>
-                <h2>Todo:</h2>
-                <ul>
-                    <li>Implement 'Save' button ;-)</li>
-                    <li>Add own environment variables.</li>
-                    <li>Remove and clone repo.</li>
-                </ul>
-            </code>
         </React.Fragment>;
     }
 }

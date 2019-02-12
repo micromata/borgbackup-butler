@@ -75,6 +75,11 @@ class RepoArchiveListView extends React.Component {
         }
     }
 
+    afterRemove() {
+        this.props.history.push('/repos');
+    }
+
+
     render = () => {
         let errorBadge = '';
         let content1 = undefined;
@@ -185,6 +190,8 @@ class RepoArchiveListView extends React.Component {
                     })}
                     </tbody>
                 </Table>;
+            } else {
+                content1 = 'No archives available.';
             }
             content2 = <Table striped bordered hover>
                 <tbody>
@@ -243,7 +250,10 @@ class RepoArchiveListView extends React.Component {
                     {content2}
                 </TabPane>
                 <TabPane tabId={'3'}>
-                    <RepoConfigPanel id={this.state.id} afterCancel={this.afterCancel} afterSave={this.afterSave}
+                    <RepoConfigPanel id={this.state.id}
+                                     afterCancel={this.afterCancel}
+                                     afterSave={this.afterSave}
+                                     afterRemove={this.afterRemove}
                                      repoError={this.state.failed}/>
                 </TabPane>
             </TabContent>
@@ -257,6 +267,7 @@ class RepoArchiveListView extends React.Component {
         this.toggleTab = this.toggleTab.bind(this);
         this.afterCancel = this.afterCancel.bind(this);
         this.afterSave = this.afterSave.bind(this);
+        this.afterRemove = this.afterRemove.bind(this);
     }
 }
 

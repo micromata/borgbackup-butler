@@ -78,7 +78,7 @@ class RepoConfigPanel extends React.Component {
         })
     }
 
-    onRemove(event) {
+    async onRemove(event) {
         const response = fetch(getRestServiceUrl('repoConfig/remove', {
             id: this.props.id
         }), {
@@ -89,10 +89,17 @@ class RepoConfigPanel extends React.Component {
         })
             .then(response => response.text())
             .then(text => {
+                if (text !== 'OK') {
+                    console.log('Error while removing repo: ' + text);
+                }
             })
             .catch((error) => {
                 console.log("error", error);
             })
+        if (response) await response;
+        if (this.props.afterRemove) {
+            this.props.afterRemove();
+        }
     }
 
     async onSave(event) {
