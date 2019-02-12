@@ -168,7 +168,7 @@ class RepoConfigPasswordPanel extends React.Component {
                         color={'danger'}
                     >
                         You backup isn't encrypted! You should ensure, that your destination storage is encrypted
-                        and protected.
+                        and secured.
                     </Alert>
                 </FormField>
             </FormGroup>
