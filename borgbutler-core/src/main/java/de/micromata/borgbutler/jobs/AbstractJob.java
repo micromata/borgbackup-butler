@@ -1,9 +1,6 @@
 package de.micromata.borgbutler.jobs;
 
 import de.micromata.borgbutler.utils.DateUtils;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,30 +11,82 @@ import java.util.concurrent.Future;
 public abstract class AbstractJob<T> {
     private Logger logger = LoggerFactory.getLogger(AbstractJob.class);
 
+    public boolean isCancellationRequested() {
+        return this.cancellationRequested;
+    }
+
+    public Status getStatus() {
+        return this.status;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    Future<JobResult<T>> getFuture() {
+        return this.future;
+    }
+
+    public long getUniqueJobNumber() {
+        return this.uniqueJobNumber;
+    }
+
+    public String getCreateTime() {
+        return this.createTime;
+    }
+
+    public String getStartTime() {
+        return this.startTime;
+    }
+
+    public String getStopTime() {
+        return this.stopTime;
+    }
+
+    public AbstractJob<T> setCancellationRequested(boolean cancellationRequested) {
+        this.cancellationRequested = cancellationRequested;
+        return this;
+    }
+
+    public AbstractJob<T> setTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    AbstractJob<T> setFuture(Future<JobResult<T>> future) {
+        this.future = future;
+        return this;
+    }
+
+    protected AbstractJob<T> setUniqueJobNumber(long uniqueJobNumber) {
+        this.uniqueJobNumber = uniqueJobNumber;
+        return this;
+    }
+
+    public AbstractJob<T> setCreateTime(String createTime) {
+        this.createTime = createTime;
+        return this;
+    }
+
+    public AbstractJob<T> setStartTime(String startTime) {
+        this.startTime = startTime;
+        return this;
+    }
+
+    public AbstractJob<T> setStopTime(String stopTime) {
+        this.stopTime = stopTime;
+        return this;
+    }
+
     public enum Status {DONE, RUNNING, QUEUED, CANCELLED, FAILED}
 
-    @Getter
-    @Setter
     private boolean cancellationRequested;
-    @Getter
     private Status status;
-    @Getter
-    @Setter
     private String title;
-    @Getter(AccessLevel.PACKAGE)
-    @Setter(AccessLevel.PACKAGE)
     private Future<JobResult<T>> future;
-    @Getter
-    @Setter(AccessLevel.PROTECTED)
     private long uniqueJobNumber = -1;
-    @Getter
-    @Setter
     private String createTime;
-    @Getter
-    @Setter
     private String startTime;
-    @Getter
-    @Setter
     private String stopTime;
 
     protected AbstractJob<T> setStatus(Status status) {

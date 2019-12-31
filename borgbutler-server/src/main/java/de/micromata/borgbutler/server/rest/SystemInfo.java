@@ -2,8 +2,6 @@ package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.BorgQueueStatistics;
 import de.micromata.borgbutler.server.BorgVersion;
-import lombok.Getter;
-import lombok.Setter;
 
 /**
  * Statistics of all the job queues, especially the number of total queued and running jobs.
@@ -11,15 +9,36 @@ import lombok.Setter;
  * of Jobs in the queues.
  */
 public class SystemInfo {
-    @Getter
-    @Setter
     private BorgQueueStatistics queueStatistics;
 
-    @Getter
-    @Setter
     private boolean configurationOK;
 
-    @Getter
-    @Setter
     private BorgVersion borgVersion;
+
+    public BorgQueueStatistics getQueueStatistics() {
+        return this.queueStatistics;
+    }
+
+    public boolean isConfigurationOK() {
+        return this.configurationOK;
+    }
+
+    public BorgVersion getBorgVersion() {
+        return this.borgVersion;
+    }
+
+    public SystemInfo setQueueStatistics(BorgQueueStatistics queueStatistics) {
+        this.queueStatistics = queueStatistics;
+        return this;
+    }
+
+    public SystemInfo setConfigurationOK(boolean configurationOK) {
+        this.configurationOK = configurationOK;
+        return this;
+    }
+
+    public SystemInfo setBorgVersion(BorgVersion borgVersion) {
+        this.borgVersion = borgVersion;
+        return this;
+    }
 }

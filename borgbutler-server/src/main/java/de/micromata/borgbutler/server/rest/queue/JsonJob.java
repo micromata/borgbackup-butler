@@ -5,47 +5,21 @@ import de.micromata.borgbutler.BorgJob;
 import de.micromata.borgbutler.jobs.AbstractJob;
 import de.micromata.borgbutler.json.borg.ProgressInfo;
 import de.micromata.borgbutler.server.user.UserUtils;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class JsonJob {
-    @Getter
-    @Setter
     private boolean cancellationRequested;
-    @Getter
-    @Setter
     private AbstractJob.Status status;
-    @Getter
-    @Setter
     private String title;
-    @Getter
-    @Setter
     private String description;
-    @Getter
-    @Setter
     private String progressText;
-    @Getter
-    @Setter
     private ProgressInfo progressInfo;
-    @Getter
-    @Setter
     private String commandLineAsString;
-    @Getter
-    @Setter
     private long uniqueJobNumber;
-    @Getter
-    @Setter
     private String[] environmentVariables;
-    @Getter
-    @Setter
     private String createTime;
-    @Getter
-    @Setter
     private String startTime;
-    @Getter
-    @Setter
     private String stopTime;
 
     public JsonJob() {
@@ -130,5 +104,113 @@ public class JsonJob {
             return 100;
         }
         return (short) value;
+    }
+
+    public boolean isCancellationRequested() {
+        return this.cancellationRequested;
+    }
+
+    public AbstractJob.Status getStatus() {
+        return this.status;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public String getProgressText() {
+        return this.progressText;
+    }
+
+    public ProgressInfo getProgressInfo() {
+        return this.progressInfo;
+    }
+
+    public String getCommandLineAsString() {
+        return this.commandLineAsString;
+    }
+
+    public long getUniqueJobNumber() {
+        return this.uniqueJobNumber;
+    }
+
+    public String[] getEnvironmentVariables() {
+        return this.environmentVariables;
+    }
+
+    public String getCreateTime() {
+        return this.createTime;
+    }
+
+    public String getStartTime() {
+        return this.startTime;
+    }
+
+    public String getStopTime() {
+        return this.stopTime;
+    }
+
+    public JsonJob setCancellationRequested(boolean cancellationRequested) {
+        this.cancellationRequested = cancellationRequested;
+        return this;
+    }
+
+    public JsonJob setStatus(AbstractJob.Status status) {
+        this.status = status;
+        return this;
+    }
+
+    public JsonJob setTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    public JsonJob setDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public JsonJob setProgressText(String progressText) {
+        this.progressText = progressText;
+        return this;
+    }
+
+    public JsonJob setProgressInfo(ProgressInfo progressInfo) {
+        this.progressInfo = progressInfo;
+        return this;
+    }
+
+    public JsonJob setCommandLineAsString(String commandLineAsString) {
+        this.commandLineAsString = commandLineAsString;
+        return this;
+    }
+
+    public JsonJob setUniqueJobNumber(long uniqueJobNumber) {
+        this.uniqueJobNumber = uniqueJobNumber;
+        return this;
+    }
+
+    public JsonJob setEnvironmentVariables(String[] environmentVariables) {
+        this.environmentVariables = environmentVariables;
+        return this;
+    }
+
+    public JsonJob setCreateTime(String createTime) {
+        this.createTime = createTime;
+        return this;
+    }
+
+    public JsonJob setStartTime(String startTime) {
+        this.startTime = startTime;
+        return this;
+    }
+
+    public JsonJob setStopTime(String stopTime) {
+        this.stopTime = stopTime;
+        return this;
     }
 }

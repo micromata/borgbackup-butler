@@ -18,7 +18,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Scanner;
 
 public class DemoRepos {
     private enum Type {FAST, SLOW, VERY_SLOW}
@@ -35,7 +38,7 @@ public class DemoRepos {
      * @param repositoryList
      * @return repo list including demo repos if configured. If not configured, the given list is returned (no op).
      */
-    public static  List<BorgRepoConfig> getAllRepos(List<BorgRepoConfig> repositoryList) {
+    public static List<BorgRepoConfig> getAllRepos(List<BorgRepoConfig> repositoryList) {
         if (!ConfigurationHandler.getConfiguration().isShowDemoRepos()) {
             return repositoryList;
         }
@@ -145,15 +148,20 @@ public class DemoRepos {
                 }
             }
             demoRepos = new ArrayList<>();
-            demoRepos.add(new BorgRepoConfig()
-                    .setRepo(DEMO_IDENTIFIER + "-fast")
-                    .setDisplayName("Demo repository fast"));
-            demoRepos.add(new BorgRepoConfig()
-                    .setRepo(DEMO_IDENTIFIER + "-slow")
-                    .setDisplayName("Demo repository slow"));
-            demoRepos.add(new BorgRepoConfig()
-                    .setRepo(DEMO_IDENTIFIER + "-very-slow")
-                    .setDisplayName("Demo repository very-slow"));
+            BorgRepoConfig config = new BorgRepoConfig();
+            config.setRepo(DEMO_IDENTIFIER + "-fast");
+            config.setDisplayName("Demo repository fast");
+            demoRepos.add(config);
+
+            config = new BorgRepoConfig();
+            config.setRepo(DEMO_IDENTIFIER + "-slow");
+            config.setDisplayName("Demo repository slow");
+            demoRepos.add(config);
+
+            config = new BorgRepoConfig();
+            config.setRepo(DEMO_IDENTIFIER + "-very-slow");
+            config.setDisplayName("Demo repository very-slow");
+            demoRepos.add(config);
         }
     }
 }

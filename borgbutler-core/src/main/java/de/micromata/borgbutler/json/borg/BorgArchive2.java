@@ -2,7 +2,6 @@ package de.micromata.borgbutler.json.borg;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.micromata.borgbutler.json.JsonUtils;
-import lombok.Getter;
 
 import java.io.Serializable;
 
@@ -11,33 +10,63 @@ import java.io.Serializable;
  */
 public class BorgArchive2 implements Serializable {
     private static final long serialVersionUID = 4734056884088174992L;
-    @Getter
     @JsonProperty("chunker_params")
     private int[] chunkerParams;
     /**
      * The command line used for creating this archive: borg create --filter...
      */
-    @Getter
     @JsonProperty("command_line")
     private String[] commandLine;
-    @Getter
     private String comment;
-    @Getter
     private String start;
-    @Getter
     private String end;
-    @Getter
     private String duration;
-    @Getter
     private BorgArchiveStats stats;
-    @Getter
     private BorgArchiveLimits limits;
-    @Getter
     private String hostname;
-    @Getter
     private String username;
 
     public String toString() {
         return JsonUtils.toJson(this, true);
+    }
+
+    public int[] getChunkerParams() {
+        return this.chunkerParams;
+    }
+
+    public String[] getCommandLine() {
+        return this.commandLine;
+    }
+
+    public String getComment() {
+        return this.comment;
+    }
+
+    public String getStart() {
+        return this.start;
+    }
+
+    public String getEnd() {
+        return this.end;
+    }
+
+    public String getDuration() {
+        return this.duration;
+    }
+
+    public BorgArchiveStats getStats() {
+        return this.stats;
+    }
+
+    public BorgArchiveLimits getLimits() {
+        return this.limits;
+    }
+
+    public String getHostname() {
+        return this.hostname;
+    }
+
+    public String getUsername() {
+        return this.username;
     }
 }

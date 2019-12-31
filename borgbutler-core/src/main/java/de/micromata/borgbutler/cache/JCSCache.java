@@ -1,7 +1,6 @@
 package de.micromata.borgbutler.cache;
 
 import de.micromata.borgbutler.config.ConfigurationHandler;
-import lombok.Getter;
 import org.apache.commons.jcs.JCS;
 import org.apache.commons.jcs.access.CacheAccess;
 import org.slf4j.Logger;
@@ -22,7 +21,6 @@ public class JCSCache {
         return instance;
     }
 
-    @Getter
     private File cacheDir;
 
     public <K, V> CacheAccess<K, V> getJCSCache(String region) {
@@ -48,5 +46,9 @@ public class JCSCache {
         //log.info("Using cache size for archive contents: " + cacheMaxDiscSizeMB + "MB.");
         //props.setProperty("jcs.auxiliary.DC2.attributes.MaxKeySize", String.valueOf(cacheMaxDiscSizeMB * 1000));
         JCS.setConfigProperties(props);
+    }
+
+    public File getCacheDir() {
+        return this.cacheDir;
     }
 }

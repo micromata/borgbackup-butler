@@ -1,8 +1,6 @@
 package de.micromata.borgbutler.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -12,23 +10,11 @@ public class BorgRepoConfig {
     /**
      * A name describing this config. Only used for displaying purposes.
      */
-    @Getter
-    @Setter
     private String displayName;
-    @Getter
-    @Setter
     private String repo;
-    @Getter
-    @Setter
     private String rsh;
-    @Getter
-    @Setter
     private String passphrase;
-    @Getter
-    @Setter
     private String passwordCommand;
-    @Getter
-    @Setter
     private String id;
 
     @JsonIgnore
@@ -58,5 +44,53 @@ public class BorgRepoConfig {
         this.rsh = other.rsh;
         this.passphrase = other.passphrase;
         this.passwordCommand = other.passwordCommand;
+    }
+
+    public String getDisplayName() {
+        return this.displayName;
+    }
+
+    public String getRepo() {
+        return this.repo;
+    }
+
+    public String getRsh() {
+        return this.rsh;
+    }
+
+    public String getPassphrase() {
+        return this.passphrase;
+    }
+
+    public String getPasswordCommand() {
+        return this.passwordCommand;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public void setRepo(String repo) {
+        this.repo = repo;
+    }
+
+    public void setRsh(String rsh) {
+        this.rsh = rsh;
+    }
+
+    public void setPassphrase(String passphrase) {
+        this.passphrase = passphrase;
+    }
+
+    public void setPasswordCommand(String passwordCommand) {
+        this.passwordCommand = passwordCommand;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

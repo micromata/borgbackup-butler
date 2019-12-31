@@ -1,7 +1,5 @@
 package de.micromata.borgbutler.json.borg;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -14,6 +12,133 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
     private transient static Logger log = LoggerFactory.getLogger(BorgFilesystemItem.class);
     private static final long serialVersionUID = -5545350851640655468L;
 
+    public String getType() {
+        return this.type;
+    }
+
+    public String getMode() {
+        return this.mode;
+    }
+
+    public String getUser() {
+        return this.user;
+    }
+
+    public String getGroup() {
+        return this.group;
+    }
+
+    public long getUid() {
+        return this.uid;
+    }
+
+    public long getGid() {
+        return this.gid;
+    }
+
+    public String getPath() {
+        return this.path;
+    }
+
+    public String getDisplayPath() {
+        return this.displayPath;
+    }
+
+    public boolean isHealthy() {
+        return this.healthy;
+    }
+
+    public String getSource() {
+        return this.source;
+    }
+
+    public String getLinktarget() {
+        return this.linktarget;
+    }
+
+    public String getFlags() {
+        return this.flags;
+    }
+
+    public String getMtime() {
+        return this.mtime;
+    }
+
+    public long getSize() {
+        return this.size;
+    }
+
+    public int getFileNumber() {
+        return this.fileNumber;
+    }
+
+    public DiffStatus getDiffStatus() {
+        return this.diffStatus;
+    }
+
+    public BorgFilesystemItem getDiffItem() {
+        return this.diffItem;
+    }
+
+    public String getDifferences() {
+        return this.differences;
+    }
+
+    public BorgFilesystemItem setType(String type) {
+        this.type = type;
+        return this;
+    }
+
+    public BorgFilesystemItem setMode(String mode) {
+        this.mode = mode;
+        return this;
+    }
+
+    public BorgFilesystemItem setUser(String user) {
+        this.user = user;
+        return this;
+    }
+
+    public BorgFilesystemItem setUid(long uid) {
+        this.uid = uid;
+        return this;
+    }
+
+    public BorgFilesystemItem setPath(String path) {
+        this.path = path;
+        return this;
+    }
+
+    public BorgFilesystemItem setDisplayPath(String displayPath) {
+        this.displayPath = displayPath;
+        return this;
+    }
+
+    public BorgFilesystemItem setMtime(String mtime) {
+        this.mtime = mtime;
+        return this;
+    }
+
+    public BorgFilesystemItem setSize(long size) {
+        this.size = size;
+        return this;
+    }
+
+    public BorgFilesystemItem setFileNumber(int fileNumber) {
+        this.fileNumber = fileNumber;
+        return this;
+    }
+
+    public BorgFilesystemItem setDiffStatus(DiffStatus diffStatus) {
+        this.diffStatus = diffStatus;
+        return this;
+    }
+
+    public BorgFilesystemItem setDiffItem(BorgFilesystemItem diffItem) {
+        this.diffItem = diffItem;
+        return this;
+    }
+
     /**
      * If running in diff mode, this flag specifies the type of difference. Null represents unmodified.
      */
@@ -22,69 +147,40 @@ public class BorgFilesystemItem implements Serializable, Comparable<BorgFilesyst
     /**
      * d (directory), - (file)
      */
-    @Getter
-    @Setter
     private String type;
     /**
      * Unix mode, e. g. <tt>drwxr-xr-x</tt>
      */
-    @Getter
-    @Setter
     private String mode;
-    @Getter
-    @Setter
     private String user;
-    @Getter
     private String group;
-    @Getter
-    @Setter
     private long uid;
-    @Getter
     private long gid;
-    @Getter
-    @Setter
     private String path;
-    @Setter
-    @Getter
     private String displayPath;
-    @Getter
     private boolean healthy;
-    @Getter
     private String source;
-    @Getter
     private String linktarget;
-    @Getter
     private String flags;
-    @Getter
-    @Setter
     private String mtime;
-    @Getter
-    @Setter
     private long size;
     /**
      * Represents the number of the file in the archive (for downloading). This field is created and only known by BorgButler.
      */
-    @Getter
-    @Setter
     private int fileNumber = -1;
 
     /**
      * If created by diff tool, this flag represents the type of difference.
      */
-    @Getter
-    @Setter
     private DiffStatus diffStatus;
     /**
      * If created by diff tool, this object holds the file item of the other archive (diff archive).
      */
-    @Getter
-    @Setter
     private BorgFilesystemItem diffItem;
     /**
      * If created by diff tool, this String contains all differences between current and other item for {@link DiffStatus#MODIFIED}.
      * This String may used for displaying.
      */
-    @Getter
     private String differences;
 
     @Override

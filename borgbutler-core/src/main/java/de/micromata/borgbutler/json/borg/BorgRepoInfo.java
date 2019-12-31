@@ -1,7 +1,6 @@
 package de.micromata.borgbutler.json.borg;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
 
 import java.io.Serializable;
 
@@ -10,13 +9,25 @@ import java.io.Serializable;
  */
 public class BorgRepoInfo implements Serializable {
     private static final long serialVersionUID = -1588038325129799400L;
-    @Getter
     @JsonProperty("security_dir")
     private String securityDir;
-    @Getter
     private BorgCache cache;
-    @Getter
     private BorgEncryption encryption;
-    @Getter
     private BorgRepository repository;
+
+    public String getSecurityDir() {
+        return this.securityDir;
+    }
+
+    public BorgCache getCache() {
+        return this.cache;
+    }
+
+    public BorgEncryption getEncryption() {
+        return this.encryption;
+    }
+
+    public BorgRepository getRepository() {
+        return this.repository;
+    }
 }

@@ -42,6 +42,9 @@ public class BorgRepoConfigsRest {
         if ("new".equals(newRepoConfig.getId())) {
             newRepoConfig.setId(null);
             ConfigurationHandler.getConfiguration().add(newRepoConfig);
+        } else if ("init".equals(newRepoConfig.getId())) {
+            newRepoConfig.setId(null);
+            ConfigurationHandler.getConfiguration().add(newRepoConfig);
         } else {
             BorgRepoConfig repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(newRepoConfig.getId());
             if (repoConfig == null) {

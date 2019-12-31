@@ -1,6 +1,6 @@
 package de.micromata.borgbutler.server.logging;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class FiFoBufferTest {
 
             }
         }
-        Assert.assertEquals(100000, counter.longValue());
+        Assertions.assertEquals(100000, counter.longValue());
     }
 
     private void startProducerThread() {

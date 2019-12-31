@@ -1,8 +1,6 @@
 package de.micromata.borgbutler.data;
 
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -13,37 +11,70 @@ import java.util.*;
 public class FileSystemFilter {
     private Logger log = LoggerFactory.getLogger(FileSystemFilter.class);
 
+    public String getSearchString() {
+        return this.searchString;
+    }
+
+    public Mode getMode() {
+        return this.mode;
+    }
+
+    public boolean isAutoChangeDirectoryToLeafItem() {
+        return this.autoChangeDirectoryToLeafItem;
+    }
+
+    public String getCurrentDirectory() {
+        return this.currentDirectory;
+    }
+
+    public int getMaxResultSize() {
+        return this.maxResultSize;
+    }
+
+    public Integer getFileNumber() {
+        return this.fileNumber;
+    }
+
+    public boolean isFinished() {
+        return this.finished;
+    }
+
+    public FileSystemFilter setAutoChangeDirectoryToLeafItem(boolean autoChangeDirectoryToLeafItem) {
+        this.autoChangeDirectoryToLeafItem = autoChangeDirectoryToLeafItem;
+        return this;
+    }
+
+    public FileSystemFilter setMaxResultSize(int maxResultSize) {
+        this.maxResultSize = maxResultSize;
+        return this;
+    }
+
+    public FileSystemFilter setFileNumber(Integer fileNumber) {
+        this.fileNumber = fileNumber;
+        return this;
+    }
+
     public enum Mode {FLAT, TREE}
 
-    @Getter
     private String searchString;
-    @Getter
     private Mode mode;
     /**
      * If true (default): Step in tree view automatically recursively into sub directory if only one sub directory exists in
      * current directory. If false, also a single directory of the current directory is displayed.<br>
      * Has no effect in flat mode.
      */
-    @Getter
-    @Setter
     private boolean autoChangeDirectoryToLeafItem = true;
-    @Getter
     private String currentDirectory;
     // For storing sub directories of the currentDirectory
     private Map<String, BorgFilesystemItem> subDirectories;
-    @Getter
-    @Setter
     private int maxResultSize = -1;
     /**
      * If given, only the file assigned to this number is searched and returned.
      */
-    @Getter
-    @Setter
     private Integer fileNumber;
     private String[] searchKeyWords;
     private String[] blackListSearchKeyWords;
     private int counter = 0;
-    @Getter
     private boolean finished;
 
     /**

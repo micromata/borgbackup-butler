@@ -1,8 +1,5 @@
 package de.micromata.borgbutler.json.borg;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * Output of borg option <tt>--progress</tt>.
  * See https://borgbackup.readthedocs.io/en/stable/internals/frontends.html,
@@ -12,41 +9,29 @@ public class ProgressInfo implements Cloneable {
     /**
      * e. g. Calculating statistics...   5%
      */
-    @Getter
-    @Setter
     private String message;
     /**
      * Current counter of total.
      */
-    @Getter
-    @Setter
     private long current;
-    @Getter
-    @Setter
     private long total;
     /**
      * Array that describes the current item, may be null, contents depend on msgid.
      */
-    @Getter
     private String[] info;
     /**
      * unique, opaque integer ID of the operation.
      */
-    @Getter
     private int operation;
-    @Getter
     private String msgid;
     /**
      * e. g. progress_percent
      */
-    @Getter
     private String type;
-    @Getter
     private boolean finished;
     /**
      * Unix timestamp (float).
      */
-    @Getter
     private double time;
 
     public ProgressInfo incrementCurrent() {
@@ -63,5 +48,56 @@ public class ProgressInfo implements Cloneable {
             throw new UnsupportedOperationException(this.getClass().getCanonicalName() + " isn't cloneable: " + ex.getMessage(), ex);
         }
         return clone;
+    }
+
+    public String getMessage() {
+        return this.message;
+    }
+
+    public long getCurrent() {
+        return this.current;
+    }
+
+    public long getTotal() {
+        return this.total;
+    }
+
+    public String[] getInfo() {
+        return this.info;
+    }
+
+    public int getOperation() {
+        return this.operation;
+    }
+
+    public String getMsgid() {
+        return this.msgid;
+    }
+
+    public String getType() {
+        return this.type;
+    }
+
+    public boolean isFinished() {
+        return this.finished;
+    }
+
+    public double getTime() {
+        return this.time;
+    }
+
+    public ProgressInfo setMessage(String message) {
+        this.message = message;
+        return this;
+    }
+
+    public ProgressInfo setCurrent(long current) {
+        this.current = current;
+        return this;
+    }
+
+    public ProgressInfo setTotal(long total) {
+        this.total = total;
+        return this;
     }
 }

@@ -1,9 +1,6 @@
 package de.micromata.borgbutler.jobs;
 
 import de.micromata.borgbutler.config.Definitions;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.exec.*;
 import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -22,20 +19,13 @@ import java.util.Map;
 public abstract class AbstractCommandLineJob extends AbstractJob<String> {
     private Logger log = LoggerFactory.getLogger(AbstractCommandLineJob.class);
     private ExecuteWatchdog watchdog;
-    @Getter
-    @Setter(AccessLevel.PROTECTED)
     private boolean executeStarted;
     private CommandLine commandLine;
     /**
      * The command line as string. This property is also used as ID for detecting multiple borg calls.
      */
-    @Setter(AccessLevel.PROTECTED)
     private String commandLineAsString;
-    @Getter
-    @Setter
     private File workingDirectory;
-    @Getter
-    @Setter
     private String description;
     protected ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     protected ByteArrayOutputStream errorOutputStream = new ByteArrayOutputStream();
@@ -176,5 +166,37 @@ public abstract class AbstractCommandLineJob extends AbstractJob<String> {
         log.debug("Freeing resources of job: " + commandLineAsString);
         outputStream = null;
         errorOutputStream = null;
+    }
+
+    public boolean isExecuteStarted() {
+        return this.executeStarted;
+    }
+
+    public File getWorkingDirectory() {
+        return this.workingDirectory;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    protected AbstractCommandLineJob setExecuteStarted(boolean executeStarted) {
+        this.executeStarted = executeStarted;
+        return this;
+    }
+
+    protected AbstractCommandLineJob setCommandLineAsString(String commandLineAsString) {
+        this.commandLineAsString = commandLineAsString;
+        return this;
+    }
+
+    public AbstractCommandLineJob setWorkingDirectory(File workingDirectory) {
+        this.workingDirectory = workingDirectory;
+        return this;
+    }
+
+    public AbstractCommandLineJob setDescription(String description) {
+        this.description = description;
+        return this;
     }
 }

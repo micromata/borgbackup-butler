@@ -8,9 +8,6 @@ import de.micromata.borgbutler.jobs.AbstractCommandLineJob;
 import de.micromata.borgbutler.jobs.JobResult;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.ProgressInfo;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.environment.EnvironmentUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,16 +23,12 @@ import java.util.Map;
  */
 public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
     private Logger log = LoggerFactory.getLogger(BorgJob.class);
-    @Getter
     private BorgCommand command;
     /**
      * Some jobs may store here the result of the command (e. g. {@link BorgCommands#listArchiveContent(BorgRepoConfig, Archive)}).
      */
-    @Getter
     protected T payload;
 
-    @Getter
-    @Setter(AccessLevel.PROTECTED)
     private ProgressInfo progressInfo;
 
     public BorgJob(BorgCommand command) {
@@ -140,5 +133,22 @@ public class BorgJob<T> extends AbstractCommandLineJob implements Cloneable {
     public void cleanUp() {
         super.cleanUp();
         payload = null;
+    }
+
+    public BorgCommand getCommand() {
+        return this.command;
+    }
+
+    public T getPayload() {
+        return this.payload;
+    }
+
+    public ProgressInfo getProgressInfo() {
+        return this.progressInfo;
+    }
+
+    protected BorgJob<T> setProgressInfo(ProgressInfo progressInfo) {
+        this.progressInfo = progressInfo;
+        return this;
     }
 }

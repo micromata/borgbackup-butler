@@ -1,7 +1,5 @@
 package de.micromata.borgbutler.data;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -13,26 +11,14 @@ public class ArchiveShortInfo implements Serializable, Comparable<ArchiveShortIn
     /**
      * For convenience purposes for the client.
      */
-    @Getter
-    @Setter
     private String repoName;
-    @Getter
-    @Setter
     private String repoId;
-    @Getter
-    @Setter
     private String name;
-    @Getter
-    @Setter
     private String id;
-    @Getter
-    @Setter
     private String time;
     /**
      * Is the file list of this archive loaded and available in Butler's cache.
      */
-    @Getter
-    @Setter
     private boolean fileListAlreadyCached;
 
     public ArchiveShortInfo() {
@@ -57,5 +43,59 @@ public class ArchiveShortInfo implements Serializable, Comparable<ArchiveShortIn
     public int compareTo(ArchiveShortInfo o) {
         // Reverse order:
         return StringUtils.compare(o.time, this.time);
+    }
+
+    public String getRepoName() {
+        return this.repoName;
+    }
+
+    public String getRepoId() {
+        return this.repoId;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getTime() {
+        return this.time;
+    }
+
+    public boolean isFileListAlreadyCached() {
+        return this.fileListAlreadyCached;
+    }
+
+    public ArchiveShortInfo setRepoName(String repoName) {
+        this.repoName = repoName;
+        return this;
+    }
+
+    public ArchiveShortInfo setRepoId(String repoId) {
+        this.repoId = repoId;
+        return this;
+    }
+
+    public ArchiveShortInfo setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public ArchiveShortInfo setId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    public ArchiveShortInfo setTime(String time) {
+        this.time = time;
+        return this;
+    }
+
+    public ArchiveShortInfo setFileListAlreadyCached(boolean fileListAlreadyCached) {
+        this.fileListAlreadyCached = fileListAlreadyCached;
+        return this;
     }
 }

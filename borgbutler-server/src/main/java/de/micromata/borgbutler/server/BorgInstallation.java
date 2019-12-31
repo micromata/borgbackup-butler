@@ -3,7 +3,6 @@ package de.micromata.borgbutler.server;
 import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
-import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -27,7 +26,6 @@ public class BorgInstallation {
         return instance;
     }
 
-    @Getter
     private BorgVersion borgVersion = new BorgVersion();
 
     public void initialize() {
@@ -196,5 +194,9 @@ public class BorgInstallation {
     }
 
     private BorgInstallation() {
+    }
+
+    public BorgVersion getBorgVersion() {
+        return this.borgVersion;
     }
 }

@@ -4,8 +4,6 @@ import de.micromata.borgbutler.json.borg.BorgArchiveLimits;
 import de.micromata.borgbutler.json.borg.BorgArchiveStats;
 import de.micromata.borgbutler.json.borg.BorgCache;
 import de.micromata.borgbutler.json.borg.BorgEncryption;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -18,81 +16,41 @@ public class Archive implements Serializable, Comparable<Archive> {
     /**
      * For convenience purposes for the client.
      */
-    @Getter
-    @Setter
     private String repoName;
     /**
      * For convenience purposes for the client.
      */
-    @Getter
-    @Setter
     private String repoDisplayName;
     /**
      * For convenience purposes for the client.
      */
-    @Getter
-    @Setter
     private String repoId;
-    @Getter
-    @Setter
     private String name;
-    @Getter
-    @Setter
     private String id;
-    @Getter
-    @Setter
     private BorgCache cache;
-    @Getter
-    @Setter
     private BorgEncryption encryption;
 
-    @Getter
-    @Setter
     private int[] chunkerParams;
     /**
      * The command line used for creating this archive: borg create --filter...
      */
-    @Getter
-    @Setter
     private String[] commandLine;
-    @Getter
-    @Setter
     private String comment;
-    @Getter
-    @Setter
     private String start;
-    @Getter
-    @Setter
     private String end;
-    @Getter
-    @Setter
     private String time;
-    @Getter
-    @Setter
     private String duration;
-    @Getter
-    @Setter
     private BorgArchiveStats stats;
-    @Getter
-    @Setter
     private BorgArchiveLimits limits;
-    @Getter
-    @Setter
     private String username;
-    @Getter
-    @Setter
     private String hostname;
     /**
      * For comparing functionality.
      */
-    @Getter
-    @Setter
     private List<ArchiveShortInfo> archiveShortInfoList;
     /**
      * Is the file list of this archive loaded and available in Butler's cache.
      */
-    @Getter
-    @Setter
     private boolean fileListAlreadyCached;
 
     /**
@@ -122,5 +80,185 @@ public class Archive implements Serializable, Comparable<Archive> {
     public int compareTo(Archive o) {
         // Reverse order:
         return StringUtils.compare(o.time, this.time);
+    }
+
+    public String getRepoName() {
+        return this.repoName;
+    }
+
+    public String getRepoDisplayName() {
+        return this.repoDisplayName;
+    }
+
+    public String getRepoId() {
+        return this.repoId;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public BorgCache getCache() {
+        return this.cache;
+    }
+
+    public BorgEncryption getEncryption() {
+        return this.encryption;
+    }
+
+    public int[] getChunkerParams() {
+        return this.chunkerParams;
+    }
+
+    public String[] getCommandLine() {
+        return this.commandLine;
+    }
+
+    public String getComment() {
+        return this.comment;
+    }
+
+    public String getStart() {
+        return this.start;
+    }
+
+    public String getEnd() {
+        return this.end;
+    }
+
+    public String getTime() {
+        return this.time;
+    }
+
+    public String getDuration() {
+        return this.duration;
+    }
+
+    public BorgArchiveStats getStats() {
+        return this.stats;
+    }
+
+    public BorgArchiveLimits getLimits() {
+        return this.limits;
+    }
+
+    public String getUsername() {
+        return this.username;
+    }
+
+    public String getHostname() {
+        return this.hostname;
+    }
+
+    public List<ArchiveShortInfo> getArchiveShortInfoList() {
+        return this.archiveShortInfoList;
+    }
+
+    public boolean isFileListAlreadyCached() {
+        return this.fileListAlreadyCached;
+    }
+
+    public Archive setRepoName(String repoName) {
+        this.repoName = repoName;
+        return this;
+    }
+
+    public Archive setRepoDisplayName(String repoDisplayName) {
+        this.repoDisplayName = repoDisplayName;
+        return this;
+    }
+
+    public Archive setRepoId(String repoId) {
+        this.repoId = repoId;
+        return this;
+    }
+
+    public Archive setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public Archive setId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    public Archive setCache(BorgCache cache) {
+        this.cache = cache;
+        return this;
+    }
+
+    public Archive setEncryption(BorgEncryption encryption) {
+        this.encryption = encryption;
+        return this;
+    }
+
+    public Archive setChunkerParams(int[] chunkerParams) {
+        this.chunkerParams = chunkerParams;
+        return this;
+    }
+
+    public Archive setCommandLine(String[] commandLine) {
+        this.commandLine = commandLine;
+        return this;
+    }
+
+    public Archive setComment(String comment) {
+        this.comment = comment;
+        return this;
+    }
+
+    public Archive setStart(String start) {
+        this.start = start;
+        return this;
+    }
+
+    public Archive setEnd(String end) {
+        this.end = end;
+        return this;
+    }
+
+    public Archive setTime(String time) {
+        this.time = time;
+        return this;
+    }
+
+    public Archive setDuration(String duration) {
+        this.duration = duration;
+        return this;
+    }
+
+    public Archive setStats(BorgArchiveStats stats) {
+        this.stats = stats;
+        return this;
+    }
+
+    public Archive setLimits(BorgArchiveLimits limits) {
+        this.limits = limits;
+        return this;
+    }
+
+    public Archive setUsername(String username) {
+        this.username = username;
+        return this;
+    }
+
+    public Archive setHostname(String hostname) {
+        this.hostname = hostname;
+        return this;
+    }
+
+    public Archive setArchiveShortInfoList(List<ArchiveShortInfo> archiveShortInfoList) {
+        this.archiveShortInfoList = archiveShortInfoList;
+        return this;
+    }
+
+    public Archive setFileListAlreadyCached(boolean fileListAlreadyCached) {
+        this.fileListAlreadyCached = fileListAlreadyCached;
+        return this;
     }
 }

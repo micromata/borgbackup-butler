@@ -1,17 +1,35 @@
 package de.micromata.borgbutler.jobs;
 
-import lombok.Getter;
-import lombok.Setter;
-
 public class JobResult<T> {
+    public Status getStatus() {
+        return this.status;
+    }
+
+    public T getResultObject() {
+        return this.resultObject;
+    }
+
+    public String getErrorString() {
+        return this.errorString;
+    }
+
+    public JobResult<T> setStatus(Status status) {
+        this.status = status;
+        return this;
+    }
+
+    public JobResult<T> setResultObject(T resultObject) {
+        this.resultObject = resultObject;
+        return this;
+    }
+
+    public JobResult<T> setErrorString(String errorString) {
+        this.errorString = errorString;
+        return this;
+    }
+
     public enum Status {OK, ERROR}
-    @Getter
-    @Setter
     private Status status;
-    @Getter
-    @Setter
     private T resultObject;
-    @Getter
-    @Setter
     private String errorString;
 }

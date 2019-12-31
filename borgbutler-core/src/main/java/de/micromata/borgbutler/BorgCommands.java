@@ -105,16 +105,16 @@ public class BorgCommands {
         String resultJson = result.getJobResult().getResultObject();
         BorgRepoInfo repoInfo = JsonUtils.fromJson(BorgRepoInfo.class, resultJson);
         BorgRepository borgRepository = repoInfo.getRepository();
-        Repository repository = new Repository()
-                .setId(borgRepository.getId())
-                .setName(repoConfig.getRepo())
-                .setDisplayName(repoConfig.getDisplayName())
-                .setLastModified(DateUtils.format(borgRepository.getLastModified()))
-                .setLocation(borgRepository.getLocation())
-                .setCache(repoInfo.getCache())
-                .setEncryption(repoInfo.getEncryption())
-                .setSecurityDir(repoInfo.getSecurityDir())
-                .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
+        Repository repository = new Repository();
+        repository.setId(borgRepository.getId());
+        repository.setName(repoConfig.getRepo());
+        repository.setDisplayName(repoConfig.getDisplayName());
+        repository.setLastModified(DateUtils.format(borgRepository.getLastModified()));
+        repository.setLocation(borgRepository.getLocation());
+        repository.setCache(repoInfo.getCache());
+        repository.setEncryption(repoInfo.getEncryption());
+        repository.setSecurityDir(repoInfo.getSecurityDir());
+        repository.setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
         DemoRepos.repoWasRead(repoConfig, repository);
         return result.setObject(repository);
     }
@@ -143,8 +143,8 @@ public class BorgCommands {
             log.error("Can't load archives from repo '" + repository.getName() + "'.");
             return;
         }
-        repository.setLastModified(DateUtils.format(repoList.getRepository().getLastModified()))
-                .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
+        repository.setLastModified(DateUtils.format(repoList.getRepository().getLastModified()));
+        repository.setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
         for (BorgArchive borgArchive : repoList.getArchives()) {
             Archive archive = new Archive()
                     .setName(borgArchive.getArchive())
@@ -184,8 +184,8 @@ public class BorgCommands {
             log.error("Archive '" + command.getRepoArchive() + "' not found.");
             return;
         }
-        repository.setLastModified(DateUtils.format(archiveInfo.getRepository().getLastModified()))
-                .setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
+        repository.setLastModified(DateUtils.format(archiveInfo.getRepository().getLastModified()));
+        repository.setLastCacheRefresh(DateUtils.format(LocalDateTime.now()));
         archive.setCache(archiveInfo.getCache())
                 .setEncryption(archiveInfo.getEncryption());
         if (CollectionUtils.isEmpty(archiveInfo.getArchives())) {

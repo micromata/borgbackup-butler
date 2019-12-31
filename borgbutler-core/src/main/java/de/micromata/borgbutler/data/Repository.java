@@ -3,8 +3,6 @@ package de.micromata.borgbutler.data;
 import de.micromata.borgbutler.config.BorgRepoConfig;
 import de.micromata.borgbutler.json.borg.BorgCache;
 import de.micromata.borgbutler.json.borg.BorgEncryption;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,8 +25,6 @@ public class Repository implements Serializable {
      *
      * @see BorgRepoConfig#getRepo()
      */
-    @Getter
-    @Setter
     String name;
     /**
      * A name describing this config. Only used for displaying purposes. This is automatically set with the name
@@ -36,42 +32,25 @@ public class Repository implements Serializable {
      *
      * @see BorgRepoConfig#getDisplayName()
      */
-    @Getter
-    @Setter
     String displayName;
-    @Getter
-    @Setter
     private String id;
     /**
      * Date given by Borg server.
      */
-    @Getter
-    @Setter
     private String lastModified;
     /**
      * Last date of getting this object from Borg server.
      */
-    @Getter
-    @Setter
     private String lastCacheRefresh;
-    @Getter
-    @Setter
     private String location;
 
-    @Getter
-    @Setter
     private String securityDir;
-    @Getter
-    @Setter
     private BorgCache cache;
-    @Getter
-    @Setter
     private BorgEncryption encryption;
 
     /**
      * Might be null.
      */
-    @Setter
     private SortedSet<Archive> archives;
 
     public Repository add(Archive archive) {
@@ -118,5 +97,81 @@ public class Repository implements Serializable {
         synchronized (this.archives) {
             return Collections.unmodifiableSet(this.archives);
         }
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public String getDisplayName() {
+        return this.displayName;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+
+    public String getLastModified() {
+        return this.lastModified;
+    }
+
+    public String getLastCacheRefresh() {
+        return this.lastCacheRefresh;
+    }
+
+    public String getLocation() {
+        return this.location;
+    }
+
+    public String getSecurityDir() {
+        return this.securityDir;
+    }
+
+    public BorgCache getCache() {
+        return this.cache;
+    }
+
+    public BorgEncryption getEncryption() {
+        return this.encryption;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setLastModified(String lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    public void setLastCacheRefresh(String lastCacheRefresh) {
+        this.lastCacheRefresh = lastCacheRefresh;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setSecurityDir(String securityDir) {
+        this.securityDir = securityDir;
+    }
+
+    public void setCache(BorgCache cache) {
+        this.cache = cache;
+    }
+
+    public void setEncryption(BorgEncryption encryption) {
+        this.encryption = encryption;
+    }
+
+    public void setArchives(SortedSet<Archive> archives) {
+        this.archives = archives;
     }
 }

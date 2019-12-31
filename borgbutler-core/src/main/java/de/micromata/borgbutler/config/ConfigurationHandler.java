@@ -1,8 +1,6 @@
 package de.micromata.borgbutler.config;
 
 import de.micromata.borgbutler.json.JsonUtils;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -19,13 +17,10 @@ public class ConfigurationHandler {
     private static final String BUTLER_HOME_DIR = ".borgbutler";
     private static final String CONFIG_FILENAME = "borgbutler-config.json";
     private static final String CONFIG_BACKUP_DIR = "backup";
-    @Getter
     private File configFile;
     private File configBackupDir;
-    @Getter
     private File workingDir;
     private Configuration configuration;
-    @Setter
     private static Class<? extends Configuration> configClazz = Configuration.class;
 
     public static ConfigurationHandler getInstance() {
@@ -35,6 +30,10 @@ public class ConfigurationHandler {
 
     public static Configuration getConfiguration() {
         return getInstance().configuration;
+    }
+
+    public static void setConfigClazz(Class<? extends Configuration> configClazz) {
+        ConfigurationHandler.configClazz = configClazz;
     }
 
     private void read() {
@@ -111,5 +110,13 @@ public class ConfigurationHandler {
             configBackupDir.mkdirs();
         }
         read();
+    }
+
+    public File getConfigFile() {
+        return this.configFile;
+    }
+
+    public File getWorkingDir() {
+        return this.workingDir;
     }
 }
