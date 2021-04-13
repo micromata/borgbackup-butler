@@ -35,6 +35,7 @@ public class BorgInstallation {
                 return;
             }
         }
+        borgVersion.setBinariesDownloadVersion(configuration.getBorgVersion());
         initialize(getBinary(RunningMode.getOSType()));
         if (version(configuration)) {
             return;
@@ -95,7 +96,7 @@ public class BorgInstallation {
         String msg = null;
         if (versionString != null) {
             borgVersion.setVersion(versionString);
-            int cmp = versionString.compareTo(borgVersion.getMinimumRequiredBorgVersion());
+            int cmp = BorgVersion.compareVersions(versionString, borgVersion.getMinimumRequiredBorgVersion());
             if (cmp < 0) {
                 msg = "Found borg version '" + versionString + "' is less than minimum required version '" + borgVersion.getMinimumRequiredBorgVersion() + "'.";
                 log.info(msg);

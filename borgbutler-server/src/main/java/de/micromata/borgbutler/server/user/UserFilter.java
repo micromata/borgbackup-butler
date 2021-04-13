@@ -21,19 +21,7 @@ public class UserFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String remoteAddr = request.getRemoteAddr();
-        if (remoteAddr == null || !remoteAddr.equals("127.0.0.1")) {
-            log.warn("****************************************");
-            log.warn("***********                   **********");
-            log.warn("*********** SECURITY WARNING! **********");
-            log.warn("***********                   **********");
-            log.warn("*********** Externa access:   **********");
-            log.warn("*********** " + remoteAddr + " **********");
-            log.warn("***********                   **********");
-            log.warn("****************************************");
-            log.warn("Only access from local host yet supported due to security reasons.");
-            throw new RuntimeException("Server is only available for localhost due to security reasons. A remote access is not yet available.");
-        }
+        checkClientIp(request);
         try {
             UserData userData = UserUtils.getUser();
             if (userData != null) {
@@ -63,4 +51,34 @@ public class UserFilter implements Filter {
     public void destroy() {
     }
 
+    private void checkClientIp(ServletRequest request) {
+        String remoteAddr = request.getRemoteAddr();
+        boolean allowed = false;
+        String allowedClientIps = System.getProperty("allowedClientIps");
+        if (remoteAddr != null) {
+            if (remoteAddr.equals("127.0.0.1")) {
+                allowed = true;
+            } else {
+                if (allowedClientIps != null && remoteAddr.startsWith(allowedClientIps)) {
+                    allowed = true;
+                }
+            }
+        }
+        if (!allowed) {
+            log.warn("****************************************");
+            log.warn("***********                   **********");
+            log.warn("*********** SECURITY WARNING! **********");
+            log.warn("***********                   **********");
+            log.warn("*********** Externa access:   **********");
+            log.warn("*********** " + remoteAddr + " **********");
+            log.warn("***********                   **********");
+            log.warn("****************************************");
+            if (allowedClientIps == null) {
+                log.warn("Only access from local host yet supported due to security reasons. You may configure client address ranges by -DallowedClientIps=172.17.0.1 or -DallowedClientIps=172.17.");
+            } else {
+                log.warn("Only access from local host and " + allowedClientIps + " (option -DallowedClientIps) yet supported due to security reasons.");
+            }
+            throw new RuntimeException("Server is only available for localhost due to security reasons. A remote access is not yet available.");
+        }
+    }
 }

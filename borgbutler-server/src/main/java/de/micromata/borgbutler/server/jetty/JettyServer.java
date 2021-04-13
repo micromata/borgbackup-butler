@@ -29,11 +29,23 @@ import java.nio.file.Paths;
 import java.util.EnumSet;
 
 public class JettyServer {
-    private Logger log = LoggerFactory.getLogger(JettyServer.class);
-    private static final String HOST = "127.0.0.1";
+    private static Logger log = LoggerFactory.getLogger(JettyServer.class);
+    private static String BIND_ADDRESS = "127.0.0.1";
     private static final int MAX_PORT_NUMBER = 65535;
     private Server server;
     private int port;
+
+    static {
+        String bindAddress = System.getProperty("bindAddress");
+        if (bindAddress != null) {
+            BIND_ADDRESS = bindAddress;
+        }
+        log.info("Binding server to address: " + BIND_ADDRESS);
+    }
+
+    public static String getBindAddress() {
+        return BIND_ADDRESS;
+    }
 
     public void start(String... restPackageNames) {
         port = findFreePort();
@@ -44,7 +56,7 @@ public class JettyServer {
         server = new Server();
 
         ServerConnector connector = new ServerConnector(server);
-        connector.setHost(HOST);
+        connector.setHost(BIND_ADDRESS);
         connector.setPort(port);
         server.setConnectors(new Connector[]{connector});
 
@@ -150,7 +162,7 @@ public class JettyServer {
         }
         for (int i = port; i < port + 10; i++) {
             try (ServerSocket socket = new ServerSocket()) {
-                socket.bind(new InetSocketAddress(HOST, i));
+                socket.bind(new InetSocketAddress(BIND_ADDRESS, i));
                 return i;
             } catch (Exception ex) {
                 log.info("Port " + i + " already in use or not available. Trying next port.");
@@ -170,7 +182,7 @@ public class JettyServer {
     }
 
     public String getUrl() {
-        return "http://" + HOST + ":" + port + "/";
+        return "http://" + BIND_ADDRESS + ":" + port + "/";
     }
 }
 

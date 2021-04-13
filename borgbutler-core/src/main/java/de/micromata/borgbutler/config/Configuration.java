@@ -11,6 +11,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Representation of ~/.borgbutler/borgbutler-config.json.
+ */
 public class Configuration {
     private Logger log = LoggerFactory.getLogger(Configuration.class);
     /**
@@ -21,9 +24,14 @@ public class Configuration {
     @JsonIgnore
     private File workingDir;
     /**
-     * The path of the borg command to use.
+     * The path of the borg command to use (optional).
      */
     private String borgCommand;
+
+    /**
+     * The borg version to install from github (optional).
+     */
+    private String borgVersion;
 
     /**
      * Default is 100 MB (approximately).
@@ -105,8 +113,15 @@ public class Configuration {
         return repoConfigs;
     }
 
+    /**
+     * Optional borg command to use.
+     */
     public String getBorgCommand() {
         return this.borgCommand;
+    }
+
+    public String getBorgVersion() {
+        return borgVersion;
     }
 
     public int getMaxArchiveContentCacheCapacityMb() {
@@ -129,6 +144,10 @@ public class Configuration {
     public Configuration setBorgCommand(String borgCommand) {
         this.borgCommand = borgCommand;
         return this;
+    }
+
+    public void setBorgVersion(String borgVersion) {
+        this.borgVersion = borgVersion;
     }
 
     public Configuration setShowDemoRepos(boolean showDemoRepos) {

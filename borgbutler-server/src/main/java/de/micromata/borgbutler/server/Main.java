@@ -54,6 +54,7 @@ public class Main {
         options.addOption("p", "port", true, "The default port for the web server.");
         options.addOption("q", "quiet", false, "Don't open browser automatically.");
         options.addOption("h", "help", false, "Print this help screen.");
+        //options.addOption("homeDir", true, "Specify own home directory of butler. Default is $HOME/.borgbutler");
         CommandLineParser parser = new DefaultParser();
         try {
             // parse the command line arguments
@@ -82,6 +83,10 @@ public class Main {
                     return;
                 }
             }
+            String applicationHome = System.getProperty("borgbutlerHome");
+            if (applicationHome != null) {
+                ConfigurationHandler.init(applicationHome);
+            }
             if (Desktop.isDesktopSupported()) {
                 RunningMode.setServerType(RunningMode.ServerType.DESKTOP);
             } else {
@@ -104,6 +109,8 @@ public class Main {
                 } catch (Exception ex) {
                     log.info("Can't open web browser: " + ex.getMessage());
                 }
+            } else {
+                log.info("Please open your browser: " + server.getUrl().replace("0.0.0.0", "127.0.0.1")); // 0.0.0.0 for Docker installations.
             }
         } catch (ParseException ex) {
             // oops, something went wrong

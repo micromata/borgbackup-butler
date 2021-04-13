@@ -20,8 +20,16 @@ public class ConfigurationHandler {
     private File configFile;
     private File configBackupDir;
     private File workingDir;
+    private File butlerHomeDir;
     private Configuration configuration;
     private static Class<? extends Configuration> configClazz = Configuration.class;
+
+    public static void init(String butlerHomeDir) {
+        if (instance != null) {
+            throw new RuntimeException("ConfigurationHandler already initialized");
+        }
+        instance = new ConfigurationHandler(butlerHomeDir);
+    }
 
     public static ConfigurationHandler getInstance() {
         if (instance == null) instance = new ConfigurationHandler();
@@ -97,8 +105,16 @@ public class ConfigurationHandler {
     }
 
     private ConfigurationHandler() {
-        File userHome = new File(System.getProperty("user.home"));
-        workingDir = new File(userHome, BUTLER_HOME_DIR);
+        this(null);
+    }
+
+    private ConfigurationHandler(String butlerHomeDir) {
+        if (butlerHomeDir != null) {
+            workingDir = new File(butlerHomeDir);
+        } else {
+            workingDir = new File(System.getProperty("user.home"), BUTLER_HOME_DIR);
+        }
+        log.info("Using directory '" + workingDir.getAbsolutePath() + "' as BorgButler's home directory.");
         if (!workingDir.exists()) {
             log.info("Creating borg-butlers working directory: " + workingDir.getAbsolutePath());
             workingDir.mkdirs();

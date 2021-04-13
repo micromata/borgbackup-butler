@@ -38,7 +38,7 @@ saving a new configuration BorgButler stores a copy of the current configuration
 == Build and start from command line
 
 === Build distribution and start with Gradle
-1. `cd borgbackup-butler`
+1. `cd borgbackup-butler/borgbutler-webapp`
 2. `npm install`
 3. `cd ..`
 4. `gradle distZip`
