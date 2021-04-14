@@ -18,7 +18,8 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 After starting BorgButler without any further settings, you can play with faked demo repositories.
 
 [#img-configuration]
-You may leave the default values as they are.
+You may leave the default values as they are. BorgButler downloads the current or configured version of the borg binary for
+your platform automatically.
 [link=doc/images/screen-configuration.png]
 image::doc/images/screen-configuration.png[Configuration of BorgButler,800]
 
@@ -48,6 +49,10 @@ with a view clicks. You may download single files as well as whole directories.
 [link=doc/images/screen-archive-filelist.png]
 image::doc/images/screen-archive-filelist.png[Repo info,800]
 
+[#img-archive-differences]
+You may compare two archives within some clicks and see the differences (files, file properties such as size, dates or change modes).
+[link=doc/images/screen-archive-differences.png]
+image::doc/images/screen-archive-differences.png[Repo info,800]
 
 == Quick start
 === Docker
@@ -65,6 +70,8 @@ You may refer the log file through the web browser or in `$HOME/BorgButler/borgb
 
 
 === Starting from sources
+You'll need OpenJDK 9+ as well as gradle.
+
 1. `gradle clean distZip`
 2. Unzip `borgbutler-server/build/distributions/borgbutler-server-<version>.zip`
 3. Run `bin/borgbutler-server` or `bin/borgbutler-server.bat`.
@@ -107,7 +114,7 @@ You may configure and initialize your repositories by the BorgButler app. The co
 saving a new configuration BorgButler stores a copy of the current configuration in the backup dir: `~/.borgbutler/backup/`.
 
 
-== More screens
+== More immpressions
 
 See some more screens to get an first overview of the functionality of BorgButler.
 
