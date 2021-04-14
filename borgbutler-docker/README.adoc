@@ -15,6 +15,6 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
 == Deploying
 
-1. `docker tag bc0459ed7d01 kreinhard/borgbutler:0.3  kreinhard/borgbutler:latest`
+1. `docker tag bc0459ed7d01 kreinhard/borgbutler:0.3`
 2. `docker push kreinhard/borgbutler:0.3`
 3. `docker push kreinhard/borgbutler:latest`

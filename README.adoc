@@ -59,10 +59,11 @@ image::doc/images/screen-archive-differences.png[Repo info,800]
 
 BorgButler working directory `$HOME/BorgButler` is assumed, but you may define any other.
 
-1. `docker run -v $HOME/BorgButler:/Borgbutler -p 127.0.0.1:9042:9042 --name borgbuttler kreinhard/borgbutler` (exporting of `.ssh` is useful for ssh remotes, otherwise skip this setting.)
-2. Stopping: simly click `CTRL-C`.
-3. Restart: `docker start`
-4. Stop: `docker stop`
+1. Create your local BorgButler directory: `mkdir $HOME/BorgButler` (for config, caches, backups and restoring of backuped files and directories)
+2. `docker run -v $HOME/BorgButler:/Borgbutler -p 127.0.0.1:9042:9042 --name borgbuttler kreinhard/borgbutler` (exporting of `.ssh` is useful for ssh remotes, otherwise skip this setting.)
+3. Stopping: simly click `CTRL-C`.
+4. Restart: `docker start`
+5. Stop: `docker stop`
 
 Enjoy BorgButler by opening your browser: http://localhost:9042
 
