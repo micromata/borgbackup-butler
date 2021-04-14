@@ -1,7 +1,7 @@
 package de.micromata.borgbutler;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.config.ConfigurationHandler;
+import org.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.demo.DemoRepos;
 import de.micromata.borgbutler.jobs.AbstractCommandLineJob;

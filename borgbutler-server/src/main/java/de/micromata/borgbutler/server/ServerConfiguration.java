@@ -2,8 +2,8 @@ package de.micromata.borgbutler.server;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.micromata.borgbutler.cache.ButlerCache;
-import de.micromata.borgbutler.config.Configuration;
-import de.micromata.borgbutler.config.ConfigurationHandler;
+import org.micromata.borgbutler.config.Configuration;
+import org.micromata.borgbutler.config.ConfigurationHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,7 +3,7 @@ package de.micromata.borgbutler.server.rest;
 import de.micromata.borgbutler.BorgJob;
 import de.micromata.borgbutler.BorgQueueExecutor;
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.config.ConfigurationHandler;
+import org.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.jobs.AbstractJob;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.json.borg.ProgressInfo;

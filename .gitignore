@@ -42,3 +42,4 @@ borgbutler-server/out
 borgbutler-webapp/build
 borgbutler-webapp/node_modules
 borgbutler-docker/app/target
+borgbutler-server-0.3-SNAPSHOT

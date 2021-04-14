@@ -1,8 +1,8 @@
 package de.micromata.borgbutler.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.util.BufferRecyclers;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class JsonUtils {
 
     public static String toJson(String str) {
         if (str == null) return "";
-        return new String(BufferRecyclers.getJsonStringEncoder().quoteAsString(str));
+        return new String(JsonStringEncoder.getInstance().quoteAsString(str));
     }
 
     public static <T> T fromJson(Class<T> clazz, String json) {

@@ -3,7 +3,7 @@ package de.micromata.borgbutler.demo;
 import de.micromata.borgbutler.BorgCommand;
 import de.micromata.borgbutler.BorgJob;
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.config.ConfigurationHandler;
+import org.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.config.Definitions;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.jobs.JobResult;

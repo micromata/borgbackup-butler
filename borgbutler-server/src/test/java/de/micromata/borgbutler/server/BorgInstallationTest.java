@@ -1,6 +1,6 @@
 package de.micromata.borgbutler.server;
 
-import de.micromata.borgbutler.config.ConfigurationHandler;
+import org.micromata.borgbutler.config.ConfigurationHandler;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

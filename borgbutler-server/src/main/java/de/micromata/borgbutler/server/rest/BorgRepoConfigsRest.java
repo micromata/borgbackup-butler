@@ -4,7 +4,7 @@ import de.micromata.borgbutler.BorgCommandResult;
 import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import de.micromata.borgbutler.config.ConfigurationHandler;
+import org.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.jobs.JobResult;
 import de.micromata.borgbutler.json.JsonUtils;

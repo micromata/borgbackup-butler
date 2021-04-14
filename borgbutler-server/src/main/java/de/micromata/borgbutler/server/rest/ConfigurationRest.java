@@ -1,7 +1,7 @@
 package de.micromata.borgbutler.server.rest;
 
 import de.micromata.borgbutler.cache.ButlerCache;
-import de.micromata.borgbutler.config.ConfigurationHandler;
+import org.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.JsonUtils;
 import de.micromata.borgbutler.server.BorgInstallation;
 import de.micromata.borgbutler.server.ServerConfiguration;

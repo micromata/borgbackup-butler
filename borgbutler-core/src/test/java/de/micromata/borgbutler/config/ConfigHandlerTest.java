@@ -2,6 +2,7 @@ package de.micromata.borgbutler.config;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
+import org.micromata.borgbutler.config.ConfigurationHandler;
 
 import java.io.File;
 import java.io.IOException;
