@@ -15,6 +15,8 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
 == At first glance
 
+After starting BorgButler without any further settings, you can play with faked demo repositories.
+
 [#img-configuration]
 You may leave the default values as they are.
 [link=doc/images/screen-configuration.png]
@@ -23,7 +25,7 @@ image::doc/images/screen-configuration.png[Configuration of BorgButler,800]
 [#img-jobmonitor]
 The job monitor gives an overview of all (long running) processes. You're also able to cancel running jobs.
 [link=doc/images/screen-jobmonitor.png]
-image::doc/images/screen-jobmonitor.png[Job monitor,400]
+image::doc/images/screen-jobmonitor.png[Job monitor,800]
 
 [#img-repositories]
 Borgbutler may manage multiple repositories.
