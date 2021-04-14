@@ -11,5 +11,5 @@ mkdir -p app/target/dependency && (cd app/target/dependency; unzip ../../../../b
 echo "Building docker file..."
 (cd app; docker build -t kreinhard/borgbutler .)
 
-echo "Push: docker push kreinhard/boprgbutler:tagname"
-echo "Run with 'docker run -v $HOME/.borgbutler:/Borgbutler -p 127.0.0.1:9042:9042 --name borgbuttler kreinhard/borgbutler'"
+echo "Push: docker push kreinhard/borgbutler:tagname"
+echo "Run with 'docker run -v $HOME/BorgButler:/BorButler -p 127.0.0.1:9042:9042 --name borgbuttler kreinhard/borgbutler'"

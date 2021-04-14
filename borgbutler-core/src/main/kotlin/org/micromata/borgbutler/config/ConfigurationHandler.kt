@@ -2,12 +2,14 @@ package org.micromata.borgbutler.config
 
 import de.micromata.borgbutler.config.Definitions
 import de.micromata.borgbutler.json.JsonUtils
+import mu.KotlinLogging
 import org.apache.commons.io.FileUtils
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+
+private val log = KotlinLogging.logger {}
 
 /**
  * Reads and writes config file borgbutler-config.json/borgbutler-config.yaml
@@ -23,13 +25,22 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
     private fun read() {
         if (configFile.canRead()) {
             log.info("Reading config file '" + configFile.absolutePath + "'")
+            val jsonConfigFile = File(workingDir, CONFIG_FILENAME)
+            if (jsonConfigFile.canRead()) {
+                val yaml = FileUtils.readFileToString(jsonConfigFile, Definitions.STD_CHARSET)
+                configuration = YamlUtils.fromYaml(configClazz, yaml)
+            }
         } else {
-            readOldJson()
+            Legacy.readOldJsonConfigFile(workingDir, OLD_JSON_CONFIG_FILENAME)?.let {
+                configuration = it
+                save()
+            }
         }
         try {
             if (configuration == null) {
                 try {
                     configuration = configClazz.getDeclaredConstructor().newInstance()
+                    save()
                 } catch (ex: Exception) {
                     log.error(
                         "Internal error: Can't instantiate object of type '" + configClazz + "': " + ex.message,
@@ -46,35 +57,6 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
             log.error("Error while trying to read from config file: " + configFile.absolutePath + ": " + ex.message, ex)
             return
         }
-    }
-
-    /**
-     * Backward compability
-     */
-    private fun readOldJson() {
-        val jsonConfigFile = File(workingDir, OLD_JSON_CONFIG_FILENAME)
-        if (!jsonConfigFile.canRead()) {
-            // Nothing to do
-            return
-        }
-        var json: String? = null
-        if (jsonConfigFile.exists()) {
-            json = FileUtils.readFileToString(jsonConfigFile, Definitions.STD_CHARSET)
-            // Migrate from first version:
-            if (json.contains("repo-configs")) {
-                json = json.replace("repo-configs", "repoConfigs")
-                json = json.replace("display_name", "displayName")
-            }
-            val formatter = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
-            val backupFilename = "${formatter.format(Date())}-old-${jsonConfigFile.name}"
-            log.info("Migrating old json config file to yaml file. Renaming old json file '${jsonConfigFile.absolutePath}' to '$backupFilename'.")
-            FileUtils.moveFile(jsonConfigFile, File(jsonConfigFile.parent, backupFilename))
-        }
-        val newConfig = JsonUtils.fromJson(configClazz, json)
-            ?: // Nothing to do
-            return
-        configuration = newConfig
-        save()
     }
 
     fun save() {
@@ -103,7 +85,6 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
     }
 
     companion object {
-        private val log = LoggerFactory.getLogger(ConfigurationHandler::class.java)
         private var instance: ConfigurationHandler? = null
         private const val BUTLER_HOME_DIR = ".borgbutler"
         private const val OLD_JSON_CONFIG_FILENAME = "borgbutler-config.json"
@@ -133,6 +114,11 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
         @kotlin.jvm.JvmStatic
         fun setConfigClazz(configClazz: Class<out Configuration>) {
             Companion.configClazz = configClazz
+        }
+
+        @kotlin.jvm.JvmStatic
+        fun getConfigClazz(): Class<out Configuration> {
+            return configClazz
         }
     }
 
