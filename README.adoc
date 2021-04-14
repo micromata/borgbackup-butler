@@ -27,8 +27,8 @@ image::doc/images/screen-jobmonitor.png[Job monitor,400]
 
 [#img-repositories]
 Borgbutler may manage multiple repositories.
-[link=doc/images/Screen-repositories.png]
-image::doc/images/Screen-repositories.png[Multiple repositories,800]
+[link=doc/images/screen-repositories.png]
+image::doc/images/screen-repositories.png[Multiple repositories,800]
 
 [#img-repository-config]
 Configuration of a repo used by BorgButler.
