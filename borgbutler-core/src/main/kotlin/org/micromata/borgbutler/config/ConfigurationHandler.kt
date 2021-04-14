@@ -65,7 +65,7 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
                 json = json.replace("repo-configs", "repoConfigs")
                 json = json.replace("display_name", "displayName")
             }
-            val formatter = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss'-'")
+            val formatter = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
             val backupFilename = "${formatter.format(Date())}-old-${jsonConfigFile.name}"
             log.info("Migrating old json config file to yaml file. Renaming old json file '${jsonConfigFile.absolutePath}' to '$backupFilename'.")
             FileUtils.moveFile(jsonConfigFile, File(jsonConfigFile.parent, backupFilename))

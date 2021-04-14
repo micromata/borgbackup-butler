@@ -12,4 +12,4 @@ echo "Building docker file..."
 (cd app; docker build -t kreinhard/borgbutler .)
 
 echo "Push: docker push kreinhard/boprgbutler:tagname"
-echo "Run with 'docker run -p 127.0.0.1:9042:9042 -v $HOME/.borgbutler:/Borgbutler kreinhard/borgbutler'"
+echo "Run with 'docker run -v $HOME/.borgbutler:/Borgbutler -p 127.0.0.1:9042:9042 --name borgbuttler kreinhard/borgbutler'"

@@ -1,0 +1,20 @@
+= Micromata https://xxx[BorgBackup]-Butler
+Micromata GmbH, Kai Reinhard
+:toc:
+:toclevels: 4
+
+Copyright (C) 2018-2021
+
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+
+== Building docker container
+
+1. `gradle clean distZipe` in top directory (compiles and builds the project)
+2. `cd borgbutler-docker`
+3. `./buildDocker.sh` (builds the docker container)
+
+== Deploying
+
+1. `docker tag bc0459ed7d01 kreinhard/borgbutler:0.3  kreinhard/borgbutler:latest`
+2. `docker push kreinhard/borgbutler:0.3`
+3. `docker push kreinhard/borgbutler:latest`
