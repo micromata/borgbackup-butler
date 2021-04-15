@@ -30,6 +30,6 @@ COPY ${DEPENDENCY}/web /app/web
 # Variable expansion doesn't work for ENTRYPOINT definition as array, but array is required, because graceful shutdown of
 # container isn't given if java is started via 'sh -c' as it will be done by ENTRYPOINT java .....
 # Java options are modifiable by user through own ENTRYPOINT definition on docker run or in docker-compose.yml.
-ENTRYPOINT ["java", "-Xms1g", "-Xmx1g", "-cp", "app/web/*:app/lib/*", "-DborgbutlerHome=/BorgButler/", "-DapplicationHome=/app", "-DbindAddress=0.0.0.0", "-DallowedClientIps=172.17.", "de.micromata.borgbutler.server.Main", "-q"]
+ENTRYPOINT ["java", "-Xms4g", "-Xmx4g", "-cp", "app/web/*:app/lib/*", "-DborgbutlerHome=/BorgButler/", "-DapplicationHome=/app", "-DbindAddress=0.0.0.0", "-DallowedClientIps=172.17.", "de.micromata.borgbutler.server.Main", "-q"]
 
 MAINTAINER Micromata

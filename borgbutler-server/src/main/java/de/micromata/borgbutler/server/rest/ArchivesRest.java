@@ -3,7 +3,7 @@ package de.micromata.borgbutler.server.rest;
 import de.micromata.borgbutler.BorgCommands;
 import de.micromata.borgbutler.cache.ButlerCache;
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import org.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.DiffFileSystemFilter;
 import de.micromata.borgbutler.data.FileSystemFilter;

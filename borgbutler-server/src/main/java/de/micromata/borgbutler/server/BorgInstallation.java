@@ -1,8 +1,8 @@
 package de.micromata.borgbutler.server;
 
 import de.micromata.borgbutler.BorgCommands;
-import org.micromata.borgbutler.config.Configuration;
-import org.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.config.Configuration;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;

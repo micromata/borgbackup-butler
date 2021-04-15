@@ -1,8 +1,8 @@
 package de.micromata.borgbutler.cache;
 
 import de.micromata.borgbutler.config.BorgRepoConfig;
-import org.micromata.borgbutler.config.Configuration;
-import org.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.config.Configuration;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.data.Archive;
 import de.micromata.borgbutler.data.Repository;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;

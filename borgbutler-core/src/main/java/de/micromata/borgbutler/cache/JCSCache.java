@@ -1,6 +1,6 @@
 package de.micromata.borgbutler.cache;
 
-import org.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import org.apache.commons.jcs.JCS;
 import org.apache.commons.jcs.access.CacheAccess;
 import org.slf4j.Logger;

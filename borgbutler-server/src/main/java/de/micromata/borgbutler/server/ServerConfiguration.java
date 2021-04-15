@@ -1,8 +1,8 @@
 package de.micromata.borgbutler.server;
 
 import org.apache.commons.lang3.StringUtils;
-import org.micromata.borgbutler.config.Configuration;
-import org.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.config.Configuration;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

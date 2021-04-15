@@ -1,12 +1,9 @@
-package org.micromata.borgbutler.config
+package de.micromata.borgbutler.config
 
-import de.micromata.borgbutler.config.Definitions
 import de.micromata.borgbutler.json.JsonUtils
 import mu.KotlinLogging
 import org.apache.commons.io.FileUtils
-import org.slf4j.LoggerFactory
 import java.io.File
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 

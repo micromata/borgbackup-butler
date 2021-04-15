@@ -1,7 +1,7 @@
 package de.micromata.borgbutler.server;
 
 import de.micromata.borgbutler.cache.ButlerCache;
-import org.micromata.borgbutler.config.ConfigurationHandler;
+import de.micromata.borgbutler.config.ConfigurationHandler;
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem;
 import de.micromata.borgbutler.server.jetty.JettyServer;
 import de.micromata.borgbutler.server.user.SingleUserManager;

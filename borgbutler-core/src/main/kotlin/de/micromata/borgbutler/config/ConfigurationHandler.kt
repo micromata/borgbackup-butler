@@ -1,4 +1,4 @@
-package org.micromata.borgbutler.config
+package de.micromata.borgbutler.config
 
 import de.micromata.borgbutler.config.Definitions
 import de.micromata.borgbutler.json.JsonUtils

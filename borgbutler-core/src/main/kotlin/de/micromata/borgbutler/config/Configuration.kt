@@ -1,4 +1,4 @@
-package org.micromata.borgbutler.config
+package de.micromata.borgbutler.config
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
