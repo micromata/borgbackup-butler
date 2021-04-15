@@ -12,4 +12,5 @@ echo "Building docker file..."
 (cd app; docker build -t kreinhard/borgbutler .)
 
 echo "Push: docker push kreinhard/borgbutler:tagname"
-echo "Run with 'docker run -v $HOME/BorgButler:/BorButler -p 127.0.0.1:9042:9042 --name borgbuttler kreinhard/borgbutler'"
+echo "Run without ssh: 'docker run -v $HOME/BorgButler:/BorgButler -p 127.0.0.1:9042:9042 --name borgbuttler kreinhard/borgbutler'"
+echo "Run with ssh: 'docker run -v $HOME/BorgButler:/BorgButler -v $HOME/.ssh:/home/borgbutler/.ssh:ro -p 127.0.0.1:9042:9042 --name borgbuttler kreinhard/borgbutler'"
