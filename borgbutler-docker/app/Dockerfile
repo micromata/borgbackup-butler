@@ -11,6 +11,11 @@ RUN mkdir /BorgButler
 # Grant access for user projectforge:
 RUN chown borgbutler.borgbutler /BorgButler
 VOLUME /BorgButler
+
+RUN mkdir /home/borgbutler/.ssh
+RUN chown borgbutler.borgbutler /home/borgbutler/.ssh
+VOLUME /home/borgbutler/.ssh
+
 EXPOSE 9042
 
 USER borgbutler:borgbutler
