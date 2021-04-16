@@ -93,7 +93,7 @@ You can configure it through the webapp or directly (`borgbutler.config`):
 
 [source,yaml]
 ----
-borgCommand: "/Users/kai/.borgbutler/bin/borg-macosx64-1.1.8"
+borgCommand: "/Users/kai/.borgbutler/bin/borg-macosx64-1.1.9"
 maxArchiveContentCacheCapacityMb: 200
 repoConfigs:
 - displayName: "ACME - Backup server 1"

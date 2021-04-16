@@ -3,7 +3,7 @@ package de.micromata.borgbutler.server;
 import org.apache.commons.lang3.StringUtils;
 
 public class BorgVersion {
-    public static final String BORG_DEFAULT_DOWNLOAD_VERSION = "1.1.16";
+    public static final String BORG_DEFAULT_DOWNLOAD_VERSION = "1.1.9";
 
     private static final String BORG_VERSION = BORG_DEFAULT_DOWNLOAD_VERSION;
 
