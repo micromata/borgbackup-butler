@@ -24,24 +24,6 @@ Now the default webbrowser is started on default port `9042`. Enjoy it!
 
 == Build and start inside your IDE
 
-=== Lombok required
-[.text-center]
-https://github.com/mplushnikov/lombok-intellij-plugin[Lombok Intellij plugin description^] +
-[.text-left]
-Or go to
-[.text-center]
-https://projectlombok.org/[Lombok home page^] +
-[.text-left]
-
-* Using IDE built-in plugin system on Windows: +
-  File > Settings > Plugins > Browse repositories... > Search for "lombok" > Install Plugin
-* Using IDE built-in plugin system on MacOs: +
-  Preferences > Settings > Plugins > Browse repositories... > Search for "lombok" > Install Plugin
-* Manually: +
-  Download the latest release and install it manually using Preferences > Plugins > Install plugin from disk..
-* In your project: Click Preferences -> Build, Execution, Deployment -> Compiler, Annotation Processors. Click Enable Annotation Processing
-
-
 === Start borgbutler-server
 1. `cd borgbutler-webapp`
 2. `npm install`

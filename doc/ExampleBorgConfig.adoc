@@ -1,0 +1,116 @@
+Micromata BorgBackup-Butler
+===========================
+Micromata GmbH, Kai Reinhard
+:toc:
+:toclevels: 4
+
+Copyright (C) 2018-2021
+
+ifdef::env-github,env-browser[:outfilesuffix: .adoc]
+
+
+== Examples
+
+=== Borg script client
+
+[source,bash]
+----
+#!/bin/sh
+BORG_COMMAND=~/.borgbutler/bin/borg-macosx64-1.1.8
+
+# Setting this, so the repo does not need to be given on the commandline:
+export BORG_REPO=ssh://horst@borgbackup.acme.priv:23/backups/myLaptop
+export BORG_RSH='ssh -i /home/horst/.ssh/borgbackup'
+
+# Setting this, so you won't be asked for your repository passphrase:
+# export BORG_PASSPHRASE='XYZl0ngandsecurepa_55_phrasea&&123'
+# or this to ask an external program to supply the passphrase:
+export BORG_PASSCOMMAND="cat /home/horst/.borg-passphrase"
+
+# Intialization:
+# 1. export BORG_PASSCOMMAND="cat /home/horst/.borg-passphrase"
+# 2. BORG_RSH='ssh -i /home/horst/.ssh/borgbackup'
+# 3. borg init --encryption=repokey ssh://horst@@borgbackup.acme.priv:23/backups/myLaptop
+
+
+case "$1" in
+  break-lock)
+    borg break-lock $BORG_REPO
+    exit 1
+    ;;
+  info)
+    borg info $BORG_REPO
+    exit 1
+    ;;
+  create)
+    echo Creating backup
+    ;;
+  *)
+    echo "Usage: $0 {break-lock|create|info}" >&2
+    exit 1
+    ;;
+esac
+
+# some helpers and error handling:
+info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
+trap 'echo $( date ) Backup interrupted >&2; exit 2' INT TERM
+
+info "Starting backup"
+
+# Backup the most important directories into an archive named after
+# the machine this script is currently running on:
+
+$BORG_COMMAND create                \
+    --filter AME                    \
+    --stats                         \
+    --progress                      \
+    --show-rc                       \
+    --compression lz4               \
+    --exclude-caches                \
+    --exclude '/home/*/.cache/*'    \
+    --exclude '/Users/*/.cache/*'   \
+    --exclude '/var/cache/*'        \
+    --exclude '/var/tmp/*'          \
+    --exclude '*/Caches/*'          \
+    --exclude '*/.m2/*'             \
+    --exclude '/Users/horst/Library/*' \
+    --exclude '/Users/horst/Music/iTunes/iTunes\ Music/*' \
+    --exclude '/Users/horst/Backup/Archive' \
+    --exclude '/Users/horst/Downloads' \
+    ::'myLaptop-{now}'               \
+    /home/horst                      \
+
+backup_exit=$?
+
+info "Pruning repository"
+
+# Use the `prune` subcommand to maintain 7 daily, 4 weekly and 6 monthly
+# archives of THIS machine. The '{hostname}-' prefix is very important to
+# limit prune's operation to this machine's archives and not apply to
+# other machines' archives also:
+
+$BORG_COMMAND prune                 \
+    --list                          \
+    --prefix 'myLaptop-'             \
+    --show-rc                       \
+    --keep-daily    7               \
+    --keep-weekly   4               \
+    --keep-monthly  6               \
+
+prune_exit=$?
+
+# use highest exit code as global exit code
+global_exit=$(( backup_exit > prune_exit ? backup_exit : prune_exit ))
+
+if [ ${global_exit} -eq 1 ];
+then
+    info "Backup and/or Prune finished with a warning"
+fi
+
+if [ ${global_exit} -gt 1 ];
+then
+    info "Backup and/or Prune finished with an error"
+fi
+
+exit ${global_exit}
+----

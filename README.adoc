@@ -69,6 +69,12 @@ Enjoy BorgButler by opening your browser: http://localhost:9042
 
 You may refer the log file through the web browser or in `$HOME/BorgButler/borgbutler.log`.
 
+=== Starting from Java zip
+You'll need OpenJDK 9+.
+
+1. Download BorgButler from https://sourceforge.net/projects/borgbutler/files/latest/download
+2. Unzip `borgbutler-server/build/distributions/borgbutler-server-<version>.zip`
+3. Run `bin/borgbutler-server` or `bin/borgbutler-server.bat`.
 
 === Starting from sources
 You'll need OpenJDK 9+ as well as gradle.
@@ -108,6 +114,10 @@ repoConfigs:
 port: 9042
 showDemoRepos: false
 ----
+
+== Example on how to script backups (Linux/MacOS)
+Here: link:doc/ExampleBorgConfig{outfilesuffix}[Installation]
+
 
 ==== Backups of configuration files
 
