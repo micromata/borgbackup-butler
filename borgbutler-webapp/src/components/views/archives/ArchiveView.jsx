@@ -142,7 +142,7 @@ class ArchiveView extends React.Component {
                             </tr>
                             <tr>
                                 <td>Start - end</td>
-                                <td>{archive.start} - {archive.end} (Duration: {humanSeconds(archive.duration)})</td>
+                                <td>{archive.start} - {archive.end} (Duration: {humanSeconds(archive.duration)}s)</td>
                             </tr>
                             <tr>
                                 <td>Id</td>
