@@ -31,7 +31,7 @@ class RepoArchiveListView extends React.Component {
         });
         fetch(getRestServiceUrl('repos/repoArchiveList', {
             id: this.state.id,
-            force: force
+            force: force === true,
         }), {
             method: 'GET',
             headers: {

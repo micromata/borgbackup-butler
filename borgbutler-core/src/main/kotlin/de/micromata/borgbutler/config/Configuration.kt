@@ -4,15 +4,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import de.micromata.borgbutler.config.BorgRepoConfig
 import de.micromata.borgbutler.demo.DemoRepos
+import mu.KotlinLogging
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
 import java.io.File
+
+private val log = KotlinLogging.logger {}
 
 /**
  * Representation of ~/.borgbutler/borgbutler-config.json.
  */
 open class Configuration {
-    private val log = LoggerFactory.getLogger(Configuration::class.java)
 
     @JsonIgnore
     private var workingDir: File? = null

@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.micromata.borgbutler.json.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -92,5 +93,10 @@ public class BorgRepoConfig {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return JsonUtils.toJson(this);
     }
 }

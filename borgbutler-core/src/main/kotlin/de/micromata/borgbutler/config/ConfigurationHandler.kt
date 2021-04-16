@@ -101,14 +101,14 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
         }
 
         @kotlin.jvm.JvmStatic
-        fun getInstance(): ConfigurationHandler? {
+        fun getInstance(): ConfigurationHandler {
             if (instance == null) instance = ConfigurationHandler()
-            return instance
+            return instance!!
         }
 
         @kotlin.jvm.JvmStatic
-        fun getConfiguration(): Configuration? {
-            return getInstance()!!.configuration
+        fun getConfiguration(): Configuration {
+            return getInstance().configuration!!
         }
 
         @kotlin.jvm.JvmStatic

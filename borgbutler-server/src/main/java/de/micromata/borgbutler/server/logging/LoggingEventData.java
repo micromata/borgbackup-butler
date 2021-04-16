@@ -1,8 +1,10 @@
 package de.micromata.borgbutler.server.logging;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.IThrowableProxy;
+import ch.qos.logback.classic.spi.ThrowableProxyUtil;
+import ch.qos.logback.core.CoreConstants;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.log4j.spi.LocationInfo;
-import org.apache.log4j.spi.LoggingEvent;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -23,26 +25,26 @@ public class LoggingEventData implements Cloneable {
     private String logDate;
     String javaClass;
     private String javaClassSimpleName;
-    private String lineNumber;
+    private int lineNumber;
     private String methodName;
     private String stackTrace;
 
     LoggingEventData() {
-
     }
 
-    public LoggingEventData(LoggingEvent event) {
+    public LoggingEventData(ILoggingEvent event) {
         level = LogLevel.getLevel(event);
-        message = event.getRenderedMessage();
+        message = event.getFormattedMessage();
         messageObjectClass = event.getMessage().getClass().toString();
         loggerName = event.getLoggerName();
-        logDate = getIsoLogDate(event.timeStamp);
-        LocationInfo info = event.getLocationInformation();
-        Throwable throwable = event.getThrowableInformation() != null ? event.getThrowableInformation().getThrowable() : null;
-        if (throwable != null) {
+        logDate = getIsoLogDate(event.getTimeStamp());
+        StackTraceElement info = event.getCallerData()[0];
+        IThrowableProxy throwableProxy = event.getThrowableProxy();
+        if (throwableProxy != null) {
             StringWriter writer = new StringWriter();
             PrintWriter printWriter = new PrintWriter(writer);
-            throwable.printStackTrace(printWriter);
+            printWriter.append(ThrowableProxyUtil.asString(throwableProxy));
+            printWriter.append(CoreConstants.LINE_SEPARATOR);
             stackTrace = writer.toString();
         }
         if (info != null) {
@@ -81,7 +83,7 @@ public class LoggingEventData implements Cloneable {
         return javaClassSimpleName;
     }
 
-    public String getLineNumber() {
+    public int getLineNumber() {
         return lineNumber;
     }
 

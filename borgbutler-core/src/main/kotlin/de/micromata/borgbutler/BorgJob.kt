@@ -6,18 +6,20 @@ import de.micromata.borgbutler.jobs.AbstractCommandLineJob
 import de.micromata.borgbutler.jobs.JobResult
 import de.micromata.borgbutler.json.JsonUtils
 import de.micromata.borgbutler.json.borg.ProgressInfo
+import mu.KotlinLogging
 import org.apache.commons.exec.CommandLine
 import org.apache.commons.exec.environment.EnvironmentUtils
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
 import java.io.IOException
 
+private val log = KotlinLogging.logger {}
+
 /**
  * A queue is important because Borg doesn't support parallel calls for one repository.
  * For each repository one single queue is allocated.
  */
 open class BorgJob<T> : AbstractCommandLineJob, Cloneable {
-    private val log = LoggerFactory.getLogger(BorgJob::class.java)
     var command: BorgCommand? = null
         private set
 

@@ -137,7 +137,7 @@ class FileListPanel extends React.Component {
         fetch(getRestServiceUrl('archives/filelist', {
             archiveId: this.props.archive.id,
             diffArchiveId: this.state.filter.diffArchiveId,
-            force: force,
+            force: force === true,
             searchString: this.state.filter.search,
             mode: this.state.filter.mode,
             currentDirectory: this.state.filter.currentDirectory,

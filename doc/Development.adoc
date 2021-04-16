@@ -28,7 +28,7 @@ Now the default webbrowser is started on default port `9042`. Enjoy it!
 1. `cd borgbutler-webapp`
 2. `npm install`
 3. `gradle npmBuild` (builds the web archive)
-4. Start `de.micromata.borgbutler.server.Main`
+4. Start `BorgButlerApplication`
 
 === Start borgbutler-server for web development
 For using hot code replacement of your web files, you should use `npm start` or `yarn start`:
@@ -36,7 +36,7 @@ For using hot code replacement of your web files, you should use `npm start` or 
 1. `cd borgbutler-webapp`
 2. `npm install`
 3. `npm start` (opens the web browser on port 3000)
-4. Start `de.micromata.borgbutler.server.Main` (ignore the opened browser window for port 9042)
+4. Start `BorgButlerApplication` (ignore the opened browser window for port 9042)
 
 === Profiling heap, cpu and everything using JProfiler
 JProfiler is an excellent tool for analysing your software. BorgButler was optimized regarding heap memory and CPU usage by

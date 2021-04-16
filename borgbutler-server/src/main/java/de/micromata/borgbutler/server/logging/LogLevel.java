@@ -1,8 +1,8 @@
 package de.micromata.borgbutler.server.logging;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.spi.LoggingEvent;
 
 public enum LogLevel {
     ERROR, WARN, INFO, DEBUG, TRACE;
@@ -18,10 +18,8 @@ public enum LogLevel {
         return this.ordinal() <= treshold.ordinal();
     }
 
-    public static LogLevel getLevel(LoggingEvent event) {
+    public static LogLevel getLevel(ILoggingEvent event) {
         switch (event.getLevel().toInt()) {
-            case Level.ERROR_INT:
-                return LogLevel.ERROR;
             case Level.INFO_INT:
                 return LogLevel.INFO;
             case Level.DEBUG_INT:

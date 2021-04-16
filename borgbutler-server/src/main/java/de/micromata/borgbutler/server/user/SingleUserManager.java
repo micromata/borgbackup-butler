@@ -48,7 +48,11 @@ public class SingleUserManager extends UserManager {
         String dateFormat = userData.getDateFormat();
         this.singleUser.setDateFormat(dateFormat);
         String lang = Languages.asString(locale);
-        preferences.put(USER_LOCAL_PREF_KEY, lang);
+        if (lang != null) {
+            preferences.put(USER_LOCAL_PREF_KEY, lang);
+        } else {
+            preferences.remove(USER_LOCAL_PREF_KEY);
+        }
         try {
             preferences.flush();
         } catch (BackingStoreException ex) {

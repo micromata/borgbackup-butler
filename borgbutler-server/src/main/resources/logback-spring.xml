@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <property name="LOG_HOME" value="${borgbutlerHome:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}/}}"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <appender name="ROLLING-FILE-ALL"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>%d{MM-dd-yy HH:mm:ss} %-5level %mdc %logger{60}::%M:%line -
+                %msg%n
+            </pattern>
+        </encoder>
+        <file>${LOG_HOME}borgbutler.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/borgbutler.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>10</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>10MB</maxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <appender name="ROLLING-MEMORY" class="de.micromata.borgbutler.server.logging.LoggerMemoryAppender" />
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ROLLING-FILE-ALL"/>
+        <appender-ref ref="ROLLING-MEMORY"/>
+    </root>
+
+    <!-- custom logging levels -->
+    <!--logger name="de.micromata.merlin.excel" level="DEBUG" /-->
+</configuration>

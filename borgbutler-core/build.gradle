@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-        id "org.jetbrains.kotlin.jvm" version "1.4.32"
 }
 
 description = 'borgbutler-core'
@@ -10,10 +9,10 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
     implementation group: 'org.apache.commons', name: 'commons-exec', version: '1.3'
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.2'
-    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
+    implementation group: 'org.apache.commons', name: 'commons-compress', version: '1.20'
     implementation group: 'org.apache.commons', name: 'commons-jcs-core', version: '2.2.1'
     // https://mvnrepository.com/artifact/com.esotericsoftware/kryo
-    implementation group: 'com.esotericsoftware', name: 'kryo', version: '5.0.0-RC1'
+    implementation group: 'com.esotericsoftware', name: 'kryo', version: '5.1.0'
     // Serialization (faster than Java built-in)
     implementation 'io.github.microutils:kotlin-logging-jvm:2.0.6'
 
@@ -32,7 +31,6 @@ repositories {
 }
 
 sourceSets {
-    main.kotlin.srcDirs += 'src/main/kotlin'
     main.java.srcDirs += 'src/main/java'
 }
 
@@ -40,14 +38,4 @@ test {
     // set heap size for the test JVM(s)
     minHeapSize = "128m"
     maxHeapSize = "1500m"
-}
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
-}
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "1.9"
-    }
 }
