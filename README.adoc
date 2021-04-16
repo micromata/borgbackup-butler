@@ -82,7 +82,7 @@ Enjoy BorgButler by opening your browser: http://localhost:9042
 == Further information
 
 === Configuration
-=== Example backup file
+=== Example config file
 You can configure it through the webapp or directly (`borgbutler.config`):
 
 [source,yaml]
