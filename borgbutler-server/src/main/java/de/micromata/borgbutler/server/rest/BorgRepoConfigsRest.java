@@ -72,6 +72,7 @@ public class BorgRepoConfigsRest {
             log.error(error);
             return error;
         }
+        ConfigurationHandler.getInstance().save();
         return "OK";
     }
 

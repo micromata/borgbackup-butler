@@ -1,9 +1,4 @@
-FROM openjdk:11
-
-# See: https://spring.io/guides/gs/spring-boot-docker/
-
-# This is a Debian system, update system packages (if needed)
-RUN apt-get update && apt-get -y upgrade
+FROM openjdk:16-jdk-buster
 
 RUN addgroup borgbutler && adduser --ingroup borgbutler borgbutler
 # ProjectForge's base dir: must be mounted on host file system:
@@ -27,6 +22,11 @@ COPY ${DEPENDENCY}/web /app/web
 #COPY ${DEPENDENCY}/META-INF /app/META-INF
 #COPY ${DEPENDENCY}/BOOT-INF/classes /app
 
+COPY --chown=borgbutler:borgbutler entrypoint.sh /app
+RUN chmod 755 /app/entrypoint.sh
+#COPY shutdown.sh /app
+#COPY startup.sh /app
+
 #ARG JAVA_OPTS="-Xms1g -Xmx1g"
 #ENV JAVA_OPTS_VAR=$JAVA_OPTS
 
@@ -35,6 +35,6 @@ COPY ${DEPENDENCY}/web /app/web
 # Variable expansion doesn't work for ENTRYPOINT definition as array, but array is required, because graceful shutdown of
 # container isn't given if java is started via 'sh -c' as it will be done by ENTRYPOINT java .....
 # Java options are modifiable by user through own ENTRYPOINT definition on docker run or in docker-compose.yml.
-ENTRYPOINT ["java", "-Xms4g", "-Xmx4g", "-cp", "app/web/*:app/lib/*", "-DborgbutlerHome=/BorgButler/", "-DapplicationHome=/app", "-DbindAddress=0.0.0.0", "-DallowedClientIps=172.17.", "de.micromata.borgbutler.server.Main", "-q"]
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 MAINTAINER Micromata
