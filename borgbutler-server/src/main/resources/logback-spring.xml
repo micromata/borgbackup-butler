@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <property name="LOG_HOME" value="${borgbutlerHome:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}/}}"/>
+    <property name="LOG_HOME" value="${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}/}"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
 
     <appender name="ROLLING-FILE-ALL"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <encoder>
-            <pattern>%d{MM-dd-yy HH:mm:ss} %-5level %mdc %logger{60}::%M:%line -
-                %msg%n
-            </pattern>
+            <pattern>%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} ${LOG_LEVEL_PATTERN:-%5p} %X{user}@%X{ip} %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}</pattern>
         </encoder>
-        <file>${LOG_HOME}borgbutler.log</file>
+        <file>${LOG_HOME}/borgbutler.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <fileNamePattern>${LOG_HOME}/borgbutler.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <fileNamePattern>borgbutler.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
             <minIndex>1</minIndex>
             <maxIndex>10</maxIndex>
         </rollingPolicy>

@@ -47,7 +47,7 @@ echo "Starting ${APP_NAME}..."
 #Trap SIGTERM
 trap cleanup INT SIGTERM
 
-echo "Starting java ${JAVA_OPTS} -cp app/web/*:app/lib/* -DborgbutlerHome=/BorgButler/ -DapplicationHome=/app -DbindAddress=0.0.0.0 -DallowedClientIps=172.17. de.micromata.borgbutler.server.Main -q ${JAVA_ARGS}"
+echo "Starting java ${JAVA_OPTS} -cp app/web/*:app/lib/* -DBorgButlerHome=/BorgButler/ -DapplicationHome=/app -DbindAddress=0.0.0.0 -DallowedClientIps=172.17. de.micromata.borgbutler.server.Main -q ${JAVA_ARGS}"
 
 java $JAVA_OPTS -cp app/web/*:app/lib/* -DborgbutlerHome=/BorgButler/ -DapplicationHome=/app -DbindAddress=0.0.0.0 -DallowedClientIps=172.17. de.micromata.borgbutler.server.Main -q $JAVA_ARGS &
 

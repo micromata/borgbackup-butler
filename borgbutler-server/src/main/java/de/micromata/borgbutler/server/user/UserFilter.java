@@ -1,12 +1,10 @@
 package de.micromata.borgbutler.server.user;
 
-import de.micromata.borgbutler.server.rest.RequestLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
@@ -45,7 +43,7 @@ public class UserFilter implements Filter {
             userData = UserManager.instance().getUser("dummy");
             UserUtils.setUser(userData, request.getLocale());
             if (log.isDebugEnabled()) log.debug("Request for user: " + userData);
-            log.info("Request for user: " + userData + ": " + RequestLog.asString((HttpServletRequest) request));
+            //log.info("Request for user: " + userData + ": " + RequestLog.asString((HttpServletRequest) request));
             chain.doFilter(request, response);
         } finally {
             UserUtils.removeUser();

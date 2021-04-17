@@ -37,6 +37,18 @@ open class BorgButlerApplication {
 
     private fun _start(args: Array<out String>) {
         setConfigClazz(ServerConfiguration::class.java)
+        var borgButlerHome = System.getProperty("BorgButlerHome")
+        if (borgButlerHome.isNullOrBlank()) {
+            borgButlerHome = File(System.getProperty("user.home"), ".borgbutler").absolutePath
+            System.setProperty("BorgButlerHome", borgButlerHome)
+        }
+        if (System.getProperty("LOG_PATH").isNullOrBlank()) {
+            System.setProperty("LOG_PATH", borgButlerHome)
+        }
+        if (borgButlerHome != null) {
+            init(borgButlerHome)
+        }
+        SpringApplication.run(BorgButlerApplication::class.java, *args)
         // create Options object
         val options = Options()
         options.addOption(
@@ -76,10 +88,6 @@ open class BorgButlerApplication {
                     printHelp(options)
                     return
                 }
-            }
-            val applicationHome = System.getProperty("borgbutlerHome")
-            if (applicationHome != null) {
-                init(applicationHome)
             }
             if (Desktop.isDesktopSupported()) {
                 RunningMode.setServerType(RunningMode.ServerType.DESKTOP)
@@ -126,7 +134,6 @@ open class BorgButlerApplication {
         @JvmStatic
         fun main(vararg args: String) {
             main._start(args)
-            SpringApplication.run(BorgButlerApplication::class.java, *args)
         }
 
         private fun printHelp(options: Options) {

@@ -14,7 +14,7 @@ private val log = KotlinLogging.logger {}
 @EnableWebMvc
 open class WebConfig : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
-        if (ServerConfiguration.get().isWebDevelopmentMode) {
+        if (RunningMode.isDevelopmentMode() || ServerConfiguration.get().isWebDevelopmentMode) {
             log.warn("*********************************")
             log.warn("***********            **********")
             log.warn("*********** ATTENTION! **********")
