@@ -6,6 +6,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.ViewResolver
 import org.springframework.web.servlet.config.annotation.*
 import org.springframework.web.servlet.view.InternalResourceViewResolver
+import java.io.File
+import java.nio.file.Paths
+import kotlin.io.path.Path
 
 
 private val log = KotlinLogging.logger {}
@@ -15,7 +18,16 @@ private val log = KotlinLogging.logger {}
 open class WebConfig : WebMvcConfigurer {
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-        registry.addResourceHandler("/**").addResourceLocations(*CLASSPATH_RESOURCE_LOCATIONS);
+        if (RunningMode.webBundled()) {
+            registry.addResourceHandler("/**").addResourceLocations(*CLASSPATH_RESOURCE_LOCATIONS);
+        } else {
+            val localWebDir = Paths.get(".", "borgbutler-webapp", "build").toFile()
+            if (localWebDir.isDirectory) {
+                registry.addResourceHandler("/**").addResourceLocations(localWebDir.toURI().toString());
+            } else {
+                log.warn { "*** Can't locate React application. You should run npm/yarn build/start and/or check this path: ${localWebDir.absolutePath}" }
+            }
+        }
     }
 
     @Bean
