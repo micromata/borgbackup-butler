@@ -1,7 +1,5 @@
 package de.micromata.borgbutler.config
 
-import de.micromata.borgbutler.config.Definitions
-import de.micromata.borgbutler.json.JsonUtils
 import mu.KotlinLogging
 import org.apache.commons.io.FileUtils
 import java.io.File
@@ -23,14 +21,8 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
     private var configuration: Configuration? = null
 
     private fun read() {
-        if (configFile.canRead()) {
-            log.info("Reading config file '" + configFile.absolutePath + "'")
-            val jsonConfigFile = File(workingDir, CONFIG_FILENAME)
-            if (jsonConfigFile.canRead()) {
-                val yaml = FileUtils.readFileToString(jsonConfigFile, Definitions.STD_CHARSET)
-                configuration = YamlUtils.fromYaml(configClazz, yaml)
-            }
-        } else {
+        configuration = readJsonConfigfile(workingDir)
+        if (configuration == null) {
             Legacy.readOldJsonConfigFile(workingDir, OLD_JSON_CONFIG_FILENAME)?.let {
                 configuration = it
                 save()
@@ -119,6 +111,16 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
         @kotlin.jvm.JvmStatic
         fun getConfigClazz(): Class<out Configuration> {
             return configClazz
+        }
+
+        fun readJsonConfigfile(workingDir: File): Configuration? {
+            val configFile = File(workingDir, CONFIG_FILENAME)
+            if (!configFile.canRead()) {
+                return null
+            }
+            log.info("Reading config file '" + configFile.absolutePath + "'")
+            val yaml = FileUtils.readFileToString(configFile, Definitions.STD_CHARSET)
+            return YamlUtils.fromYaml(configClazz, yaml)
         }
     }
 

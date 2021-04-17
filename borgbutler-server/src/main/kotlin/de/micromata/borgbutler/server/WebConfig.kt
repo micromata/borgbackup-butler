@@ -1,7 +1,6 @@
 package de.micromata.borgbutler.server
 
 import mu.KotlinLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
@@ -14,7 +13,7 @@ private val log = KotlinLogging.logger {}
 @EnableWebMvc
 open class WebConfig : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
-        if (RunningMode.isDevelopmentMode() || ServerConfiguration.get().isWebDevelopmentMode) {
+        if (RunningMode.webDevelopment) {
             log.warn("*********************************")
             log.warn("***********            **********")
             log.warn("*********** ATTENTION! **********")

@@ -23,7 +23,7 @@ object RestUtils {
      * service isn't available.
      */
     fun checkLocalDesktopAvailable(requestContext: HttpServletRequest): String? {
-        if (RunningMode.getServerType() != RunningMode.ServerType.DESKTOP) {
+        if (!RunningMode.desktopSupported) {
             return "Service unavailable. No desktop app on localhost available."
         }
         val remoteAddr = requestContext.remoteAddr

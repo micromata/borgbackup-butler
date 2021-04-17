@@ -31,7 +31,7 @@ public class Version {
             }
             try (InputStream inputStream = ClassLoader.getSystemResourceAsStream("version.properties")) {
                 if (inputStream == null) {
-                    log.warn("version.properties not found (OK, if started e. g. in IDE");
+                    log.warn("version.properties not found (OK, if started e. g. in IDE).");
                     version = "99.0";
                     appName = "BorgButler";
                     buildDate = new Date();

@@ -37,10 +37,9 @@ public class BorgInstallation {
         }
         borgVersion.setBinariesDownloadVersion(configuration.getBorgVersion());
         initialize(getBinary(RunningMode.getOSType()));
-        if (version(configuration)) {
-            return;
+        if (!borgVersion.isVersionOK()) {
+            log.warn("No working borg version found. Please configure a borg version with minimal version '" + borgVersion.getMinimumRequiredBorgVersion() + "'.");
         }
-        log.warn("No working borg version found. Please configure a borg version with minimal version '" + borgVersion.getMinimumRequiredBorgVersion() + "'.");
     }
 
     /**

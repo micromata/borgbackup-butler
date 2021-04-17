@@ -1,6 +1,7 @@
 package de.micromata.borgbutler.server
 
 import de.micromata.borgbutler.cache.ButlerCache
+import de.micromata.borgbutler.config.ConfigurationHandler
 import de.micromata.borgbutler.config.ConfigurationHandler.Companion.init
 import de.micromata.borgbutler.config.ConfigurationHandler.Companion.setConfigClazz
 import de.micromata.borgbutler.server.user.SingleUserManager
@@ -42,13 +43,19 @@ open class BorgButlerApplication {
             borgButlerHome = File(System.getProperty("user.home"), ".borgbutler").absolutePath
             System.setProperty("BorgButlerHome", borgButlerHome)
         }
+        // Preread configuration to get setting development mode for WebConfig (logging not yet initialized, so
+        // reread configuration later after logging is available for getting log information on errors etc.)
+        val configuration = ConfigurationHandler.readJsonConfigfile(File(borgButlerHome))
+        RunningMode.webDevelopment = RunningMode.runningInIDE || (configuration as? ServerConfiguration)?.webDevelopmentMode == true
         if (System.getProperty("LOG_PATH").isNullOrBlank()) {
+            // Needed by logback-spring.xml
             System.setProperty("LOG_PATH", borgButlerHome)
         }
+        SpringApplication.run(BorgButlerApplication::class.java, *args)
+
         if (borgButlerHome != null) {
             init(borgButlerHome)
         }
-        SpringApplication.run(BorgButlerApplication::class.java, *args)
         // create Options object
         val options = Options()
         options.addOption(
@@ -89,11 +96,6 @@ open class BorgButlerApplication {
                     return
                 }
             }
-            if (Desktop.isDesktopSupported()) {
-                RunningMode.setServerType(RunningMode.ServerType.DESKTOP)
-            } else {
-                RunningMode.setServerType(RunningMode.ServerType.SERVER)
-            }
             RunningMode.logMode()
 
             UserManager.setUserManager(SingleUserManager())
@@ -104,9 +106,7 @@ open class BorgButlerApplication {
             val url = "http://$serverAddress:$serverPort/".replace("0.0.0.0", "127.0.0.1")
             val uri = URI.create(url)
             val quietMode = line.hasOption('q')
-            val desktopSupportsBrowse = Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
-            val headlessMode = System.getProperty("java.awt.headless") == "true"
-            if (!quietMode && desktopSupportsBrowse && headlessMode) {
+            if (!quietMode && RunningMode.desktopSupportsBrowse && RunningMode.headlessMode) {
                 try {
                     log.info { "Trying to open your local web browser: $uri" }
                     Desktop.getDesktop().browse(uri)
@@ -117,9 +117,9 @@ open class BorgButlerApplication {
             } else {
                 if (quietMode) {
                     log.info("Server started in quiet mode (option -q). Please open your browser manually: $uri")
-                } else if (!desktopSupportsBrowse) {
+                } else if (!RunningMode.desktopSupportsBrowse) {
                     log.info("Desktop not available. Please open your browser manually: $uri")
-                } else if (headlessMode) {
+                } else if (RunningMode.headlessMode) {
                     log.info("Desktop not available in headless mode. Please open your browser manually: $uri")
                 }
             }

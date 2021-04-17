@@ -58,7 +58,7 @@ class FilesystemBrowserRest {
                 val label = JLabel("Click for choosing directory...", SwingConstants.CENTER)
                 fr.add(label)
             }
-            if (RunningMode.getOSType() == RunningMode.OSType.MAC_OS) {
+            if (RunningMode.oSType == RunningMode.OSType.MAC_OS) {
                 // The JFileChooser will hang after several calls, use AWT file dialog instead for Mac OS:
                 System.setProperty("apple.awt.fileDialogForDirectories", "true")
                 frame?.let {
