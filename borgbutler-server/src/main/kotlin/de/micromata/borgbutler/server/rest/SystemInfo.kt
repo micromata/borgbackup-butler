@@ -11,7 +11,7 @@ import de.micromata.borgbutler.server.BorgVersion
 class SystemInfo {
     var queueStatistics: BorgQueueStatistics? = null
         private set
-    var isConfigurationOK = false
+    var configurationOK = false
         private set
     var borgVersion: BorgVersion? = null
         private set
@@ -22,7 +22,7 @@ class SystemInfo {
     }
 
     fun setConfigurationOK(configurationOK: Boolean): SystemInfo {
-        isConfigurationOK = configurationOK
+        this.configurationOK = configurationOK
         return this
     }
 

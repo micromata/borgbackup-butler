@@ -39,7 +39,7 @@ public class DemoRepos {
      * @return repo list including demo repos if configured. If not configured, the given list is returned (no op).
      */
     public static List<BorgRepoConfig> getAllRepos(List<BorgRepoConfig> repositoryList) {
-        if (!ConfigurationHandler.getConfiguration().isShowDemoRepos()) {
+        if (!ConfigurationHandler.getConfiguration().getShowDemoRepos()) {
             return repositoryList;
         }
         init(repositoryList);

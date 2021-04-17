@@ -37,7 +37,7 @@ open class Configuration {
      */
     var maxArchiveContentCacheCapacityMb = 100
         private set
-    var isShowDemoRepos = true
+    var showDemoRepos = true
         private set
 
     /**
@@ -100,7 +100,7 @@ open class Configuration {
     fun copyFrom(other: Configuration) {
         borgCommand = other.borgCommand
         maxArchiveContentCacheCapacityMb = other.maxArchiveContentCacheCapacityMb
-        isShowDemoRepos = other.isShowDemoRepos
+        showDemoRepos = other.showDemoRepos
     }
 
     @get:JsonIgnore
@@ -118,11 +118,6 @@ open class Configuration {
 
     fun setBorgCommand(borgCommand: String?): Configuration {
         this.borgCommand = borgCommand
-        return this
-    }
-
-    fun setShowDemoRepos(showDemoRepos: Boolean): Configuration {
-        isShowDemoRepos = showDemoRepos
         return this
     }
 

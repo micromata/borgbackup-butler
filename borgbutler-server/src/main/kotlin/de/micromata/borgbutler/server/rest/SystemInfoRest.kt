@@ -19,7 +19,7 @@ class SystemInfoRest {
         val borgVersion = BorgInstallation.getInstance().getBorgVersion()
         val systemInfonfo = SystemInfo()
             .setQueueStatistics(BorgQueueExecutor.getInstance().getStatistics())
-            .setConfigurationOK(borgVersion.isVersionOK())
+            .setConfigurationOK(borgVersion.isVersionOK)
             .setBorgVersion(borgVersion)
         return systemInfonfo
     }
