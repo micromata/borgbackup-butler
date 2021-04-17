@@ -62,7 +62,7 @@ object RunningMode {
 
     fun webBundled(): Boolean {
         var available = false
-        RunningMode::class.java.getResourceAsStream("/web/index.html")?.use {
+        RunningMode::class.java.getResourceAsStream("/webapp/index.html")?.use {
         //RunningMode::class.java.getResourceAsStream("/logback-spring.xml")?.use {
             log.info("Web app found (is bundled).")
             available = true

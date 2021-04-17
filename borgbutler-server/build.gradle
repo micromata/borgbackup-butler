@@ -41,12 +41,6 @@ sourceSets {
 apply plugin: 'application'
 mainClassName = 'de.micromata.borgbutler.server.BorgButlerApplication'
 
-run() {
-}
-
-run.dependsOn ':borgbutler-webapp:npmBuild'
-// run.dependsOn ':borgbutler-docs:buildWebDoc'
-
 apply plugin: 'distribution'
 
 task createVersionProperties(dependsOn: processResources) {

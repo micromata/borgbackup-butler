@@ -23,3 +23,5 @@ task packageWebApp(type: Zip) {
                 toDir: "${buildDir}/libs"
     }
 }
+
+task(dist).dependsOn packageWebApp
