@@ -102,14 +102,26 @@ open class BorgButlerApplication {
 
             // 0.0.0.0 for Docker installations.
             val url = "http://$serverAddress:$serverPort/".replace("0.0.0.0", "127.0.0.1")
-            if (!line.hasOption('q')) {
+            val uri = URI.create(url)
+            val quietMode = line.hasOption('q')
+            val desktopSupportsBrowse = Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
+            val headlessMode = System.getProperty("java.awt.headless") == "true"
+            if (!quietMode && desktopSupportsBrowse && headlessMode) {
                 try {
-                    Desktop.getDesktop().browse(URI.create(url))
+                    log.info { "Trying to open your local web browser: $uri" }
+                    Desktop.getDesktop().browse(uri)
                 } catch (ex: Exception) {
-                    log.info("Can't open web browser: " + ex.message)
+                    log.info("Can't open web browser: " + ex.message, ex)
+                    log.info("Desktop not available. Please open your browser manually: $uri")
                 }
             } else {
-                log.info("Please open your browser: $url")
+                if (quietMode) {
+                    log.info("Server started in quiet mode (option -q). Please open your browser manually: $uri")
+                } else if (!desktopSupportsBrowse) {
+                    log.info("Desktop not available. Please open your browser manually: $uri")
+                } else if (headlessMode) {
+                    log.info("Desktop not available in headless mode. Please open your browser manually: $uri")
+                }
             }
         } catch (ex: ParseException) {
             // oops, something went wrong

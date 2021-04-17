@@ -2,14 +2,14 @@
 
 # https://stackoverflow.com/questions/41451159/how-to-execute-a-script-when-i-terminate-a-docker-container
 
-PROCESS_IDENTIFIER="de.micromata.borgbutler.server.Main"
+JAVA_MAIN="de.micromata.borgbutler.server.BorgButlerApplication"
 APP_NAME="BorgButler"
 
 #Define cleanup procedure
 cleanup() {
   echo "Container stopped, performing cleanup..."
 
-  pid=$(pgrep -f $PROCESS_IDENTIFIER)
+  pid=$(pgrep -f $JAVA_MAIN)
   if [[ -z $pid ]]; then
     echo "${APP_NAME} process not found."
     exit 0
@@ -21,7 +21,7 @@ cleanup() {
   echo "waiting 5 sec for termination of pid $pid..."
   sleep 5
 
-  pid=$(pgrep -f $PROCESS_IDENTIFIER)
+  pid=$(pgrep -f $JAVA_MAIN)
   if [[ -z $pid ]]; then
     echo "${APP_NAME} stopped"
     exit 0
@@ -32,7 +32,7 @@ cleanup() {
 
   sleep 0.5
 
-  pid=$(pgrep -f $PROCESS_IDENTIFIER)
+  pid=$(pgrep -f $JAVA_MAIN)
   if [[ -z $pid ]]; then
     echo "${APP_NAME} killed"
     exit 0
@@ -47,9 +47,9 @@ echo "Starting ${APP_NAME}..."
 #Trap SIGTERM
 trap cleanup INT SIGTERM
 
-echo "Starting java ${JAVA_OPTS} -cp app/web/*:app/lib/* -DBorgButlerHome=/BorgButler/ -DapplicationHome=/app -DbindAddress=0.0.0.0 -DallowedClientIps=172.17. de.micromata.borgbutler.server.Main -q ${JAVA_ARGS}"
+echo "Starting java ${JAVA_OPTS} -cp app/web/*:app/lib/* -DBorgButlerHome=/BorgButler/ -DapplicationHome=/app -DbindAddress=0.0.0.0 -DallowedClientIps=172.17. ${JAVA_MAIN} -q ${JAVA_ARGS}"
 
-java $JAVA_OPTS -cp app/web/*:app/lib/* -DborgbutlerHome=/BorgButler/ -DapplicationHome=/app -DbindAddress=0.0.0.0 -DallowedClientIps=172.17. de.micromata.borgbutler.server.Main -q $JAVA_ARGS &
+java $JAVA_OPTS -cp app/web/*:app/lib/* -DborgbutlerHome=/BorgButler/ -DapplicationHome=/app -DbindAddress=0.0.0.0 -DallowedClientIps=172.17. $JAVA_MAIN -q $JAVA_ARGS &
 
 CHILD=$!
 wait $CHILD
