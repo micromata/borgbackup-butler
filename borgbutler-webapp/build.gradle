@@ -7,10 +7,11 @@ task npmBuild(type: Exec) {
 }
 
 task packageWebApp(type: Zip) {
+    outputs.upToDateWhen { false } // It's never up-to-date (otherwise borgbutler-webapp.jar is missed).
     dependsOn npmBuild
-    baseName 'borgbutler-webapp'
-    extension 'jar'
-    destinationDir file("${projectDir}")
+    archiveBaseName.set('borgbutler-webapp')
+    archiveExtension.set('jar')
+    destinationDirectory.set(file("${projectDir}"))
     from('build') {
         // optional path under which output will be visible in Java classpath, e.g. static resources path
         into 'webapp'
@@ -21,7 +22,7 @@ task packageWebApp(type: Zip) {
         def jarFile = archiveFileName.get()
         ant.move file: "${projectDir}/${jarFile}",
                 toDir: "${buildDir}/libs"
+        println("*** packageWebApp finished.")
     }
 }
 
-task(dist).dependsOn packageWebApp

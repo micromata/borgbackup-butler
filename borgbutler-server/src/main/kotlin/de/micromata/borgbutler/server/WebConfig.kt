@@ -4,10 +4,7 @@ import mu.KotlinLogging
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.ViewResolver
-import org.springframework.web.servlet.config.annotation.CorsRegistry
-import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import org.springframework.web.servlet.config.annotation.*
 import org.springframework.web.servlet.view.InternalResourceViewResolver
 
 
@@ -16,23 +13,25 @@ private val log = KotlinLogging.logger {}
 @Configuration
 @EnableWebMvc
 open class WebConfig : WebMvcConfigurer {
-    @Bean
-    open fun internalResourceViewResolver(): ViewResolver {
-        val bean = InternalResourceViewResolver()
-        if (RunningMode.webBundled()) {
-            bean.setPrefix("/webapp/")
-        } else {
-            bean.setPrefix("borgbutler-webapp/build/")
-        }
-        bean.setSuffix(".html")
-        return bean
-    }
 
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-        registry.addResourceHandler("/static/**")
-            .addResourceLocations("/webapp/static/")
-        registry.addResourceHandler("/**")
-            .addResourceLocations("/webapp/")
+        registry.addResourceHandler("/**").addResourceLocations(*CLASSPATH_RESOURCE_LOCATIONS);
+    }
+
+    @Bean
+    open fun getViewResolver(): ViewResolver? {
+        val resolver = InternalResourceViewResolver()
+        resolver.setSuffix(".html")
+        return resolver
+    }
+
+    override fun configurePathMatch(configurer: PathMatchConfigurer) {
+        configurer.isUseTrailingSlashMatch = true
+    }
+
+    override fun addViewControllers(registry: ViewControllerRegistry) {
+        registry.addViewController("/")
+            .setViewName("forward:/index.html")
     }
 
     override fun addCorsMappings(registry: CorsRegistry) {
@@ -48,5 +47,9 @@ open class WebConfig : WebMvcConfigurer {
             log.warn("Don't deliver this app in dev mode due to security reasons (CrossOriginFilter is set)!")
             registry.addMapping("/**")
         }
+    }
+
+    companion object {
+        private val CLASSPATH_RESOURCE_LOCATIONS = arrayOf("classpath:/webapp/static/", "classpath:/webapp/")
     }
 }

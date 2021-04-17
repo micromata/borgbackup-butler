@@ -5,8 +5,8 @@ plugins {
 description = 'borgbutler-server'
 
 dependencies {
-    compile project(':borgbutler-core')
-    compile project(':borgbutler-webapp')
+    implementation project(':borgbutler-core')
+    implementation project(':borgbutler-webapp')
     // https://mvnrepository.com/artifact/org.apache.commons/commons-text
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.6'
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.2'
@@ -24,7 +24,7 @@ dependencies {
 
     // https://mvnrepository.com/artifact/commons-cli/commons-cli
     implementation group: 'commons-cli', name: 'commons-cli', version: '1.4'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.21.0'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.21.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
@@ -60,5 +60,4 @@ classes {
 }
 
 distZip.dependsOn ':borgbutler-webapp:packageWebApp'
-//distZip.dependsOn ':borgbutler-docs:buildWebDoc'
 task(dist).dependsOn distZip

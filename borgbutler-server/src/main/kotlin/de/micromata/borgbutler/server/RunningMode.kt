@@ -40,7 +40,7 @@ object RunningMode {
 
     val runningInIDE: Boolean
         get() {
-            if (webBundled()) {
+            if (!webBundled()) {
                 return true
             } else {
                 log.warn("*** BorgButler seems to run inside an IDE. ***")
