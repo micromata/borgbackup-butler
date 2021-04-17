@@ -6,6 +6,7 @@ description = 'borgbutler-server'
 
 dependencies {
     compile project(':borgbutler-core')
+    compile project(':borgbutler-webapp')
     // https://mvnrepository.com/artifact/org.apache.commons/commons-text
     implementation group: 'org.apache.commons', name: 'commons-text', version: '1.6'
     implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.2'
@@ -64,18 +65,6 @@ classes {
     dependsOn createVersionProperties
 }
 
-// Builds the distribution
-distributions {
-    main {
-        contents {
-            // Prepared by nbmBuild:
-            from ("${project(':borgbutler-webapp').projectDir}/build") {
-                into 'web'
-            }
-        }
-    }
-}
-
-distZip.dependsOn ':borgbutler-webapp:npmBuild'
+distZip.dependsOn ':borgbutler-webapp:packageWebApp'
 //distZip.dependsOn ':borgbutler-docs:buildWebDoc'
 task(dist).dependsOn distZip

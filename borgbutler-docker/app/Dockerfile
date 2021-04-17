@@ -27,11 +27,6 @@ RUN chmod 755 /app/entrypoint.sh
 #COPY shutdown.sh /app
 #COPY startup.sh /app
 
-#ARG JAVA_OPTS="-Xms1g -Xmx1g"
-#ENV JAVA_OPTS_VAR=$JAVA_OPTS
-
-# -Dloader.path=${HOME}/ProjectForge/resources/milton ${DEBUGOPTS}
-
 # Variable expansion doesn't work for ENTRYPOINT definition as array, but array is required, because graceful shutdown of
 # container isn't given if java is started via 'sh -c' as it will be done by ENTRYPOINT java .....
 # Java options are modifiable by user through own ENTRYPOINT definition on docker run or in docker-compose.yml.

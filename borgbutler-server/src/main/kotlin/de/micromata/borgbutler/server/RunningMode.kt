@@ -2,7 +2,6 @@ package de.micromata.borgbutler.server
 
 import org.slf4j.LoggerFactory
 import java.awt.Desktop
-import java.io.File
 import java.util.*
 
 object RunningMode {
@@ -41,13 +40,12 @@ object RunningMode {
 
     val runningInIDE: Boolean
         get() {
-            val currentDir = System.getProperty("user.dir")
-            val coreDir = File(currentDir, "borgbutler-core")
-            val development = coreDir.exists() && File(coreDir, "build.gradle").exists()
-            if (development) {
-                log.warn("*** Starting BorgButler server in IDE mode. This mode shouldn't be used in production environments. ***")
+            if (webBundled()) {
+                return true
+            } else {
+                log.warn("*** BorgButler seems to run inside an IDE. ***")
+                return false
             }
-            return development
         }
 
     /**
@@ -60,6 +58,19 @@ object RunningMode {
                     + ") with: webDevelopment=$webDevelopment, desktopSupported=$desktopSupported, javaVersion='"
                     + System.getProperty("java.version") + "'."
         )
+    }
+
+    fun webBundled(): Boolean {
+        var available = false
+        RunningMode::class.java.getResourceAsStream("/web/index.html")?.use {
+        //RunningMode::class.java.getResourceAsStream("/logback-spring.xml")?.use {
+            log.info("Web app found (is bundled).")
+            available = true
+        }
+        if (!available) {
+            log.info("Web app isn't bundled (running in IDE?)")
+        }
+        return available
     }
 
     enum class UserManagement {

@@ -46,7 +46,8 @@ open class BorgButlerApplication {
         // Preread configuration to get setting development mode for WebConfig (logging not yet initialized, so
         // reread configuration later after logging is available for getting log information on errors etc.)
         val configuration = ConfigurationHandler.readJsonConfigfile(File(borgButlerHome))
-        RunningMode.webDevelopment = RunningMode.runningInIDE || (configuration as? ServerConfiguration)?.webDevelopmentMode == true
+        RunningMode.webDevelopment =
+            RunningMode.runningInIDE || (configuration as? ServerConfiguration)?.webDevelopmentMode == true
         if (System.getProperty("LOG_PATH").isNullOrBlank()) {
             // Needed by logback-spring.xml
             System.setProperty("LOG_PATH", borgButlerHome)
@@ -103,7 +104,11 @@ open class BorgButlerApplication {
             BorgInstallation.getInstance().initialize()
 
             // 0.0.0.0 for Docker installations.
-            val url = "http://$serverAddress:$serverPort/".replace("0.0.0.0", "127.0.0.1")
+            var url = "http://$serverAddress:$serverPort/"
+            if (serverAddress.contains("0.0.0.0")) {
+                log.info { "Server bind address: $url" }
+                url = url.replace("0.0.0.0", "127.0.0.1")
+            }
             val uri = URI.create(url)
             val quietMode = line.hasOption('q')
             if (!quietMode && RunningMode.desktopSupportsBrowse && RunningMode.headlessMode) {
@@ -132,6 +137,7 @@ open class BorgButlerApplication {
 
     @EventListener(ApplicationReadyEvent::class)
     open fun startApp() {
+        log.info { "Start-up of BorgButler finished. Have fun!" }
     }
 
     @PreDestroy
