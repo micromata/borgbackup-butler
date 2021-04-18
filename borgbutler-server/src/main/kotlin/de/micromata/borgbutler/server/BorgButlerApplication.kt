@@ -43,6 +43,7 @@ open class BorgButlerApplication {
             borgButlerHome = File(System.getProperty("user.home"), ".borgbutler").absolutePath
             System.setProperty("BorgButlerHome", borgButlerHome)
         }
+        log.info { "Using BorgButlerHome: $borgButlerHome" }
         // Preread configuration to get setting development mode for WebConfig (logging not yet initialized, so
         // reread configuration later after logging is available for getting log information on errors etc.)
         val configuration = ConfigurationHandler.readJsonConfigfile(File(borgButlerHome))
