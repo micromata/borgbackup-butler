@@ -162,4 +162,4 @@ BorgButler tries to run only one job per repo at the same time. If your log file
 === Browsing produces security warnings
 Due to security reasons, BorgButler is only available by the localhost's web browser. For docker
 installations the clients of the private net `172.17.0.*` are allowed.
-For enabling other client ip's, you may use option `-DallowedClientIps=192.168.78.` (docker: `docker run -e JAVA_OPTS="-DallowedeClientIps=192.168.78." -v ...` if your really now what you're doing!!! There is now https available at default!!!
+For enabling other client ip's, you may use option `-DallowedClientIps=192.168.78.` (docker: `docker run -e JAVA_OPTS="-DallowedClientIps=192.168.78.;192.168.79.5" -v ...` if your really now what you're doing!!! There is now https available at default!!!

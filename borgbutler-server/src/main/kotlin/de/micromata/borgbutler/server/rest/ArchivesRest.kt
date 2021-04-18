@@ -9,6 +9,7 @@ import de.micromata.borgbutler.data.DiffFileSystemFilter
 import de.micromata.borgbutler.data.FileSystemFilter
 import de.micromata.borgbutler.json.JsonUtils
 import de.micromata.borgbutler.json.borg.BorgFilesystemItem
+import de.micromata.borgbutler.server.RunningMode
 import de.micromata.borgbutler.utils.DirUtils
 import mu.KotlinLogging
 import org.apache.commons.collections4.CollectionUtils
@@ -149,7 +150,7 @@ class ArchivesRest {
                 return RestUtils.notFound()
             }
             if (openDownloads == true) openFileBrowser(File(restoreDir, item.getPath()))
-            return ResponseEntity.ok("OK")
+            return ResponseEntity.accepted().body("OK")
         } catch (ex: IOException) {
             log.error("No file extracted: " + ex.message, ex)
             return RestUtils.notFound()
@@ -157,7 +158,7 @@ class ArchivesRest {
     }
 
     private fun openFileBrowser(fileDirectory: File) {
-        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE_FILE_DIR)) {
+        if (RunningMode.desktopSupportsBrowse) {
             var file: File? = fileDirectory
             if (!fileDirectory.exists() || Files.isSymbolicLink(fileDirectory.toPath())) {
                 // Open parent.
