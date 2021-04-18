@@ -6,9 +6,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.web.servlet.ViewResolver
 import org.springframework.web.servlet.config.annotation.*
 import org.springframework.web.servlet.view.InternalResourceViewResolver
-import java.io.File
 import java.nio.file.Paths
-import kotlin.io.path.Path
 
 
 private val log = KotlinLogging.logger {}
@@ -42,7 +40,17 @@ open class WebConfig : WebMvcConfigurer {
     }
 
     override fun addViewControllers(registry: ViewControllerRegistry) {
+        // https://stackoverflow.com/questions/39331929/spring-catch-all-route-for-index-html
         registry.addViewController("/")
+            .setViewName("forward:/index.html")
+        // Map "/word", "/word/word", and "/word/word/word" - except for anything starting with "/api/..." or ending with
+        // a file extension like ".js" - to index.html. By doing this, the client receives and routes the url. It also
+        // allows client-side URLs to be bookmarked.
+        // Single directory level - no need to exclude "rest" (api)
+        registry.addViewController("/{x:[\\w\\-]+}")
+            .setViewName("forward:/index.html")
+        // Multi-level directory path, need to exclude "rest" on the first part of the path
+        registry.addViewController("/{x:^(?!rest$).*$}/**/{y:[\\w\\-]+}")
             .setViewName("forward:/index.html")
     }
 
