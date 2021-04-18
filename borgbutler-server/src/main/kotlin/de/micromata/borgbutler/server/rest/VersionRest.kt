@@ -6,7 +6,6 @@ import de.micromata.borgbutler.server.Version
 import org.apache.commons.lang3.StringUtils
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.*
 import javax.servlet.http.HttpServletRequest
@@ -17,28 +16,21 @@ class VersionRest {
     /**
      *
      * @param request For detecting the user's client locale.
-     * @param prettyPrinter If true then the json output will be in pretty format.
      * @see JsonUtils.toJson
      */
     @GetMapping("version")
-    fun getVersion(
-        request: HttpServletRequest,
-        @RequestParam("prettyPrinter", required = false) prettyPrinter: Boolean?
-    ): String {
+    fun getVersion(request: HttpServletRequest): MyVersion {
         val user = RestUtils.getUser()
         var language = Languages.asString(user.getLocale())
         if (StringUtils.isBlank(language)) {
             val locale: Locale = request.locale
-            language = locale.getLanguage()
+            language = locale.language
         }
-        val version = MyVersion(language, RestUtils.checkLocalDesktopAvailable(request) == null)
-        return JsonUtils.toJson(version, prettyPrinter)
+        return MyVersion(language, RestUtils.checkLocalDesktopAvailable(request) == null)
     }
 
-    inner class MyVersion(language: String, localDesktopAvailable: Boolean) {
-        private val version: Version
-        val language: String
-        val isLocalDesktopAvailable: Boolean
+    inner class MyVersion(val language: String, val localDesktopAvailable: Boolean) {
+        private val version: Version = Version.getInstance()
         val appName: String
             get() = version.appName
 
@@ -57,10 +49,5 @@ class VersionRest {
         val updateVersion: String?
             get() = version.updateVersion
 
-        init {
-            version = Version.getInstance()
-            this.language = language
-            isLocalDesktopAvailable = localDesktopAvailable
-        }
     }
 }

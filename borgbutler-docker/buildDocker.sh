@@ -11,7 +11,13 @@ mkdir -p app/target/dependency && (cd app/target/dependency; unzip ../../../../b
 echo "Building docker file..."
 (cd app; docker build -t kreinhard/borgbutler .)
 
-echo "Push: docker push kreinhard/borgbutler:tagname"
-echo "Run without ssh: 'docker run -v $HOME/BorgButler:/BorgButler -p 127.0.0.1:9042:9042 --name borgbutler kreinhard/borgbutler'"
+echo "docker tag ..... version"
+echo "docker push kreinhard/borgbutler:version"
+echo "docker push kreinhard/borgbutler:latest"
+echo
+echo
 
+echo "Run without ssh: 'docker run -v $HOME/BorgButler:/BorgButler -p 127.0.0.1:9042:9042 --name borgbutler kreinhard/borgbutler'"
 echo "Run with ssh: 'docker run -v $HOME/BorgButler:/BorgButler -v $HOME/.ssh:/home/borgbutler/.ssh:ro -p 127.0.0.1:9042:9042 --name borgbutler kreinhard/borgbutler'"
+echo
+echo 'Increase Java memory: docker run -e JAVA_OPTS="-Xms4g -Xmx4g" -v ...'

@@ -30,6 +30,8 @@ open class Configuration {
     /**
      * The borg version to install from github (optional).
      */
+    // @JsonIgnore needed by client: ConfigurationserverTab.jsx fails otherwise (conflicting borgVersion fields).
+    @JsonIgnore
     var borgVersion: String? = null
 
     /**

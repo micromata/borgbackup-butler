@@ -34,7 +34,6 @@ class ArchivesRest {
     /**
      * @param repoName      Name of repository ([Repository.getName].
      * @param archiveId     Id or name of archive.
-     * @param prettyPrinter If true then the json output will be in pretty format.
      * @return Repository (including list of archives) as json string.
      * @see JsonUtils.toJson
      */
@@ -42,14 +41,12 @@ class ArchivesRest {
     fun getArchive(
         @RequestParam("repo") repoName: String,
         @RequestParam("archiveId") archiveId: String,
-        @RequestParam("force", required = false) force: Boolean,
-        @RequestParam("prettyPrinter", required = false) prettyPrinter: Boolean
-    ): String {
-        val archive: Archive = ButlerCache.getInstance().getArchive(repoName, archiveId, force == true)
+        @RequestParam("force", required = false) force: Boolean?    ): Archive? {
+        val archive = ButlerCache.getInstance().getArchive(repoName, archiveId, force == true)
         if (force == true) {
             ButlerCache.getInstance().deleteCachedArchiveContent(repoName, archiveId)
         }
-        return JsonUtils.toJson(archive, prettyPrinter == true)
+        return archive
     }
 
     /**
@@ -61,8 +58,7 @@ class ArchivesRest {
      * @param diffArchiveId                 If given, the differences between archiveId and diffArchiveId will be returned.
      * @param autoChangeDirectoryToLeafItem If given, this method will step automatically into single sub directories.
      * @param force                         If false (default), non cached file lists will not be loaded by borg.
-     * @param prettyPrinter                 If true then the json output will be in pretty format.
-     * @return Repository (including list of archives) as json string.
+     * @return Repository (including list of archives) as json string or [{"mode": "notLoaded"}] if no file list loaded.
      * @see JsonUtils.toJson
      */
     @GetMapping("filelist")
@@ -74,8 +70,7 @@ class ArchivesRest {
         @RequestParam("maxResultSize", required = false) maxResultSize: String?,
         @RequestParam("diffArchiveId", required = false) diffArchiveId: String?,
         @RequestParam("autoChangeDirectoryToLeafItem", required = false) autoChangeDirectoryToLeafItem: Boolean?,
-        @RequestParam("force", required = false) force: Boolean?,
-        @RequestParam("prettyPrinter", required = false) prettyPrinter: Boolean?
+        @RequestParam("force", required = false) force: Boolean?
     ): String {
         val diffMode = StringUtils.isNotBlank(diffArchiveId)
         val maxSize = NumberUtils.toInt(maxResultSize, 50)
@@ -107,7 +102,7 @@ class ArchivesRest {
                 return "[{\"mode\": \"notLoaded\"}]"
             }
         }
-        return JsonUtils.toJson(items, prettyPrinter == true)
+        return JsonUtils.toJson(items)
     }
 
     /**

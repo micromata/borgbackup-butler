@@ -10,7 +10,7 @@ object RunningMode {
     var webDevelopment: Boolean = false
         internal set
     val headlessMode: Boolean = System.getProperty("java.awt.headless") == "true"
-    val desktopSupported = Desktop.isDesktopSupported()
+    val desktopSupported = !headlessMode && Desktop.isDesktopSupported()
     val desktopSupportsBrowse = desktopSupported && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
 
     @JvmStatic

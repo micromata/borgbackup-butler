@@ -1,11 +1,10 @@
 package de.micromata.borgbutler.server.rest
 
-import de.micromata.borgbutler.json.JsonUtils
-import de.micromata.borgbutler.server.logging.LoggerMemoryAppender
 import de.micromata.borgbutler.server.logging.LogFilter
 import de.micromata.borgbutler.server.logging.LogLevel
+import de.micromata.borgbutler.server.logging.LoggerMemoryAppender
+import de.micromata.borgbutler.server.logging.LoggingEventData
 import mu.KotlinLogging
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -24,7 +23,6 @@ class LoggingRest {
      * @param maxSize          Max size of the result list.
      * @param ascendingOrder   Default is false (default is descending order).
      * @param lastReceivedOrderNumber The last received order number for updating log entries (preventing querying all entries again).
-     * @param prettyPrinter
      * @return
      */
     @GetMapping("query")
@@ -34,34 +32,33 @@ class LoggingRest {
         @RequestParam("treshold", required = false) logLevelTreshold: String?,
         @RequestParam("maxSize", required = false) maxSize: Int?,
         @RequestParam("ascendingOrder", required = false) ascendingOrder: Boolean?,
-        @RequestParam("lastReceivedOrderNumber", required = false) lastReceivedOrderNumber: Int?,
-        @RequestParam("prettyPrinter", required = false) prettyPrinter: Boolean?
-    ): String {
+        @RequestParam("lastReceivedOrderNumber", required = false) lastReceivedOrderNumber: Int?
+    ): List<LoggingEventData> {
         val filter = LogFilter()
-        filter.setSearch(search)
+        filter.search = search
         if (logLevelTreshold != null) {
             try {
                 val treshold =
                     LogLevel.valueOf(logLevelTreshold.trim { it <= ' ' }
                         .toUpperCase())
-                filter.setThreshold(treshold)
+                filter.threshold = treshold
             } catch (ex: IllegalArgumentException) {
                 log.error("Can't parse log level treshold: " + logLevelTreshold + ". Supported values (case insensitive): " + LogLevel.getSupportedValues())
             }
         }
-        if (filter.getThreshold() == null) {
-            filter.setThreshold(LogLevel.INFO)
+        if (filter.threshold == null) {
+            filter.threshold = LogLevel.INFO
         }
         if (maxSize != null) {
-            filter.setMaxSize(maxSize)
+            filter.maxSize = maxSize
         }
         if (ascendingOrder != null && ascendingOrder == true) {
-            filter.setAscendingOrder(true)
+            filter.isAscendingOrder = true
         }
         if (lastReceivedOrderNumber != null) {
-            filter.setLastReceivedLogOrderNumber(lastReceivedOrderNumber)
+            filter.lastReceivedLogOrderNumber = lastReceivedOrderNumber
         }
         val loggerMemoryAppender = LoggerMemoryAppender.getInstance()
-        return JsonUtils.toJson(loggerMemoryAppender.query(filter, RestUtils.getUserLocale(request!!)), prettyPrinter)
+        return loggerMemoryAppender.query(filter, RestUtils.getUserLocale(request!!))
     }
 }

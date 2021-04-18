@@ -16,9 +16,9 @@ class SystemInfoRest {
      */
     @GetMapping("info")
     fun statistics(): SystemInfo {
-        val borgVersion = BorgInstallation.getInstance().getBorgVersion()
+        val borgVersion = BorgInstallation.getInstance().borgVersion
         val systemInfonfo = SystemInfo()
-            .setQueueStatistics(BorgQueueExecutor.getInstance().getStatistics())
+            .setQueueStatistics(BorgQueueExecutor.getInstance().statistics)
             .setConfigurationOK(borgVersion.isVersionOK)
             .setBorgVersion(borgVersion)
         return systemInfonfo

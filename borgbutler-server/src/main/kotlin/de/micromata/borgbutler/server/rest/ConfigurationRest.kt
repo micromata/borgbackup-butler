@@ -17,16 +17,12 @@ private val log = KotlinLogging.logger {}
 @RequestMapping("/rest/configuration")
 class ConfigurationRest {
 
-    /**
-     * @param prettyPrinter If true then the json output will be in pretty format.
-     * @see JsonUtils.toJson
-     */
     @GetMapping("config")
-    fun getConfig(@RequestParam("prettyPrinter", required = false) prettyPrinter: Boolean?): String {
+    fun getConfig(): ConfigurationInfo {
         val configurationInfo = ConfigurationInfo()
         configurationInfo.serverConfiguration = ServerConfiguration.get()
-        configurationInfo.borgVersion = BorgInstallation.getInstance().getBorgVersion()
-        return JsonUtils.toJson(configurationInfo, prettyPrinter)
+        configurationInfo.borgVersion = BorgInstallation.getInstance().borgVersion
+        return configurationInfo
     }
 
     @PostMapping("config")
@@ -41,25 +37,20 @@ class ConfigurationRest {
         configurationHandler.save()
     }
 
-    /**
-     * @param prettyPrinter If true then the json output will be in pretty format.
-     * @see JsonUtils.toJson
-     */
     @GetMapping("user")
-    fun getUser(@RequestParam("prettyPrinter", required = false) prettyPrinter: Boolean?): String {
-        val user: UserData = RestUtils.getUser()
-        return JsonUtils.toJson(user, prettyPrinter)
+    fun getUser(): UserData {
+        return RestUtils.getUser()
     }
 
     @PostMapping("user")
     fun setUser(@RequestBody user: UserData) {
-        if (user.getLocale() != null && StringUtils.isBlank(user.getLocale().getLanguage())) {
+        if (user.locale?.language?.isBlank() == true) {
             // Don't set locale with "" as language.
-            user.setLocale(null)
+            user.locale = null
         }
-        if (StringUtils.isBlank(user.getDateFormat())) {
+        if (user.dateFormat?.isBlank() == true) {
             // Don't set dateFormat as "".
-            user.setDateFormat(null)
+            user.dateFormat = null
         }
         UserManager.instance().saveUser(user)
     }

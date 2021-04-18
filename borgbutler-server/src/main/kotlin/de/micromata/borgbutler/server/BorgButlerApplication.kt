@@ -112,7 +112,7 @@ open class BorgButlerApplication {
             }
             val uri = URI.create(url)
             val quietMode = line.hasOption('q')
-            if (!quietMode && RunningMode.desktopSupportsBrowse && RunningMode.headlessMode) {
+            if (!quietMode && RunningMode.desktopSupportsBrowse) {
                 try {
                     log.info { "Trying to open your local web browser: $uri" }
                     Desktop.getDesktop().browse(uri)
@@ -123,10 +123,10 @@ open class BorgButlerApplication {
             } else {
                 if (quietMode) {
                     log.info("Server started in quiet mode (option -q). Please open your browser manually: $uri")
-                } else if (!RunningMode.desktopSupportsBrowse) {
-                    log.info("Desktop not available. Please open your browser manually: $uri")
                 } else if (RunningMode.headlessMode) {
                     log.info("Desktop not available in headless mode. Please open your browser manually: $uri")
+                } else if (!RunningMode.desktopSupportsBrowse) {
+                    log.info("Desktop not available. Please open your browser manually: $uri")
                 }
             }
         } catch (ex: ParseException) {

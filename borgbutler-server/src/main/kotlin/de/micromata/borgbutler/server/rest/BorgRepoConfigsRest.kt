@@ -18,17 +18,14 @@ private val log = KotlinLogging.logger {}
 class BorgRepoConfigsRest {
     /**
      * @param id            id or name of repo.
-     * @param prettyPrinter If true then the json output will be in pretty format.
      * @return [BorgRepoConfig] as json string.
      * @see JsonUtils.toJson
      */
     @GetMapping
     fun getRepoConfig(
-        @RequestParam("id") id: String,
-        @RequestParam("prettyPrinter", required = false) prettyPrinter: Boolean?
-    ): String {
-        val repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(id)
-        return JsonUtils.toJson(repoConfig, prettyPrinter == true)
+        @RequestParam("id") id: String
+    ): BorgRepoConfig? {
+        return ConfigurationHandler.getConfiguration().getRepoConfig(id)
     }
 
     @PostMapping

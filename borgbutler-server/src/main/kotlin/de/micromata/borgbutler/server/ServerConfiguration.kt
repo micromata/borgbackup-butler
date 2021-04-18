@@ -3,10 +3,6 @@ package de.micromata.borgbutler.server
 import de.micromata.borgbutler.config.Configuration
 import de.micromata.borgbutler.config.ConfigurationHandler.Companion.getConfiguration
 import mu.KotlinLogging
-import org.apache.commons.lang3.StringUtils
-import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
 
 private val log = KotlinLogging.logger {}
 

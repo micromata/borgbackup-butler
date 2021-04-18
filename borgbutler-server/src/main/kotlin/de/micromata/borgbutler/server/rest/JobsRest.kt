@@ -23,7 +23,6 @@ class JobsRest {
     /**
      * @param repo If given, only the job queue of the given repo will be returned.
      * @param testMode If true, then a test job list is created.
-     * @param prettyPrinter If true then the json output will be in pretty format.
      * @return Job queues as json string.
      * @see JsonUtils.toJson
      */
@@ -31,13 +30,12 @@ class JobsRest {
     fun getJobs(
         @RequestParam("repo", required = false) repo: String?,
         @RequestParam("testMode", required = false) testMode: Boolean?,
-        @RequestParam("oldJobs", required = false) oldJobs: Boolean?,
-        @RequestParam("prettyPrinter", required = false) prettyPrinter: Boolean?
-    ): String {
+        @RequestParam("oldJobs", required = false) oldJobs: Boolean?
+    ): List<JsonJobQueue> {
         log.debug("getJobs repo=$repo, oldJobs=$oldJobs")
         if (testMode == true) {
             // Return dynamic test queue:
-            return returnTestList(oldJobs, prettyPrinter)
+            return returnTestList(oldJobs)
         }
         var validRepo = false
         if (StringUtils.isNotBlank(repo) && "null" != repo && "undefined" != repo) {
@@ -46,19 +44,17 @@ class JobsRest {
         val borgQueueExecutor = BorgQueueExecutor.getInstance()
         val queueList = mutableListOf<JsonJobQueue>()
         if (validRepo) { // Get only the queue of the given repo:
-            val queue = getQueue(repo, oldJobs)
-            if (queue != null) {
-                queueList.add(queue)
+            getQueue(repo, oldJobs)?.let {
+                queueList.add(it)
             }
         } else { // Get all the queues (of all repos).
-            for (rep in borgQueueExecutor.getRepos()) {
-                val queue = getQueue(rep, oldJobs)
-                if (queue != null) {
-                    queueList.add(queue)
+            for (rep in borgQueueExecutor.repos) {
+                getQueue(rep, oldJobs)?.let {
+                    queueList.add(it)
                 }
             }
         }
-        return JsonUtils.toJson(queueList, prettyPrinter)
+        return queueList
     }
 
     private fun getQueue(repo: String?, oldJobs: Boolean?): JsonJobQueue? {
@@ -66,12 +62,8 @@ class JobsRest {
         val repoConfig = ConfigurationHandler.getConfiguration().getRepoConfig(repo) ?: return null
         val borgJobList = borgQueueExecutor.getJobListCopy(repoConfig, oldJobs == true)
         if (CollectionUtils.isEmpty(borgJobList)) return null
-        val queue: JsonJobQueue = JsonJobQueue().setRepo(repoConfig.getDisplayName())
-        queue.setJobs(mutableListOf())
-        for (borgJob in borgJobList) {
-            val job = JsonJob(borgJob)
-            queue.getJobs().add(job)
-        }
+        val queue: JsonJobQueue = JsonJobQueue().setRepo(repoConfig.displayName)
+        queue.jobs = borgJobList.map { JsonJob(it) }
         return queue
     }
 
@@ -94,10 +86,9 @@ class JobsRest {
      * Only for test purposes and development.
      *
      * @param oldJobs
-     * @param prettyPrinter
      * @return
      */
-    private fun returnTestList(oldJobs: Boolean?, prettyPrinter: Boolean?): String {
+    private fun returnTestList(oldJobs: Boolean?): List<JsonJobQueue> {
         var list = if (oldJobs == true) oldJobsTestList else testList
         if (list == null) {
             list = mutableListOf()
@@ -117,11 +108,11 @@ class JobsRest {
             }
         } else if (oldJobs != true) {
             for (jobQueue in list) {
-                for (job in jobQueue.getJobs()) {
-                    if (job.getStatus() != AbstractJob.Status.RUNNING) continue
-                    var current: Long = job.getProgressInfo().getCurrent()
-                    val total: Long = job.getProgressInfo().getTotal()
-                    current += if (StringUtils.startsWith(job.getProgressInfo().getMessage(), "Calculating")) {
+                for (job in jobQueue.jobs) {
+                    if (job.status != AbstractJob.Status.RUNNING) continue
+                    var current: Long = job.progressInfo.current
+                    val total: Long = job.progressInfo.total
+                    current += if (StringUtils.startsWith(job.progressInfo.message, "Calculating")) {
                         // Info is a faster operation:
                         (Math.random() * total / 5).toLong()
                     } else {
@@ -131,16 +122,16 @@ class JobsRest {
                     if (current > total) {
                         current = 0 // Reset to beginning.
                     }
-                    job.getProgressInfo().setCurrent(current)
-                    if (job.getProgressText().startsWith("Calculating")) {
-                        job.getProgressInfo()
-                            .setMessage("Calculating statistics...  " + Math.round((100 * current / total).toFloat()) + "%")
+                    job.progressInfo.current = current
+                    if (job.progressText.startsWith("Calculating")) {
+                        job.progressInfo.message =
+                            "Calculating statistics...  " + Math.round((100 * current / total).toFloat()) + "%"
                     }
                     job.buildProgressText()
                 }
             }
         }
-        return JsonUtils.toJson(list, prettyPrinter)
+        return list
     }
 
     /**
@@ -169,28 +160,28 @@ class JobsRest {
             .setProgressInfo(progressInfo)
             .setStatus(AbstractJob.Status.QUEUED)
         if ("info" == operation) {
-            progressInfo.setMessage("Calculating statistics... ")
-            job.setDescription("Loading info of archive '" + host + "-2018-12-05T23:10:33' of repo '" + queue.getRepo() + "'.")
-                .setCommandLineAsString("borg info --json --log-json --progress ssh://...:23/./backups/$host::$host-2018-12-05T23:10:33")
+            progressInfo.message = "Calculating statistics... "
+            job.setDescription("Loading info of archive '" + host + "-2018-12-05T23:10:33' of repo '" + queue.repo + "'.").commandLineAsString =
+                "borg info --json --log-json --progress ssh://...:23/./backups/$host::$host-2018-12-05T23:10:33"
         } else {
-            progressInfo.setMessage("Getting file list... ")
-            job.setDescription("Loading list of files of archive '" + host + "-2018-12-05T17:30:38' of repo '" + queue.getRepo() + "'.")
-                .setCommandLineAsString("borg list --json-lines ssh://...:23/./backups/$host::$host-2018-12-05T17:30:38")
+            progressInfo.message = "Getting file list... "
+            job.setDescription("Loading list of files of archive '" + host + "-2018-12-05T17:30:38' of repo '" + queue.repo + "'.").commandLineAsString =
+                "borg list --json-lines ssh://...:23/./backups/$host::$host-2018-12-05T17:30:38"
         }
         job.buildProgressText()
         if (current >= 0) {
-            job.setStatus(AbstractJob.Status.RUNNING)
+            job.status = AbstractJob.Status.RUNNING
         } else {
-            job.setStatus(AbstractJob.Status.QUEUED)
+            job.status = AbstractJob.Status.QUEUED
         }
-        if (queue.getJobs() == null) {
-            queue.setJobs(ArrayList<JsonJob>())
+        if (queue.jobs == null) {
+            queue.jobs = ArrayList<JsonJob>()
         }
-        job.setUniqueJobNumber(uniqueNumber)
+        job.uniqueJobNumber = uniqueNumber
         if (oldJobs) {
-            job.setStatus(if (uniqueNumber % 2 == 0L) AbstractJob.Status.CANCELLED else AbstractJob.Status.DONE)
+            job.status = if (uniqueNumber % 2 == 0L) AbstractJob.Status.CANCELLED else AbstractJob.Status.DONE
         }
-        queue.getJobs().add(job)
+        queue.jobs.add(job)
         return job
     }
 
