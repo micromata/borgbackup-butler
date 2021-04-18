@@ -69,6 +69,8 @@ Enjoy BorgButler by opening your browser: http://localhost:9042
 
 You may refer the log file through the web browser or in `$HOME/BorgButler/borgbutler.log`.
 
+For new versions of BorgButler or for changing the running options of your BorgButler container, simply delete the BorgButler docker container by `docker rm borgbutler` and call `docker run` again.
+
 === Starting from Java zip
 You'll need OpenJDK 9+.
 
@@ -139,3 +141,25 @@ There is a log file available as well as an log viewer including search function
 [link=doc/images/screen-logviewer.png]
 image::doc/images/screen-logviewer.png[Log viewer of BorgButler,800]
 
+
+== Trouble shooting
+=== Docker
+==== Increase memory (OutOfMemory)
+1. `docker rm borgbutler`
+2. `docker run -e JAVA_OPTS="-Xmx2G" -v ...`
+If your docker container crashes on heavy usage of large borg archives, check the memory settings of your docker installation.
+
+=== How to download/restore?
+You may restore files or while directories by simply clicking the download icon. If you run BorgButler on localhost as Java process (not docker), after restoring single
+files or directories your system's file browser is opened.
+
+You will find all the restored files in the `restore` subdirectory of your BorgButler home directory.
+
+=== Access to Borg repo fails (lock)
+BorgButler tries to run only one job per repo at the same time. If your log file shows error on `Failed to create/acquire the lock ... lock.exclusive (timeout)` simply restart BorgButler.
+
+
+=== Browsing produces security warnings
+Due to security reasons, BorgButler is only available by the localhost's web browser. For docker
+installations the clients of the private net `172.17.0.*` are allowed.
+For enabling other client ip's, you may use option `-DallowedClientIps=192.168.78.` (docker: `docker run -e JAVA_OPTS="-DallowedeClientIps=192.168.78." -v ...` if your really now what you're doing!!! There is now https available at default!!!

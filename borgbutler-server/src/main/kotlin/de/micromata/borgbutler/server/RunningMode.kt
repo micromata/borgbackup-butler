@@ -12,6 +12,8 @@ object RunningMode {
     val headlessMode: Boolean = System.getProperty("java.awt.headless") == "true"
     val desktopSupported = !headlessMode && Desktop.isDesktopSupported()
     val desktopSupportsBrowse = desktopSupported && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
+    @JvmStatic
+    val dockerMode = System.getProperty("docker") == "true"
 
     @JvmStatic
     val userManagement = UserManagement.SINGLE

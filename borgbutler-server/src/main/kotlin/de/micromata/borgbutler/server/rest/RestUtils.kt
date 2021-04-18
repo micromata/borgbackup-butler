@@ -61,7 +61,7 @@ object RestUtils {
             if (remoteAddr.contains(",")) {
                 // sometimes the header is of form client ip,proxy 1 ip,proxy 2 ip,...,proxy n ip,
                 // we just want the client
-                remoteAddr = remoteAddr.split(',')[0].trim({ it <= ' ' })
+                remoteAddr = remoteAddr.split(',')[0].trim { it <= ' ' }
             }
             try {
                 // If ip4/6 address string handed over, simply does pattern validation.

@@ -20,4 +20,4 @@ echo
 echo "Run without ssh: 'docker run -v $HOME/BorgButler:/BorgButler -p 127.0.0.1:9042:9042 --name borgbutler kreinhard/borgbutler'"
 echo "Run with ssh: 'docker run -v $HOME/BorgButler:/BorgButler -v $HOME/.ssh:/home/borgbutler/.ssh:ro -p 127.0.0.1:9042:9042 --name borgbutler kreinhard/borgbutler'"
 echo
-echo 'Increase Java memory: docker run -e JAVA_OPTS="-Xms4g -Xmx4g" -v ...'
+echo 'Increase Java memory: docker run -e JAVA_OPTS="-Xmx2g" -v ...'

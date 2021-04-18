@@ -8,12 +8,12 @@ Copyright (C) 2018-2021
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
 == Releasing new version
-1. Edit `build.gradle: version=0.4-SNAPSHOT`
-2. Edit `borgbutler-docker/Dockerfile: ARG DEPENDENCY=target/dependency/borgbutler-server-0.4-SNAPSHOT`
+1. Edit `build.gradle: version=0.5`
+2. Edit `borgbutler-docker/Dockerfile: ARG DEPENDENCY=target/dependency/borgbutler-server-0.5`
 
 == Building docker container
 
-1. `gradle clean distZip` in top directory (compiles and builds the project)
+1. `gradle clean dist` in top directory (compiles and builds the project)
 2. `cd borgbutler-docker`
 3. `./buildDocker.sh` (builds the docker container)
 
