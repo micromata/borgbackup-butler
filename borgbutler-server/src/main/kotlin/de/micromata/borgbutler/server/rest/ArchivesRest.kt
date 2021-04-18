@@ -150,7 +150,7 @@ class ArchivesRest {
                 return RestUtils.notFound()
             }
             if (openDownloads == true) openFileBrowser(File(restoreDir, item.getPath()))
-            return ResponseEntity.accepted().body("OK")
+            return ResponseEntity.accepted().body("OK") // OK for download (see FileListEntry.jsx)
         } catch (ex: IOException) {
             log.error("No file extracted: " + ex.message, ex)
             return RestUtils.notFound()
