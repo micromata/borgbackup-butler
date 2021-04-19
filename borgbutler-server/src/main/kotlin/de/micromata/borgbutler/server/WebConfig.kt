@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.server
 
+import de.micromata.borgbutler.EmphasizedLogSupport
 import mu.KotlinLogging
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -56,15 +57,14 @@ open class WebConfig : WebMvcConfigurer {
 
     override fun addCorsMappings(registry: CorsRegistry) {
         if (RunningMode.webDevelopment) {
-            log.warn("************************************")
-            log.warn("***********               **********")
-            log.warn("*********** ATTENTION!    **********")
-            log.warn("***********               **********")
-            log.warn("*********** Running in    **********")
-            log.warn("*********** web dev mode! **********")
-            log.warn("***********               **********")
-            log.warn("************************************")
-            log.warn("Don't deliver this app in dev mode due to security reasons (CrossOriginFilter is set)!")
+            val emphasizedLog = EmphasizedLogSupport(log)
+            emphasizedLog.logLevel = EmphasizedLogSupport.LogLevel.WARN
+            emphasizedLog.log("ATTENTION!")
+            emphasizedLog.log("")
+            emphasizedLog.log("Running in web dev mode!")
+            emphasizedLog.log("")
+            emphasizedLog.log("Don't deliver this app in dev mode due to security reasons (CrossOriginFilter is set)!")
+            emphasizedLog.logEnd()
             registry.addMapping("/**")
         }
     }

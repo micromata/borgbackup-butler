@@ -1,5 +1,6 @@
 package de.micromata.borgbutler.server
 
+import de.micromata.borgbutler.EmphasizedLogSupport
 import de.micromata.borgbutler.cache.ButlerCache
 import de.micromata.borgbutler.config.ConfigurationHandler
 import de.micromata.borgbutler.config.ConfigurationHandler.Companion.init
@@ -119,23 +120,26 @@ open class BorgButlerApplication {
             }
             val uri = URI.create(url)
             val quietMode = line.hasOption('q')
+            val emphasizedLog = EmphasizedLogSupport(log)
             if (!quietMode && RunningMode.desktopSupportsBrowse) {
                 try {
-                    log.info { "Trying to open your local web browser: $uri" }
+                    emphasizedLog.log("Trying to open your local web browser: $uri")
                     Desktop.getDesktop().browse(uri)
                 } catch (ex: Exception) {
-                    log.info("Can't open web browser: " + ex.message, ex)
-                    log.info("Desktop not available. Please open your browser manually: $uri")
+                    emphasizedLog.logLevel = EmphasizedLogSupport.LogLevel.ERROR
+                    emphasizedLog.log("Can't open web browser: " + ex.message)
+                    emphasizedLog.log("Desktop not available. Please open your browser manually: $uri")
                 }
             } else {
                 if (quietMode) {
-                    log.info("Server started in quiet mode (option -q). Please open your browser manually: $uri")
+                    emphasizedLog.log("Server started in quiet mode (option -q). Please open your browser manually: $uri")
                 } else if (RunningMode.headlessMode) {
-                    log.info("Desktop not available in headless mode. Please open your browser manually: $uri")
+                    emphasizedLog.log("Desktop not available in headless mode. Please open your browser manually: $uri")
                 } else if (!RunningMode.desktopSupportsBrowse) {
-                    log.info("Desktop not available. Please open your browser manually: $uri")
+                    emphasizedLog.log("Desktop not available. Please open your browser manually: $uri")
                 }
             }
+            emphasizedLog.logEnd()
         } catch (ex: ParseException) {
             // oops, something went wrong
             System.err.println("Parsing failed.  Reason: " + ex.message)
