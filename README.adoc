@@ -147,7 +147,7 @@ image::doc/images/screen-logviewer.png[Log viewer of BorgButler,800]
 == Trouble shooting
 === Docker
 ==== Increase memory (OutOfMemory)
-Edit `${BorgButlerHome}/environment.sh` and restart your docker container (since version 0.7).
+Edit `${BorgButlerHome}/environment.sh` and restart your docker container (since version 0.6).
 
 [source,bash]
 ----
