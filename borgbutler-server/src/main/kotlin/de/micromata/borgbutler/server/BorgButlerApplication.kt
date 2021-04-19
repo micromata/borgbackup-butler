@@ -16,8 +16,6 @@ import org.apache.commons.lang3.StringUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.event.EventListener
 import java.awt.Desktop
 import java.io.*
 import java.net.URI
@@ -146,11 +144,6 @@ open class BorgButlerApplication {
             printHelp(options)
         }
         ButlerCache.getInstance() // Force initialization (otherwise shutdown may fail if cache isn't used beof).
-    }
-
-    @EventListener(ApplicationReadyEvent::class)
-    open fun startApp() {
-        log.info { "Start-up of BorgButler finished. Have fun!" }
     }
 
     @PreDestroy
