@@ -210,10 +210,11 @@ open class BorgButlerApplication {
 
         private const val ENVIRONMENT_FILE = "environment.sh"
         private const val ENVIRONMENT_FILE_INITIAL_CONTENT = "#!/bin/bash\n\n" +
-                "# Set the java options here (for docker installation only):\n" +
+                "# Set the java options and arguments here for Your docker installation only.\n\n" +
+                "# Increase ProjectForge's memory setting:\n" +
                 "#export JAVA_OPTS=-DXmx4g\n" +
                 "export JAVA_OPTS=\n\n" +
-                "# Set your options here (will be used for starting\n" +
+                "# Define your optional program arguments here\n" +
                 "export JAVA_ARGS=\n"
     }
 }
