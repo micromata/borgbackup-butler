@@ -76,6 +76,30 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
         FileUtils.copyFile(file, backupFile)
     }
 
+    init {
+        workingDir = if (butlerHomeDir != null) {
+            File(butlerHomeDir)
+        } else {
+            File(System.getProperty("user.home"), BUTLER_HOME_DIR)
+        }
+        log.info("Using directory '" + workingDir.getAbsolutePath() + "' as BorgButler's home directory.")
+        if (!workingDir.exists()) {
+            log.info("Creating borg-butlers working directory: " + workingDir.getAbsolutePath())
+            workingDir.mkdirs()
+        }
+        configFile = File(workingDir, CONFIG_FILENAME)
+        configBackupDir = File(workingDir, CONFIG_BACKUP_DIR)
+        if (!configBackupDir.exists()) {
+            log.info("Creating borg-butlers backup directory: " + configBackupDir.absolutePath)
+            configBackupDir.mkdirs()
+        }
+        val environmentFile = File(workingDir, ENVIRONMENT_FILE)
+        if (!environmentFile.exists()) {
+            environmentFile.writeText(ENVIRONMENT_FILE_INITIAL_CONTENT)
+        }
+        read()
+    }
+
     companion object {
         private var instance: ConfigurationHandler? = null
         private const val BUTLER_HOME_DIR = ".borgbutler"
@@ -122,25 +146,13 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
             val yaml = FileUtils.readFileToString(configFile, Definitions.STD_CHARSET)
             return YamlUtils.fromYaml(configClazz, yaml)
         }
-    }
 
-    init {
-        workingDir = if (butlerHomeDir != null) {
-            File(butlerHomeDir)
-        } else {
-            File(System.getProperty("user.home"), BUTLER_HOME_DIR)
-        }
-        log.info("Using directory '" + workingDir.getAbsolutePath() + "' as BorgButler's home directory.")
-        if (!workingDir.exists()) {
-            log.info("Creating borg-butlers working directory: " + workingDir.getAbsolutePath())
-            workingDir.mkdirs()
-        }
-        configFile = File(workingDir, CONFIG_FILENAME)
-        configBackupDir = File(workingDir, CONFIG_BACKUP_DIR)
-        if (!configBackupDir.exists()) {
-            log.info("Creating borg-butlers backup directory: " + configBackupDir.absolutePath)
-            configBackupDir.mkdirs()
-        }
-        read()
+        private const val ENVIRONMENT_FILE = "environment.sh"
+        private const val ENVIRONMENT_FILE_INITIAL_CONTENT = "#!/bin/bash\n\n" +
+                "# Set the java options here:\n" +
+                "#export JAVA_OPTS=-DXmx4g\n" +
+                "export JAVA_OPTS=\n\n" +
+                "# Set your options here (will be used for starting\n" +
+                "export JAVA_ARGS=\n"
     }
 }

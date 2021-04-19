@@ -16,8 +16,5 @@ echo "docker push kreinhard/borgbutler:version"
 echo "docker push kreinhard/borgbutler:latest"
 echo
 echo
-
-echo "Run without ssh: 'docker run -v $HOME/BorgButler:/BorgButler -p 127.0.0.1:9042:9042 --name borgbutler kreinhard/borgbutler'"
-echo "Run with ssh: 'docker run -v $HOME/BorgButler:/BorgButler -v $HOME/.ssh:/home/borgbutler/.ssh:ro -p 127.0.0.1:9042:9042 --name borgbutler kreinhard/borgbutler'"
-echo
-echo 'Increase Java memory: docker run -e JAVA_OPTS="-Xmx2g" -v ...'
+echo "Run 'docker run -v $HOME/BorgButler:/BorgButler -p 127.0.0.1:9042:9042 --name borgbutler kreinhard/borgbutler'"
+echo "For remote ssh repos, use option  '-v $HOME/.ssh:/home/borgbutler/.ssh:ro'"

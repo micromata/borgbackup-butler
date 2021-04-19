@@ -44,6 +44,20 @@ cleanup() {
 
 echo "Starting ${APP_NAME}..."
 
+ENVIRONMENT_FILE=/BorgButler/environment.sh
+if [ -f "$ENVIRONMENT_FILE" ]; then
+  echo "Sourcing $ENVIRONMENT_FILE..."
+  . $ENVIRONMENT_FILE
+fi
+
+if [ -n "$JAVA_OPTS" ]; then
+  echo "JAVA_OPTS=${JAVA_OPTS}"
+fi
+
+if [ -n "$JAVA_ARGS" ]; then
+  echo "JAVA_ARGS=${JAVA_ARGS}"
+fi
+
 #Trap SIGTERM
 trap cleanup INT SIGTERM
 

@@ -23,8 +23,6 @@ COPY ${DEPENDENCY}/lib /app/lib
 
 COPY --chown=borgbutler:borgbutler entrypoint.sh /app
 RUN chmod 755 /app/entrypoint.sh
-#COPY shutdown.sh /app
-#COPY startup.sh /app
 
 # Variable expansion doesn't work for ENTRYPOINT definition as array, but array is required, because graceful shutdown of
 # container isn't given if java is started via 'sh -c' as it will be done by ENTRYPOINT java .....
