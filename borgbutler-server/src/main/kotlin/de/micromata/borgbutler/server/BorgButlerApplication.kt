@@ -55,9 +55,16 @@ open class BorgButlerApplication {
         }
         SpringApplication.run(BorgButlerApplication::class.java, *args)
 
-        if (borgButlerHome != null) {
-            init(borgButlerHome)
+        init(borgButlerHome)
+        if (RunningMode.dockerMode) {
+            val workingDir = File(borgButlerHome)
+            val environmentFile = File(workingDir, ENVIRONMENT_FILE)
+            if (!environmentFile.exists()) {
+                log.info { "Creating environment file for java options (docker): ${environmentFile.absolutePath}" }
+                environmentFile.writeText(ENVIRONMENT_FILE_INITIAL_CONTENT)
+            }
         }
+
         // create Options object
         val options = Options()
         options.addOption(
@@ -134,6 +141,7 @@ open class BorgButlerApplication {
             System.err.println("Parsing failed.  Reason: " + ex.message)
             printHelp(options)
         }
+        ButlerCache.getInstance() // Force initialization (otherwise shutdown may fail if cache isn't used beof).
     }
 
     @EventListener(ApplicationReadyEvent::class)
@@ -201,5 +209,14 @@ open class BorgButlerApplication {
             }
             // 2018-12-04T22:44:58.924642
         }
+
+
+        private const val ENVIRONMENT_FILE = "environment.sh"
+        private const val ENVIRONMENT_FILE_INITIAL_CONTENT = "#!/bin/bash\n\n" +
+                "# Set the java options here (for docker installation only):\n" +
+                "#export JAVA_OPTS=-DXmx4g\n" +
+                "export JAVA_OPTS=\n\n" +
+                "# Set your options here (will be used for starting\n" +
+                "export JAVA_ARGS=\n"
     }
 }

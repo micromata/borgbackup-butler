@@ -61,7 +61,7 @@ fi
 #Trap SIGTERM
 trap cleanup INT SIGTERM
 
-echo "Starting java ${JAVA_OPTS} -cp app/web/*:app/lib/* -DBorgButlerHome=/BorgButler/ -Dserver.address=0.0.0.0 ${JAVA_MAIN} ${JAVA_ARGS}"
+echo "Starting java ${JAVA_OPTS} -cp app/web/*:app/lib/* -DBorgButlerHome=/BorgButler/ -Dserver.address=0.0.0.0 -Ddocker=true ${JAVA_MAIN} ${JAVA_ARGS}"
 
 java $JAVA_OPTS -cp app/web/*:app/lib/* -DBorgButlerHome=/BorgButler/ -Dserver.address=0.0.0.0 -Ddocker=true $JAVA_MAIN $JAVA_ARGS &
 

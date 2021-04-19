@@ -93,10 +93,6 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
             log.info("Creating borg-butlers backup directory: " + configBackupDir.absolutePath)
             configBackupDir.mkdirs()
         }
-        val environmentFile = File(workingDir, ENVIRONMENT_FILE)
-        if (!environmentFile.exists()) {
-            environmentFile.writeText(ENVIRONMENT_FILE_INITIAL_CONTENT)
-        }
         read()
     }
 
@@ -146,13 +142,5 @@ class ConfigurationHandler private constructor(butlerHomeDir: String? = null) {
             val yaml = FileUtils.readFileToString(configFile, Definitions.STD_CHARSET)
             return YamlUtils.fromYaml(configClazz, yaml)
         }
-
-        private const val ENVIRONMENT_FILE = "environment.sh"
-        private const val ENVIRONMENT_FILE_INITIAL_CONTENT = "#!/bin/bash\n\n" +
-                "# Set the java options here:\n" +
-                "#export JAVA_OPTS=-DXmx4g\n" +
-                "export JAVA_OPTS=\n\n" +
-                "# Set your options here (will be used for starting\n" +
-                "export JAVA_ARGS=\n"
     }
 }
