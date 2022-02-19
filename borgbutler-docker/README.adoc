@@ -20,5 +20,5 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 == Deploying
 
 1. `docker tag bc0459ed7d01 kreinhard/borgbutler:0.4`
-2. `docker push kreinhard/borgbutler:0.4`
-3. `docker push kreinhard/borgbutler:latest`
+2. `docker push micromata/borgbutler:0.7`
+3. `docker push micromata/borgbutler:latest`
