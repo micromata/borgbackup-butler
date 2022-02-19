@@ -30,8 +30,6 @@ open class Configuration {
     /**
      * The borg version to install from github (optional).
      */
-    // @JsonIgnore needed by client: ConfigurationserverTab.jsx fails otherwise (conflicting borgVersion fields).
-    @JsonIgnore
     var borgVersion: String? = null
 
     /**
@@ -101,6 +99,7 @@ open class Configuration {
 
     fun copyFrom(other: Configuration) {
         borgCommand = other.borgCommand
+        borgVersion = other.borgVersion
         maxArchiveContentCacheCapacityMb = other.maxArchiveContentCacheCapacityMb
         showDemoRepos = other.showDemoRepos
     }
@@ -121,6 +120,10 @@ open class Configuration {
     fun setBorgCommand(borgCommand: String?): Configuration {
         this.borgCommand = borgCommand
         return this
+    }
+
+    override fun toString(): String {
+        return "borgCommand=[$borgCommand], borgVersion=[$borgVersion], workingDir=[$workingDir], maxArchiveContentCacheCapacityMb=[$maxArchiveContentCacheCapacityMb], showDemoRepos=[$showDemoRepos]"
     }
 
     companion object {

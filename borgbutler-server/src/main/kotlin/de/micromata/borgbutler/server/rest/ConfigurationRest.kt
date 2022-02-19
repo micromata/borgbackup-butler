@@ -2,13 +2,11 @@ package de.micromata.borgbutler.server.rest
 
 import de.micromata.borgbutler.cache.ButlerCache
 import de.micromata.borgbutler.config.ConfigurationHandler
-import de.micromata.borgbutler.json.JsonUtils
 import de.micromata.borgbutler.server.BorgInstallation
 import de.micromata.borgbutler.server.ServerConfiguration
 import de.micromata.borgbutler.server.user.UserData
 import de.micromata.borgbutler.server.user.UserManager
 import mu.KotlinLogging
-import org.apache.commons.lang3.StringUtils
 import org.springframework.web.bind.annotation.*
 
 private val log = KotlinLogging.logger {}
@@ -21,19 +19,19 @@ class ConfigurationRest {
     fun getConfig(): ConfigurationInfo {
         val configurationInfo = ConfigurationInfo()
         configurationInfo.serverConfiguration = ServerConfiguration.get()
-        configurationInfo.borgVersion = BorgInstallation.getInstance().borgVersion
+        configurationInfo.borgConfig = BorgInstallation.getInstance().borgConfig
         return configurationInfo
     }
 
     @PostMapping("config")
     fun setConfig(@RequestBody configurationInfo: ConfigurationInfo) {
-        val configurationHandler = ConfigurationHandler.getInstance()
-        BorgInstallation.getInstance()
-            .configure(configurationInfo.serverConfiguration, configurationInfo.borgVersion?.borgBinary)
+        log.info("server-config: ${configurationInfo.serverConfiguration}, borg-binary: ${configurationInfo.borgConfig?.borgBinary}")
+        BorgInstallation.getInstance().configure(configurationInfo.serverConfiguration, configurationInfo.borgConfig)
         val configuration: ServerConfiguration = ServerConfiguration.get()
         configurationInfo.serverConfiguration?.let {
             configuration.copyFrom(it)
         }
+        val configurationHandler = ConfigurationHandler.getInstance()
         configurationHandler.save()
     }
 

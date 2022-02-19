@@ -2,12 +2,8 @@ package de.micromata.borgbutler.server;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class BorgVersion {
-    public static final String BORG_DEFAULT_DOWNLOAD_VERSION = "1.1.16";
-
-    private static final String BORG_VERSION = BORG_DEFAULT_DOWNLOAD_VERSION;
-
-    private String binariesDownloadVersion = BORG_DEFAULT_DOWNLOAD_VERSION;
+public class BorgConfig {
+    public static final String BORG_DEFAULT_DOWNLOAD_VERSION = "1.1.17";
 
     private String[][] borgBinaries = {
             {"freebsd64", "FreeBSD 64"},
@@ -18,7 +14,7 @@ public class BorgVersion {
     private String minimumRequiredBorgVersion = "1.1.8";
 
     public String getBinariesDownloadUrl() {
-        return "https://github.com/borgbackup/borg/releases/download/" + binariesDownloadVersion + "/";
+        return "https://github.com/borgbackup/borg/releases/download/" + version + "/";
     }
 
     /**
@@ -28,27 +24,15 @@ public class BorgVersion {
     private String borgBinary;
 
     private boolean versionOK = false;
-    private String version;
+    private String version = BORG_DEFAULT_DOWNLOAD_VERSION;
     private String statusMessage;
 
-    public BorgVersion copyFrom(BorgVersion other) {
+    public BorgConfig copyFrom(BorgConfig other) {
         this.borgBinary = other.borgBinary;
         this.versionOK = other.versionOK;
         this.version = other.version;
         this.statusMessage = other.statusMessage;
         return this;
-    }
-
-    public String getBinariesDownloadVersion() {
-        return this.binariesDownloadVersion;
-    }
-
-    public void setBinariesDownloadVersion(String binariesDownloadVersion) {
-        if (StringUtils.isNotBlank(binariesDownloadVersion)) {
-            this.binariesDownloadVersion = binariesDownloadVersion;
-        } else {
-            this.binariesDownloadVersion = BORG_DEFAULT_DOWNLOAD_VERSION;
-        }
     }
 
     public String[][] getBorgBinaries() {
@@ -78,22 +62,26 @@ public class BorgVersion {
         return this.statusMessage;
     }
 
-    BorgVersion setBorgBinary(String borgBinary) {
+    BorgConfig setBorgBinary(String borgBinary) {
         this.borgBinary = borgBinary;
         return this;
     }
 
-    BorgVersion setVersionOK(boolean versionOK) {
+    BorgConfig setVersionOK(boolean versionOK) {
         this.versionOK = versionOK;
         return this;
     }
 
-    BorgVersion setVersion(String version) {
-        this.version = version;
+    BorgConfig setVersion(String version) {
+        if (StringUtils.isNotBlank(version)) {
+            this.version = version;
+        } else {
+            this.version = BORG_DEFAULT_DOWNLOAD_VERSION;
+        }
         return this;
     }
 
-    BorgVersion setStatusMessage(String statusMessage) {
+    BorgConfig setStatusMessage(String statusMessage) {
         this.statusMessage = statusMessage;
         return this;
     }
@@ -124,5 +112,15 @@ public class BorgVersion {
             throw new IllegalArgumentException("Invalid version format: " + version);
         }
         return version.split("\\.");
+    }
+
+    @Override
+    public String toString() {
+        return "BorgConfig{" +
+                ", borgBinary='" + borgBinary + '\'' +
+                ", versionOK=" + versionOK +
+                ", version='" + version + '\'' +
+                ", statusMessage='" + statusMessage + '\'' +
+                '}';
     }
 }

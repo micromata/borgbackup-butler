@@ -35,8 +35,8 @@ class ConfigServerTab extends React.Component {
             .then((data) => {
                 this.setState({
                     loading: false,
-                    borgVersion: data.borgVersion,
-                    borgBinary: data.borgVersion.borgBinary,
+                    borgConfig: data.borgConfig,
+                    borgBinary: data.borgConfig.borgBinary,
                     ...data.serverConfiguration
                 })
             })
@@ -56,6 +56,7 @@ class ConfigServerTab extends React.Component {
             loading: true,
             failed: false,
             port: 9042,
+            borgVersion: "1.1.17",
             webdevelopmentMode: false,
             showDemoRepos: true,
             maxArchiveContentCacheCapacityMb: 100,
@@ -88,9 +89,10 @@ class ConfigServerTab extends React.Component {
                 maxArchiveContentCacheCapacityMb: this.state.maxArchiveContentCacheCapacityMb,
                 webDevelopmentMode: this.state.webDevelopmentMode,
                 showDemoRepos: this.state.showDemoRepos,
-                borgCommand: this.state.borgCommand
+                borgCommand: this.state.borgCommand,
+                borgVersion: this.state.borgVersion,
             },
-            borgVersion: {
+            borgConfig: {
                 borgBinary: this.state.borgBinary
             }
         };
@@ -121,12 +123,12 @@ class ConfigServerTab extends React.Component {
         if (this.state.failed) {
             return <ErrorAlertGenericRestFailure handleClick={this.loadConfig}/>;
         }
-        const borgVersion = this.state.borgVersion;
+        const borgConfig = this.state.borgConfig;
         let borgInfoColor = 'success';
-        let borgInfoMessage = `Borg version '${borgVersion.version}' is OK.`;
-        if (!borgVersion.versionOK) {
+        let borgInfoMessage = `Borg version '${borgConfig.version}' is OK.`;
+        if (!borgConfig.versionOK) {
             borgInfoColor = 'danger';
-            borgInfoMessage = borgVersion.statusMessage;
+            borgInfoMessage = borgConfig.statusMessage;
         }
         return (
             <React.Fragment>
@@ -138,9 +140,9 @@ class ConfigServerTab extends React.Component {
                                 value={this.state.borgBinary}
                                 name={'borgBinary'}
                                 onChange={this.handleTextChange}
-                                hint={`Choose your OS and BorgButler will download and use a ready to run borg binary from ${borgVersion.binariesDownloadUrl} or choose a manual installed version.`}
+                                hint={`Choose your OS and BorgButler will download and use a ready to run borg binary from ${borgConfig.binariesDownloadUrl} or choose a manual installed version.`}
                             >
-                                {borgVersion.borgBinaries
+                                {borgConfig.borgBinaries
                                     .map((binary, index) => <FormOption label={binary[1]} value={binary[0]}
                                                                         key={index}/>)}
                                 <FormOption label={'Manual'} value={'manual'}/>
@@ -157,6 +159,10 @@ class ConfigServerTab extends React.Component {
                             {borgInfoMessage}
                         </Alert>
                     </FormGroup>
+                    <FormLabelInputField label={'Borg version'} fieldLength={2}
+                                         name={'borgVersion'} value={this.state.borgVersion}
+                                         onChange={this.handleTextChange}
+                                         placeholder="Enter borg version (e. g. 1.1.17)"/>
                     <FormLabelInputField label={'Port'} fieldLength={2} type="number" min={0} max={65535}
                                          step={1}
                                          name={'port'} value={this.state.port}

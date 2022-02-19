@@ -1,7 +1,7 @@
 package de.micromata.borgbutler.server.rest
 
 import de.micromata.borgbutler.BorgQueueStatistics
-import de.micromata.borgbutler.server.BorgVersion
+import de.micromata.borgbutler.server.BorgConfig
 
 /**
  * Statistics of all the job queues, especially the number of total queued and running jobs.
@@ -13,7 +13,7 @@ class SystemInfo {
         private set
     var configurationOK = false
         private set
-    var borgVersion: BorgVersion? = null
+    var borgConfig: BorgConfig? = null
         private set
 
     fun setQueueStatistics(queueStatistics: BorgQueueStatistics?): SystemInfo {
@@ -26,8 +26,8 @@ class SystemInfo {
         return this
     }
 
-    fun setBorgVersion(borgVersion: BorgVersion?): SystemInfo {
-        this.borgVersion = borgVersion
+    fun setBorgConfig(borgConfig: BorgConfig?): SystemInfo {
+        this.borgConfig = borgConfig
         return this
     }
 }

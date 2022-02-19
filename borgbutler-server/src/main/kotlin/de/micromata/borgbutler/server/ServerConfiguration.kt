@@ -20,6 +20,10 @@ class ServerConfiguration : Configuration() {
         webDevelopmentMode = other.webDevelopmentMode
     }
 
+    override fun toString(): String {
+        return "${super.toString()}, port=[$port], webDevelopmentMode=[$webDevelopmentMode]"
+    }
+
     companion object {
         val supportedLanguages = arrayOf("en", "de")
         const val WEBSERVER_PORT_DEFAULT = 9042

@@ -1,6 +1,5 @@
 package de.micromata.borgbutler.server.user
 
-import de.micromata.borgbutler.server.BorgVersion
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
