@@ -29,8 +29,8 @@ subprojects {
 
     repositories {
         jcenter()
-        maven { url "http://repo.maven.apache.org/maven2" }
-        maven { url "http://maven.ej-technologies.com/repository" }
+        maven { url "https://repo.maven.apache.org/maven2" }
+        maven { url "https://maven.ej-technologies.com/repository" }
     }
 
     dependencies {

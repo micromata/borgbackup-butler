@@ -3,7 +3,7 @@ Micromata GmbH, Kai Reinhard
 :toc:
 :toclevels: 4
 
-Copyright (C) 2018-2021
+Copyright (C) 2018-2022
 
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
