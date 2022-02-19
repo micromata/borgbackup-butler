@@ -16,7 +16,7 @@ EXPOSE 9042
 USER borgbutler:borgbutler
 
 # Don't put fat jar files in docker images: https://phauer.com/2019/no-fat-jar-in-docker-image/
-ARG DEPENDENCY=target/dependency/borgbutler-server-0.6
+ARG DEPENDENCY=target/dependency/borgbutler-server-0.7
 COPY ${DEPENDENCY}/lib /app/lib
 #COPY ${DEPENDENCY}/META-INF /app/META-INF
 #COPY ${DEPENDENCY}/BOOT-INF/classes /app
