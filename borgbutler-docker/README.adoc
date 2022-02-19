@@ -22,3 +22,18 @@ ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 1. `docker tag bc0459ed7d01 micromata/borgbutler:0.4`
 2. `docker push micromata/borgbutler:0.7`
 3. `docker push micromata/borgbutler:latest`
+
+== docker login on MacOS (without Docker Desktop)
+
+~/.docker/config.json
+[source,json]
+----
+{
+"credsStore" : "osxkeychain"
+}
+----
+
+1. Download docker-credentials-osxkeychain from https://github.com/docker/docker-credential-helpers.
+2. Put in in the path, where docker may find it.
+3. ```chmod +x ~/bin/docker-credential-osxkeychain```
+
