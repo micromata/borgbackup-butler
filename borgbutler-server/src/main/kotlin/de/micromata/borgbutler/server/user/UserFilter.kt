@@ -4,7 +4,7 @@ import de.micromata.borgbutler.server.RunningMode.dockerMode
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.io.IOException
-import javax.servlet.*
+import jakarta.servlet.*
 
 /**
  * Ensuring the user data inside request threads. For now, it's only a simple implementation (no login required).

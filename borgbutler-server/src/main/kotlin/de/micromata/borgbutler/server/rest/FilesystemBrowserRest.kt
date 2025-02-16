@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 import java.awt.Color
 import java.awt.FileDialog
 import java.io.File
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 import javax.swing.JFileChooser
 import javax.swing.JFrame
 import javax.swing.JLabel

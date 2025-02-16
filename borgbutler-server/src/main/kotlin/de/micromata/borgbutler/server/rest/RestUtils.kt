@@ -14,8 +14,8 @@ import java.io.InputStream
 import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.*
-import javax.servlet.ServletRequest
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 object RestUtils {
     /**

@@ -5,18 +5,19 @@ import de.micromata.borgbutler.config.Configuration;
 import de.micromata.borgbutler.config.ConfigurationHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.config.RequestConfig;
+import org.apache.hc.client5.http.cookie.StandardCookieSpec;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class BorgInstallation {
     private Logger log = LoggerFactory.getLogger(BorgInstallation.class);
@@ -173,17 +174,22 @@ public class BorgInstallation {
         log.info("Trying to download borg binary '" + binary[0] + "' (" + binary[1] + ") from url: " + url + "...");
         HttpClientBuilder builder = HttpClients.custom()
                 .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build());
+                        .setCookieSpec(StandardCookieSpec.STRICT).build());
+
         try (CloseableHttpClient httpClient = builder.build()) {
             HttpGet getRequest = new HttpGet(url);
+            try (ClassicHttpResponse response = (ClassicHttpResponse) httpClient.execute(getRequest);
+                 InputStream inputStream = response.getEntity().getContent()) {
 
-            HttpResponse response = httpClient.execute(getRequest);
+                int statusCode = response.getCode();
 
-            if (response.getStatusLine().getStatusCode() != 200) {
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + response.getStatusLine().getStatusCode());
+                if (statusCode != 200) {
+                    throw new RuntimeException("Failed : HTTP error code : " + statusCode);
+                }
+
+                FileUtils.copyInputStreamToFile(inputStream, file);
             }
-            FileUtils.copyInputStreamToFile(response.getEntity().getContent(), file);
+
             log.info("Downloaded: " + file.getAbsolutePath());
             file.setExecutable(true, false);
             return file;

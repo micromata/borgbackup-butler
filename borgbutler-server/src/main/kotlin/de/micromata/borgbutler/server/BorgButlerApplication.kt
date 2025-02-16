@@ -22,7 +22,7 @@ import java.net.URI
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.annotation.PreDestroy
+import jakarta.annotation.PreDestroy
 
 private val log = KotlinLogging.logger {}
 
