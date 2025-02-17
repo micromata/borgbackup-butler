@@ -40,6 +40,7 @@ borgbutler-core/out
 borgbutler-server/build
 borgbutler-server/out
 borgbutler-webapp/build
+borgbutler-webapp/node
 borgbutler-webapp/node_modules
 borgbutler-docker/app/target
 borgbutler-server-*

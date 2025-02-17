@@ -61,7 +61,7 @@ tasks.classes {
 }
 
 tasks.named("distZip", Zip::class) {
-    dependsOn(":borgbutler-webapp:packageWebApp")
+    dependsOn(":borgbutler-webapp:webAppJar")
 }
 
 tasks.register("dist") {

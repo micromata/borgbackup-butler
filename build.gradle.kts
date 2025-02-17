@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = "de.micromata.borgbutler"
-    version = "0.8"
+    version = "0.9"
 }
 
 subprojects {
