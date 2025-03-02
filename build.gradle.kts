@@ -8,7 +8,7 @@ plugins {
 
 allprojects {
     group = "de.micromata.borgbutler"
-    version = "0.9"
+    version = "0.8"
 }
 
 subprojects {
@@ -23,7 +23,6 @@ subprojects {
 
     repositories {
         mavenCentral()
-        maven("https://maven.ej-technologies.com/repository")
     }
 
     dependencies {

@@ -11,7 +11,6 @@ import de.micromata.borgbutler.utils.DateUtils;
 import de.micromata.borgbutler.utils.ReplaceUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +19,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Creates and executes  borg commands by calling system's borg application (Borg must be installed).
@@ -290,7 +290,7 @@ public class BorgCommands {
     }
 
     private static BorgJob<Void> execute(BorgCommand command) {
-        Validate.notNull(command);
+        Objects.requireNonNull(command);
         return BorgQueueExecutor.getInstance().execute(command);
     }
 }

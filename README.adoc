@@ -3,7 +3,7 @@ Micromata GmbH, Kai Reinhard
 :toc:
 :toclevels: 4
 
-Copyright (C) 2018-2022
+Copyright (C) 2018-2025 Micromata GmbH, Kai Reinhard
 
 ifdef::env-github,env-browser[:outfilesuffix: .adoc]
 
@@ -72,7 +72,7 @@ You may refer the log file through the web browser or in `${BorgButlerHome}/borg
 For new versions of BorgButler or for changing the running options of your BorgButler container, simply delete the BorgButler docker container by `docker rm borgbutler` and call `docker run` again.
 
 === Starting from Java zip
-You'll need OpenJDK 9+.
+You'll need OpenJDK 17.
 
 1. Download BorgButler from https://sourceforge.net/projects/borgbutler/files/latest/download
 2. Unzip `borgbutler-server/build/distributions/borgbutler-server-<version>.zip`
@@ -129,7 +129,7 @@ You may configure and initialize your repositories by the BorgButler app. The co
 saving a new configuration BorgButler stores a copy of the current configuration in the backup dir: `${BorgButlerHome}/backup/`.
 
 
-== More immpressions
+== More impressions
 
 See some more screens to get an first overview of the functionality of BorgButler.
 
@@ -144,7 +144,7 @@ There is a log file available as well as an log viewer including search function
 image::doc/images/screen-logviewer.png[Log viewer of BorgButler,800]
 
 
-== Trouble shooting
+== Troubleshooting
 === Docker
 ==== Increase memory (OutOfMemory)
 Edit `${BorgButlerHome}/environment.sh` and restart your docker container (since version 0.6).
